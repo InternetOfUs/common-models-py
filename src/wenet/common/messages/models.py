@@ -39,6 +39,11 @@ class TextualMessage(Message):
     def __init__(self, recipient_id: str, title: str, text: str) -> None:
         super().__init__(self.TYPE, recipient_id, title, text)
 
+    @staticmethod
+    def from_repr(raw: dict) -> TextualMessage:
+        message = Message.from_repr(raw)
+        return TextualMessage(message.recipient_id, message.title, message.text)
+
 
 class TaskNotification(Message):
     TYPE = Message.TYPE_TASK_NOTIFICATION
@@ -89,12 +94,24 @@ class TaskProposalNotification(TaskNotification):
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
         super().__init__(recipient_id, title, text, description, task_id, self.NOTIFICATION_TYPE)
 
+    @staticmethod
+    def from_repr(raw: dict) -> TaskProposalNotification:
+        message = TaskNotification.from_repr(raw)
+        return TaskProposalNotification(message.recipient_id, message.title, message.text, message.description,
+                                        message.task_id)
+
 
 class TaskVolunteerNotification(TaskNotification):
     NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_VOLUNTEER
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
         super().__init__(recipient_id, title, text, description, task_id, self.NOTIFICATION_TYPE)
+
+    @staticmethod
+    def from_repr(raw: dict) -> TaskVolunteerNotification:
+        message = TaskNotification.from_repr(raw)
+        return TaskVolunteerNotification(message.recipient_id, message.title, message.text, message.description,
+                                         message.task_id)
 
 
 class MessageFromUserNotification(TaskNotification):
