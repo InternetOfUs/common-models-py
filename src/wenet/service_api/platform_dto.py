@@ -55,7 +55,7 @@ class TelegramPlatformDTO(PlatformDTO):
 
     @staticmethod
     def from_platform_telegram(platform_telegram):
-        from wenet.model.app import PlatformTelegram
+        from wenet_service_api.model.app import PlatformTelegram
 
         if not isinstance(platform_telegram, PlatformTelegram):
             raise TypeError("platform_telegram should be an instance of PlatformTelegram")
