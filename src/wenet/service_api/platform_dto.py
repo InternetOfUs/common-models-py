@@ -52,14 +52,3 @@ class TelegramPlatformDTO(PlatformDTO):
         return TelegramPlatformDTO(
             bot_id=raw_data["botId"]
         )
-
-    @staticmethod
-    def from_platform_telegram(platform_telegram):
-        from wenet_service_api.model.app import PlatformTelegram
-
-        if not isinstance(platform_telegram, PlatformTelegram):
-            raise TypeError("platform_telegram should be an instance of PlatformTelegram")
-
-        return TelegramPlatformDTO(
-            bot_id=platform_telegram.app_id
-        )

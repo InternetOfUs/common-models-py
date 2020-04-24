@@ -74,27 +74,3 @@ class AppDTO:
 
     def __str__(self):
         return self.__str__()
-
-    @staticmethod
-    def from_app(app) -> AppDTO:
-        from wenet_service_api.model.app import App
-
-        if not isinstance(app, App):
-            raise TypeError(f"Unable to build an AppDTO from type [{type(app)}]")
-
-        if app.platform_telegram:
-            allowed_platforms = [
-                TelegramPlatformDTO.from_platform_telegram(app.platform_telegram)
-            ]
-        else:
-            allowed_platforms = []
-
-        return AppDTO(
-            creation_ts=app.creation_ts,
-            last_update_ts=app.last_update_ts,
-            app_id=app.app_id,
-            app_token=app.app_token,
-            allowed_platforms=allowed_platforms,
-            message_callback_url=app.message_call_back_url,
-            metadata=app.metadata
-        )
