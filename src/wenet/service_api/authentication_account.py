@@ -3,7 +3,6 @@ from __future__ import absolute_import, annotations
 import abc
 from typing import Optional, List
 
-from wenet_service_api.model.app import UserAccountTelegram
 from wenet.service_api.common import PlatformType
 
 
@@ -82,15 +81,6 @@ class TelegramAuthenticationAccount(AuthenticationAccount):
         if not isinstance(o, TelegramAuthenticationAccount):
             return False
         return self.app_id == o.app_id and self.metadata == o.metadata and self.telegram_id == o.telegram_id
-
-    @staticmethod
-    def from_user_account_telegram(account: UserAccountTelegram):
-        return TelegramAuthenticationAccount(
-            app_id=account.app_id,
-            metadata=account.metadata,
-            telegram_id=account.telegram_id,
-            user_id=account.user_id
-        )
 
 
 class WeNetUserWithAccounts:
