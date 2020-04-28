@@ -50,11 +50,12 @@ class ApiInterface:
     def create_task(self, task: Task):
         requests.post(self.base_url + self.TASK_ENDPOINT, json=task.to_repr())
 
-    def get_task(self, task_id: str) -> Optional[Task]:
-        req = requests.post(self.base_url + self.TASK_ENDPOINT + '/%s' % task_id)
+    def get_task(self, task_id: str) -> Task:
+        req = requests.get(self.base_url + self.TASK_ENDPOINT + '/%s' % task_id)
+        task = Task.from_repr(req.json(), task_id)
         if req.status_code == 404:
             raise ValueError(f"Task [{task_id}] does not exist")
-        return Task.from_repr(req.json(), task_id)
+        return task
 
     def create_task_transaction(self, transaction: TaskTransaction):
         requests.post(self.base_url + self.TASK_ENDPOINT + '/transaction', json=transaction.to_repr())
