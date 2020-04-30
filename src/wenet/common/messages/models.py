@@ -1,15 +1,39 @@
 from __future__ import absolute_import, annotations
 
 
-class Message:
-    TYPE_TEXTUAL_MESSAGE = "textualMessage"
+class BaseMessage:
+    TYPE_TEXTUAL_MESSAGE = 'textualMessage'
+    TYPE_EVENT = 'event'
     TYPE_TASK_NOTIFICATION = 'taskNotification'
+
+    def __init__(self, type: str) -> None:
+        allowed_types = [self.TYPE_EVENT, self.TYPE_TASK_NOTIFICATION, self.TYPE_TEXTUAL_MESSAGE]
+        if type not in allowed_types:
+            raise ValueError(f"type {type} not valid. It must be one of {allowed_types}")
+        self.type = type
+
+    def to_repr(self) -> dict:
+        return {"type": self.type}
+
+    @staticmethod
+    def from_repr(raw: dict) -> BaseMessage:
+        return BaseMessage(raw["type"])
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, BaseMessage):
+            return False
+        return self.type == o.type
+
+
+class Message(BaseMessage):
+    TYPE_TEXTUAL_MESSAGE = BaseMessage.TYPE_TEXTUAL_MESSAGE
+    TYPE_TASK_NOTIFICATION = BaseMessage.TYPE_TASK_NOTIFICATION
 
     def __init__(self, type: str, recipient_id: str, title: str, text: str) -> None:
         types = [self.TYPE_TASK_NOTIFICATION, self.TYPE_TEXTUAL_MESSAGE]
         if type not in types:
             raise ValueError("Message type must be either %s given [%s]" % (str(types), type))
-        self.type = type
+        super().__init__(type)
         self.recipient_id = recipient_id
         self.title = title
         self.text = text
@@ -177,4 +201,62 @@ class TaskConcludedNotification(TaskNotification):
             raw["description"],
             raw["task_id"],
             raw["outcome"]
+        )
+
+
+class Event(BaseMessage):
+    TYPE_NEW_USER = "newUserForPlatform"
+
+    def __init__(self, event_type: str) -> None:
+        allowed_types = [self.TYPE_NEW_USER]
+        if event_type not in allowed_types:
+            raise ValueError(f"Event type {event_type} not valid. It must be one of {allowed_types}")
+        super().__init__(BaseMessage.TYPE_EVENT)
+        self.event_type = event_type
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, Event):
+            return False
+        return super().__eq__(o) and self.event_type == o.event_type
+
+    def to_repr(self) -> dict:
+        base = super().to_repr()
+        base["event_type"] = self.event_type
+        return base
+
+    @staticmethod
+    def from_repr(raw: dict) -> Event:
+        return Event(raw["event_type"])
+
+
+class NewUserForPlatform(Event):
+    TYPE = Event.TYPE_NEW_USER
+
+    def __init__(self, app_id: str, user_id: str, platform: str) -> None:
+        super().__init__(self.TYPE)
+        self.app_id = app_id
+        self.user_id = user_id
+        self.platform = platform
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, NewUserForPlatform):
+            return False
+        return super().__eq__(o) and self.app_id == o.app_id and self.user_id == o.user_id and \
+               self.platform == o.platform
+
+    def to_repr(self) -> dict:
+        base = super().to_repr()
+        base.update({
+            "app_id": self.app_id,
+            "user_id": self.user_id,
+            "platform": self.platform
+        })
+        return base
+
+    @staticmethod
+    def from_repr(raw: dict) -> NewUserForPlatform:
+        return NewUserForPlatform(
+            raw["app_id"],
+            raw["user_id"],
+            raw["platform"]
         )

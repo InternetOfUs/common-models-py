@@ -5,7 +5,8 @@ from uuid import uuid4
 from wenet.common.messages.builder import MessageBuilder
 from wenet.common.messages.exceptions import MessageTypeError, NotificationTypeError
 from wenet.common.messages.models import TextualMessage, Message, TaskProposalNotification, TaskNotification, \
-    TaskVolunteerNotification, MessageFromUserNotification, TaskConcludedNotification
+    TaskVolunteerNotification, MessageFromUserNotification, TaskConcludedNotification, NewUserForPlatform, BaseMessage, \
+    Event
 
 
 class TestBuilder(TestCase):
@@ -161,3 +162,16 @@ class TestBuilder(TestCase):
             "description": description
         }
         self.assertRaises(NotificationTypeError, MessageBuilder.build, raw_message)
+
+    def testNewUserForPlatformType(self):
+        app_id = str(uuid4())
+        user_id = str(uuid4())
+        platform = str(uuid4())
+        new_user = NewUserForPlatform(app_id, user_id, platform)
+        message = MessageBuilder.build(new_user.to_repr())
+        self.assertIsInstance(message, NewUserForPlatform)
+        self.assertEqual(app_id, message.app_id)
+        self.assertEqual(user_id, message.user_id)
+        self.assertEqual(platform, message.platform)
+        self.assertEqual(BaseMessage.TYPE_EVENT, message.type)
+        self.assertEqual(Event.TYPE_NEW_USER, message.event_type)
