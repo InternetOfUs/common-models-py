@@ -16,7 +16,7 @@ class TestBuilder(TestCase):
         recipient = str(uuid4())
         raw_message = {
             "type": Message.TYPE_TEXTUAL_MESSAGE,
-            "recipient_id": recipient,
+            "recipientId": recipient,
             "title": title,
             "text": text
         }
@@ -34,11 +34,11 @@ class TestBuilder(TestCase):
         description = str(uuid4())
         raw_message = {
             "type": Message.TYPE_TASK_NOTIFICATION,
-            "notification_type": TaskNotification.NOTIFICATION_TYPE_PROPOSAL,
+            "notificationType": TaskNotification.NOTIFICATION_TYPE_PROPOSAL,
             "title": title,
             "text": text,
-            "recipient_id": recipient,
-            "task_id": task_id,
+            "recipientId": recipient,
+            "taskId": task_id,
             "description": description
         }
         message = MessageBuilder.build(raw_message)
@@ -59,11 +59,11 @@ class TestBuilder(TestCase):
         description = str(uuid4())
         raw_message = {
             "type": Message.TYPE_TASK_NOTIFICATION,
-            "notification_type": TaskNotification.NOTIFICATION_TYPE_VOLUNTEER,
+            "notificationType": TaskNotification.NOTIFICATION_TYPE_VOLUNTEER,
             "title": title,
             "text": text,
-            "recipient_id": recipient,
-            "task_id": task_id,
+            "recipientId": recipient,
+            "taskId": task_id,
             "description": description
         }
         message = MessageBuilder.build(raw_message)
@@ -85,13 +85,13 @@ class TestBuilder(TestCase):
         sender = str(uuid4())
         raw_message = {
             "type": Message.TYPE_TASK_NOTIFICATION,
-            "notification_type": TaskNotification.NOTIFICATION_TYPE_MESSAGE_FROM_USER,
+            "notificationType": TaskNotification.NOTIFICATION_TYPE_MESSAGE_FROM_USER,
             "title": title,
             "text": text,
-            "recipient_id": recipient,
-            "task_id": task_id,
+            "recipientId": recipient,
+            "taskId": task_id,
             "description": description,
-            "sender_id": sender
+            "senderId": sender
         }
         message = MessageBuilder.build(raw_message)
         self.assertIsInstance(message, MessageFromUserNotification)
@@ -115,11 +115,11 @@ class TestBuilder(TestCase):
                                  TaskConcludedNotification.OUTCOME_FAILED])
         raw_message = {
             "type": Message.TYPE_TASK_NOTIFICATION,
-            "notification_type": TaskNotification.NOTIFICATION_TYPE_CONCLUDED,
+            "notificationType": TaskNotification.NOTIFICATION_TYPE_CONCLUDED,
             "title": title,
             "text": text,
-            "recipient_id": recipient,
-            "task_id": task_id,
+            "recipientId": recipient,
+            "taskId": task_id,
             "description": description,
             "outcome": outcome
         }
@@ -140,7 +140,7 @@ class TestBuilder(TestCase):
         recipient = str(uuid4())
         raw_message = {
             "type": "puppa",
-            "recipient_id": recipient,
+            "recipientId": recipient,
             "title": title,
             "text": text
         }
@@ -154,11 +154,11 @@ class TestBuilder(TestCase):
         description = str(uuid4())
         raw_message = {
             "type": Message.TYPE_TASK_NOTIFICATION,
-            "notification_type": "puppa",
+            "notificationType": "puppa",
             "title": title,
             "text": text,
-            "recipient_id": recipient,
-            "task_id": task_id,
+            "recipientId": recipient,
+            "taskId": task_id,
             "description": description
         }
         self.assertRaises(NotificationTypeError, MessageBuilder.build, raw_message)

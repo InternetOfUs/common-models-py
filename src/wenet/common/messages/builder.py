@@ -15,7 +15,7 @@ class MessageBuilder:
         if message_type == BaseMessage.TYPE_TEXTUAL_MESSAGE:
             message = TextualMessage.from_repr(raw_message)
         elif message_type == BaseMessage.TYPE_TASK_NOTIFICATION:
-            notification_type = raw_message["notification_type"]
+            notification_type = raw_message["notificationType"]
             if notification_type == TaskNotification.NOTIFICATION_TYPE_CONCLUDED:
                 message = TaskConcludedNotification.from_repr(raw_message)
             elif notification_type == TaskNotification.NOTIFICATION_TYPE_VOLUNTEER:
@@ -27,7 +27,7 @@ class MessageBuilder:
             else:
                 raise NotificationTypeError(notification_type)
         elif message_type == BaseMessage.TYPE_EVENT:
-            event_type = raw_message["event_type"]
+            event_type = raw_message["eventType"]
             if event_type == Event.TYPE_NEW_USER:
                 message = NewUserForPlatform.from_repr(raw_message)
             else:

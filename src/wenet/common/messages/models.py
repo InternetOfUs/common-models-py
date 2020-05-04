@@ -47,14 +47,14 @@ class Message(BaseMessage):
     def to_repr(self) -> dict:
         return {
             "type": self.type,
-            "recipient_id": self.recipient_id,
+            "recipientId": self.recipient_id,
             "title": self.title,
             "text": self.text
         }
 
     @staticmethod
     def from_repr(raw: dict) -> Message:
-        return Message(raw["type"], raw["recipient_id"], raw["title"], raw["text"])
+        return Message(raw["type"], raw["recipientId"], raw["title"], raw["text"])
 
 
 class TextualMessage(Message):
@@ -96,19 +96,19 @@ class TaskNotification(Message):
     def to_repr(self) -> dict:
         base_repr = super().to_repr()
         base_repr["description"] = self.description
-        base_repr["task_id"] = self.task_id
-        base_repr["notification_type"] = self.notification_type
+        base_repr["taskId"] = self.task_id
+        base_repr["notificationType"] = self.notification_type
         return base_repr
 
     @staticmethod
     def from_repr(raw: dict) -> TaskNotification:
         return TaskNotification(
-            raw["recipient_id"],
+            raw["recipientId"],
             raw["title"],
             raw["text"],
             raw["description"],
-            raw["task_id"],
-            raw["notification_type"]
+            raw["taskId"],
+            raw["notificationType"]
         )
 
 
@@ -153,18 +153,18 @@ class MessageFromUserNotification(TaskNotification):
 
     def to_repr(self) -> dict:
         base_repr = super().to_repr()
-        base_repr["sender_id"] = self.sender_id
+        base_repr["senderId"] = self.sender_id
         return base_repr
 
     @staticmethod
     def from_repr(raw: dict) -> MessageFromUserNotification:
         return MessageFromUserNotification(
-            raw["recipient_id"],
+            raw["recipientId"],
             raw["title"],
             raw["text"],
             raw["description"],
-            raw["task_id"],
-            raw["sender_id"]
+            raw["taskId"],
+            raw["senderId"]
         )
 
 
@@ -195,11 +195,11 @@ class TaskConcludedNotification(TaskNotification):
     @staticmethod
     def from_repr(raw: dict) -> TaskConcludedNotification:
         return TaskConcludedNotification(
-            raw["recipient_id"],
+            raw["recipientId"],
             raw["title"],
             raw["text"],
             raw["description"],
-            raw["task_id"],
+            raw["taskId"],
             raw["outcome"]
         )
 
@@ -221,12 +221,12 @@ class Event(BaseMessage):
 
     def to_repr(self) -> dict:
         base = super().to_repr()
-        base["event_type"] = self.event_type
+        base["eventType"] = self.event_type
         return base
 
     @staticmethod
     def from_repr(raw: dict) -> Event:
-        return Event(raw["event_type"])
+        return Event(raw["eventType"])
 
 
 class NewUserForPlatform(Event):
@@ -247,8 +247,8 @@ class NewUserForPlatform(Event):
     def to_repr(self) -> dict:
         base = super().to_repr()
         base.update({
-            "app_id": self.app_id,
-            "user_id": self.user_id,
+            "app": self.app_id,
+            "userId": self.user_id,
             "platform": self.platform
         })
         return base
@@ -256,7 +256,7 @@ class NewUserForPlatform(Event):
     @staticmethod
     def from_repr(raw: dict) -> NewUserForPlatform:
         return NewUserForPlatform(
-            raw["app_id"],
-            raw["user_id"],
+            raw["app"],
+            raw["userId"],
             raw["platform"]
         )
