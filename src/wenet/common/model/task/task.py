@@ -4,7 +4,7 @@ from enum import Enum
 from numbers import Number
 from typing import Optional, List
 
-from wenet.service_api.norm import Norm
+from wenet.common.model.norm.norm import Norm
 
 
 class TaskState(Enum):

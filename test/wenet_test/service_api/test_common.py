@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from datetime import datetime
 from unittest import TestCase
 
-from wenet.service_api.common import Date, UserLanguage
+from wenet.common.model.user.common import Date, UserLanguage
 
 
 class TestDate(TestCase):

@@ -4,8 +4,8 @@ import re
 from numbers import Number
 from typing import List, Optional
 
-from wenet.service_api.common import Gender, Date, UserLanguage
-from wenet.service_api.norm import Norm
+from wenet.common.model.user.common import Gender, Date, UserLanguage
+from wenet.common.model.norm.norm import Norm
 from babel.core import Locale
 
 
@@ -439,7 +439,6 @@ class UserName:
             prefix=raw_data.get("prefix", None),
             suffix=raw_data.get("suffix", None)
         )
-
 
     @staticmethod
     def empty() -> UserName:

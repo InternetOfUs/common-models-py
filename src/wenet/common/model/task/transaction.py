@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from typing import Optional, List
 
-from wenet.service_api.task import TaskAttribute
+from wenet.common.model.task.task import TaskAttribute
 
 
 class TaskTransaction:

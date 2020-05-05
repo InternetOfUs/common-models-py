@@ -2,8 +2,8 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.service_api.platform_dto import TelegramPlatformDTO
-from wenet.service_api.app_dto import AppDTO
+from wenet.common.interface import TelegramPlatformDTO
+from wenet.common.interface import AppDTO
 
 
 class TestAppDTO(TestCase):

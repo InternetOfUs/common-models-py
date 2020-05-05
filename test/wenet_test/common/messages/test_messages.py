@@ -2,7 +2,7 @@ import random
 from unittest import TestCase
 from uuid import uuid4
 
-from wenet.common.messages.models import Message, TextualMessage, TaskNotification, TaskProposalNotification, \
+from wenet.common.model.message import Message, TextualMessage, TaskNotification, TaskProposalNotification, \
     MessageFromUserNotification, TaskConcludedNotification, BaseMessage, Event, NewUserForPlatform
 
 

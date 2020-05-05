@@ -2,15 +2,17 @@ from __future__ import absolute_import, annotations
 
 
 class BaseMessage:
+
+    # TODO types should be defined in each specific class and later re-used here
     TYPE_TEXTUAL_MESSAGE = 'textualMessage'
     TYPE_EVENT = 'event'
     TYPE_TASK_NOTIFICATION = 'taskNotification'
 
-    def __init__(self, type: str) -> None:
+    def __init__(self, message_type: str) -> None:
         allowed_types = [self.TYPE_EVENT, self.TYPE_TASK_NOTIFICATION, self.TYPE_TEXTUAL_MESSAGE]
-        if type not in allowed_types:
+        if message_type not in allowed_types:
             raise ValueError(f"type {type} not valid. It must be one of {allowed_types}")
-        self.type = type
+        self.type = message_type
 
     def to_repr(self) -> dict:
         return {"type": self.type}
@@ -26,14 +28,15 @@ class BaseMessage:
 
 
 class Message(BaseMessage):
+
     TYPE_TEXTUAL_MESSAGE = BaseMessage.TYPE_TEXTUAL_MESSAGE
     TYPE_TASK_NOTIFICATION = BaseMessage.TYPE_TASK_NOTIFICATION
 
-    def __init__(self, type: str, recipient_id: str, title: str, text: str) -> None:
+    def __init__(self, message_type: str, recipient_id: str, title: str, text: str) -> None:
         types = [self.TYPE_TASK_NOTIFICATION, self.TYPE_TEXTUAL_MESSAGE]
-        if type not in types:
-            raise ValueError("Message type must be either %s given [%s]" % (str(types), type))
-        super().__init__(type)
+        if message_type not in types:
+            raise ValueError("Message type must be either %s given [%s]" % (str(types), message_type))
+        super().__init__(message_type)
         self.recipient_id = recipient_id
         self.title = title
         self.text = text
@@ -41,8 +44,7 @@ class Message(BaseMessage):
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, Message):
             return False
-        return self.type == o.type and self.recipient_id == o.recipient_id and self.title == o.title and \
-               self.text == o.text
+        return self.type == o.type and self.recipient_id == o.recipient_id and self.title == o.title and self.text == o.text
 
     def to_repr(self) -> dict:
         return {
@@ -58,6 +60,7 @@ class Message(BaseMessage):
 
 
 class TextualMessage(Message):
+
     TYPE = Message.TYPE_TEXTUAL_MESSAGE
 
     def __init__(self, recipient_id: str, title: str, text: str) -> None:
@@ -70,7 +73,9 @@ class TextualMessage(Message):
 
 
 class TaskNotification(Message):
+
     TYPE = Message.TYPE_TASK_NOTIFICATION
+    # TODO notification types should be defined in each specific notification and later re-used here
     NOTIFICATION_TYPE_PROPOSAL = "taskProposal"
     NOTIFICATION_TYPE_VOLUNTEER = "taskVolunteer"
     NOTIFICATION_TYPE_CONCLUDED = "taskConcluded"
@@ -91,7 +96,7 @@ class TaskNotification(Message):
         if not isinstance(o, TaskNotification):
             return False
         return super().__eq__(o) and self.description == o.description and self.task_id == o.task_id and \
-               self.notification_type == o.notification_type
+            self.notification_type == o.notification_type
 
     def to_repr(self) -> dict:
         base_repr = super().to_repr()
@@ -113,6 +118,7 @@ class TaskNotification(Message):
 
 
 class TaskProposalNotification(TaskNotification):
+
     NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_PROPOSAL
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
@@ -139,6 +145,7 @@ class TaskVolunteerNotification(TaskNotification):
 
 
 class MessageFromUserNotification(TaskNotification):
+
     NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_MESSAGE_FROM_USER
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str,
@@ -169,6 +176,7 @@ class MessageFromUserNotification(TaskNotification):
 
 
 class TaskConcludedNotification(TaskNotification):
+
     NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_CONCLUDED
 
     OUTCOME_CANCELLED = 'cancelled'
@@ -205,6 +213,7 @@ class TaskConcludedNotification(TaskNotification):
 
 
 class Event(BaseMessage):
+
     TYPE_NEW_USER = "newUserForPlatform"
 
     def __init__(self, event_type: str) -> None:
@@ -230,6 +239,7 @@ class Event(BaseMessage):
 
 
 class NewUserForPlatform(Event):
+
     TYPE = Event.TYPE_NEW_USER
 
     def __init__(self, app_id: str, user_id: str, platform: str) -> None:
@@ -242,7 +252,7 @@ class NewUserForPlatform(Event):
         if not isinstance(o, NewUserForPlatform):
             return False
         return super().__eq__(o) and self.app_id == o.app_id and self.user_id == o.user_id and \
-               self.platform == o.platform
+            self.platform == o.platform
 
     def to_repr(self) -> dict:
         base = super().to_repr()

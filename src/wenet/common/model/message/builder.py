@@ -1,7 +1,8 @@
-from wenet.common.messages.exceptions import NotificationTypeError, MessageTypeError, EventTypeError
-from wenet.common.messages.models import Message, TextualMessage, TaskNotification, TaskConcludedNotification, \
-    TaskVolunteerNotification, TaskProposalNotification, MessageFromUserNotification, BaseMessage, Event, \
-    NewUserForPlatform
+from __future__ import absolute_import, annotations
+
+from wenet.common.model.message.exception import NotificationTypeError, EventTypeError, MessageTypeError
+from wenet.common.model.message.message import BaseMessage, TextualMessage, TaskNotification, TaskConcludedNotification, \
+    TaskVolunteerNotification, TaskProposalNotification, MessageFromUserNotification, Event, NewUserForPlatform
 
 
 class MessageBuilder:
@@ -10,6 +11,10 @@ class MessageBuilder:
     def build(raw_message: dict) -> BaseMessage:
         """
         It may raise ValueError or KeyError, to be caught where this method is used
+
+        :param raw_message: the raw message representation
+        :return BaseMessage: the message model
+        :raises ValueError ValueError NotificationTypeError EventTypeError MessageTypeError:
         """
         message_type = raw_message["type"]
         if message_type == BaseMessage.TYPE_TEXTUAL_MESSAGE:

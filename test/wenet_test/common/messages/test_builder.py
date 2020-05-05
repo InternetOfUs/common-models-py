@@ -2,9 +2,9 @@ import random
 from unittest import TestCase
 from uuid import uuid4
 
-from wenet.common.messages.builder import MessageBuilder
-from wenet.common.messages.exceptions import MessageTypeError, NotificationTypeError
-from wenet.common.messages.models import TextualMessage, Message, TaskProposalNotification, TaskNotification, \
+from wenet.common.model.message.builder import MessageBuilder
+from wenet.common.model.message import MessageTypeError, NotificationTypeError
+from wenet.common.model.message import TextualMessage, Message, TaskProposalNotification, TaskNotification, \
     TaskVolunteerNotification, MessageFromUserNotification, TaskConcludedNotification, NewUserForPlatform, BaseMessage, \
     Event
 

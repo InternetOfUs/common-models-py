@@ -2,12 +2,13 @@ from typing import Optional
 
 import requests
 
-from wenet.service_api.authentication_account import WeNetUserWithAccounts
-from wenet.service_api.task import Task
-from wenet.service_api.task_transaction import TaskTransaction
+from wenet.common.model.task.transaction import TaskTransaction
+from wenet.common.model.user.authentication_account import WeNetUserWithAccounts
+from wenet.common.model.task.task import Task
 
 
-class ApiInterface:
+class ServiceApiInterface:
+
     USER_ENDPOINT = "/user"
     TASK_ENDPOINT = '/task'
 

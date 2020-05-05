@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 import abc
 from typing import Optional, List
 
-from wenet.service_api.common import PlatformType
+from wenet.common.model.user.common import PlatformType
 
 
 class AuthenticationAccount(abc.ABC):

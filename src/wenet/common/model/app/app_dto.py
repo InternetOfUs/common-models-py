@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from typing import Optional, List
 
-from wenet.service_api.platform_dto import PlatformDTO, TelegramPlatformDTO
+from wenet.common.model.app.platform_dto import PlatformDTO
 
 
 class AppDTO:
