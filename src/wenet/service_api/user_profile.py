@@ -107,7 +107,7 @@ class CoreWeNetUserProfile:
             "occupation": self.occupation,
             "_creationTs": self.creation_ts,
             "_lastUpdateTs": self.last_update_ts,
-            "id": self.profile_id,
+            "id": str(self.profile_id),
         }
 
     @staticmethod

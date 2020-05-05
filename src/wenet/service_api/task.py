@@ -84,8 +84,8 @@ class Task:
 
     def __init__(self,
                  task_id: str,
-                 creation_ts: Number,
-                 last_update_ts: Number,
+                 creation_ts: Optional[Number],
+                 last_update_ts: Optional[Number],
                  task_type_id: str,
                  requester_id: str,
                  app_id: str,
@@ -115,11 +115,14 @@ class Task:
 
         if not isinstance(task_id, str):
             raise TypeError("TaskId should be a string")
-        if not isinstance(creation_ts, Number):
-            raise TypeError("CreationTs should be a string")
 
-        if not isinstance(last_update_ts, Number):
-            raise TypeError("LastUpdateTs should be a number")
+        if creation_ts is not None:
+            if not isinstance(creation_ts, Number):
+                raise TypeError("CreationTs should be a string")
+
+        if last_update_ts is not None:
+            if not isinstance(last_update_ts, Number):
+                raise TypeError("LastUpdateTs should be a number")
 
         if not isinstance(task_type_id, str):
             raise TypeError("TaskType Id should be a string")
@@ -189,8 +192,8 @@ class Task:
 
         return Task(
             task_id=task_id,
-            creation_ts=raw_data.get("_creationTs"),
-            last_update_ts=raw_data["_lastUpdateTs"],
+            creation_ts=raw_data.get("_creationTs", None),
+            last_update_ts=raw_data.get("_lastUpdateTs", None),
             task_type_id=raw_data["taskTypeId"],
             requester_id=raw_data["requesterId"],
             app_id=raw_data["appId"],
@@ -201,6 +204,12 @@ class Task:
             norms=list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
             attributes=list(TaskAttribute.from_repr(x) for x in raw_data["attributes"]) if raw_data.get("attributes", None) else None
         )
+
+    def prepare_task(self) -> dict:
+        task_repr = self.to_repr()
+        task_repr.pop("_creationTs", None)
+        task_repr.pop("_lastUpdateTs", None)
+        return task_repr
 
     def __repr__(self):
         return str(self.to_repr())
