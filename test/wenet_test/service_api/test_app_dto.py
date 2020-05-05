@@ -2,8 +2,8 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.common.interface import TelegramPlatformDTO
-from wenet.common.interface import AppDTO
+from wenet.common.model.app.app_dto import AppDTO
+from wenet.common.model.app.platform_dto import TelegramPlatformDTO
 
 
 class TestAppDTO(TestCase):
@@ -43,4 +43,3 @@ class TestAppDTO(TestCase):
 
         self.assertIsInstance(from_repr, AppDTO)
         self.assertEqual(app, from_repr)
-

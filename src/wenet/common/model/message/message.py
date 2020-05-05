@@ -2,16 +2,19 @@ from __future__ import absolute_import, annotations
 
 
 class BaseMessage:
-
-    # TODO types should be defined in each specific class and later re-used here
-    TYPE_TEXTUAL_MESSAGE = 'textualMessage'
-    TYPE_EVENT = 'event'
-    TYPE_TASK_NOTIFICATION = 'taskNotification'
+    """
+    Generic class representing a message coming from WeNet
+    """
 
     def __init__(self, message_type: str) -> None:
-        allowed_types = [self.TYPE_EVENT, self.TYPE_TASK_NOTIFICATION, self.TYPE_TEXTUAL_MESSAGE]
+        """
+        Create a BaseMessage instance
+        :param message_type: the type of message, one of Task notification, Event or Textual message
+        :raises ValueError: in case the specified type is not one of the aforementioned
+        """
+        allowed_types = [TaskNotification.TYPE, TextualMessage.TYPE, Event.TYPE]
         if message_type not in allowed_types:
-            raise ValueError(f"type {type} not valid. It must be one of {allowed_types}")
+            raise ValueError(f"type {message_type} not valid. It must be one of {allowed_types}")
         self.type = message_type
 
     def to_repr(self) -> dict:
@@ -28,12 +31,20 @@ class BaseMessage:
 
 
 class Message(BaseMessage):
-
-    TYPE_TEXTUAL_MESSAGE = BaseMessage.TYPE_TEXTUAL_MESSAGE
-    TYPE_TASK_NOTIFICATION = BaseMessage.TYPE_TASK_NOTIFICATION
+    """
+    Common class for a message, that can be either a textual message or a notification
+    """
 
     def __init__(self, message_type: str, recipient_id: str, title: str, text: str) -> None:
-        types = [self.TYPE_TASK_NOTIFICATION, self.TYPE_TEXTUAL_MESSAGE]
+        """
+        Create a Message instance
+        :param message_type: type of the message, either a notification or a textual message
+        :param recipient_id: WeNet ID of the recipient
+        :param title: title of the message
+        :param text: text of the message
+        :raises ValueError: in case the message type is wrong
+        """
+        types = [TaskNotification.TYPE, TextualMessage.TYPE]
         if message_type not in types:
             raise ValueError("Message type must be either %s given [%s]" % (str(types), message_type))
         super().__init__(message_type)
@@ -60,10 +71,19 @@ class Message(BaseMessage):
 
 
 class TextualMessage(Message):
+    """
+    Class representing a textual message between two users
+    """
 
-    TYPE = Message.TYPE_TEXTUAL_MESSAGE
+    TYPE = "textualMessage"
 
     def __init__(self, recipient_id: str, title: str, text: str) -> None:
+        """
+        Construct a TextualMessage
+        :param recipient_id: the WeNet ID of the recipient
+        :param title: the title of the message
+        :param text: the text of the message
+        """
         super().__init__(self.TYPE, recipient_id, title, text)
 
     @staticmethod
@@ -73,19 +93,28 @@ class TextualMessage(Message):
 
 
 class TaskNotification(Message):
+    """
+    General notification class
+    """
 
-    TYPE = Message.TYPE_TASK_NOTIFICATION
-    # TODO notification types should be defined in each specific notification and later re-used here
-    NOTIFICATION_TYPE_PROPOSAL = "taskProposal"
-    NOTIFICATION_TYPE_VOLUNTEER = "taskVolunteer"
-    NOTIFICATION_TYPE_CONCLUDED = "taskConcluded"
-    NOTIFICATION_TYPE_MESSAGE_FROM_USER = "messageFromUser"
+    TYPE = "taskNotification"
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str,
                  notification_type: str) -> None:
-        super().__init__(self.TYPE, recipient_id, title, text)
-        types = [self.NOTIFICATION_TYPE_PROPOSAL, self.NOTIFICATION_TYPE_VOLUNTEER, self.NOTIFICATION_TYPE_CONCLUDED,
-                 self.NOTIFICATION_TYPE_MESSAGE_FROM_USER]
+        """
+        Create a general notification object
+        :param recipient_id: WeNet ID of the recipient
+        :param title: title of the notification
+        :param text: text of the notification
+        :param description: description of the notification
+        :param task_id: task related to the notification
+        :param notification_type: type of the notification. It must be on of: taskProposal, taskVolunteer, taskConcluded
+        or messageFromUser
+        :raises ValueError: in case the notification type is wrong
+        """
+        super().__init__(TaskNotification.TYPE, recipient_id, title, text)
+        types = [TaskProposalNotification.TYPE, TaskVolunteerNotification.TYPE, TaskConcludedNotification.TYPE,
+                 MessageFromUserNotification.TYPE, TaskSelectionNotification.TYPE]
         if notification_type not in types:
             raise ValueError("Notification type must be either %s. Given [%s]" % (str(types), notification_type))
         self.description = description
@@ -118,11 +147,22 @@ class TaskNotification(Message):
 
 
 class TaskProposalNotification(TaskNotification):
+    """
+    Notification used to propose a task to a user
+    """
 
-    NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_PROPOSAL
+    TYPE = "taskProposal"
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
-        super().__init__(recipient_id, title, text, description, task_id, self.NOTIFICATION_TYPE)
+        """
+        Create a TaskProposalNotification
+        :param recipient_id: WeNet ID of the recipient
+        :param title: title of the notification
+        :param text: text of the notification
+        :param description: description of the notification
+        :param task_id: task related to the notification
+        """
+        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskProposalNotification:
@@ -132,10 +172,21 @@ class TaskProposalNotification(TaskNotification):
 
 
 class TaskVolunteerNotification(TaskNotification):
-    NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_VOLUNTEER
+    """
+    Notification used to notify a task owner that a candidate volunteer has sent its application to participate
+    """
+    TYPE = "taskVolunteer"
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
-        super().__init__(recipient_id, title, text, description, task_id, self.NOTIFICATION_TYPE)
+        """
+        Create a TaskVolunteerNotification
+        :param recipient_id: WeNet Id of the recipient
+        :param title: title of the notification
+        :param text: text of the notification
+        :param description: description of the notification
+        :param task_id: task related to the notification
+        """
+        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskVolunteerNotification:
@@ -145,12 +196,24 @@ class TaskVolunteerNotification(TaskNotification):
 
 
 class MessageFromUserNotification(TaskNotification):
+    """
+    Notification to notify of a new message from a WeNet user
+    """
 
-    NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_MESSAGE_FROM_USER
+    TYPE = "messageFromUser"
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str,
                  sender_id: str) -> None:
-        super().__init__(recipient_id, title, text, description, task_id, self.NOTIFICATION_TYPE)
+        """
+        Create a new notification for a new message from an user
+        :param recipient_id: WeNet Id of the recipient
+        :param title: title of the notification
+        :param text: text of the notification
+        :param description: description of the notification
+        :param task_id: task related to the notification
+        :param sender_id: WeNet Id of the sender
+        """
+        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
         self.sender_id = sender_id
 
     def __eq__(self, o: object) -> bool:
@@ -176,15 +239,28 @@ class MessageFromUserNotification(TaskNotification):
 
 
 class TaskConcludedNotification(TaskNotification):
+    """
+    Notification used to conclude a task
+    """
 
-    NOTIFICATION_TYPE = TaskNotification.NOTIFICATION_TYPE_CONCLUDED
+    TYPE = "taskConcluded"
 
     OUTCOME_CANCELLED = 'cancelled'
-    OUTCOME_SUCCESSFUL = 'successful'
+    OUTCOME_SUCCESSFUL = 'completed'
     OUTCOME_FAILED = 'failed'
 
     def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str, outcome: str) -> None:
-        super().__init__(recipient_id, title, text, description, task_id, self.NOTIFICATION_TYPE)
+        """
+        Create a notification to close a task
+        :param recipient_id: WeNet Id of the recipient
+        :param title: title of the notification
+        :param text: text of the notification
+        :param description: description of the notification
+        :param task_id: task related to the notification
+        :param outcome: outcome of the task. Either cancelled, completed or failed
+        :raises ValueError: in case the given outcome is not valid
+        """
+        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
         valid_outcomes = [self.OUTCOME_CANCELLED, self.OUTCOME_SUCCESSFUL, self.OUTCOME_FAILED]
         if outcome not in valid_outcomes:
             raise ValueError("Outcome must be either %s. Got [%s]" % (str(valid_outcomes), outcome))
@@ -212,15 +288,70 @@ class TaskConcludedNotification(TaskNotification):
         )
 
 
-class Event(BaseMessage):
+class TaskSelectionNotification(TaskNotification):
+    """
+    This notification is used in order to notify the user who volunteer about the decision of the task creator
+    """
+    TYPE = "selectionVolunteer"
+    OUTCOME_ACCEPTED = 'accepted'
+    OUTCOME_REFUSED = 'refused'
 
-    TYPE_NEW_USER = "newUserForPlatform"
+    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str, outcome: str) -> None:
+        """
+        Create a notification for the positive or negative selection of a volunteer
+        :param recipient_id: WeNet Id of the recipient
+        :param title: title of the notification
+        :param text: text of the notification
+        :param description: description of the notification
+        :param task_id: task related to the notification
+        :param outcome: outcome of the task. Either cancelled, completed or failed
+        :raises ValueError: in case the given outcome is not valid
+        """
+        allowed_outcomes = [TaskSelectionNotification.OUTCOME_ACCEPTED, TaskSelectionNotification.OUTCOME_REFUSED]
+        if outcome not in allowed_outcomes:
+            raise ValueError("Outcome must be either %s. Got [%s]" % (str(allowed_outcomes), outcome))
+        super().__init__(recipient_id, title, text, description, task_id, TaskSelectionNotification.TYPE)
+        self.outcome = outcome
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, TaskSelectionNotification):
+            return False
+        return super().__eq__(o) and self.outcome == o.outcome
+
+    def to_repr(self) -> dict:
+        base_repr = super().to_repr()
+        base_repr["outcome"] = self.outcome
+        return base_repr
+
+    @staticmethod
+    def from_repr(raw: dict) -> TaskSelectionNotification:
+        return TaskSelectionNotification(
+            raw["recipientId"],
+            raw["title"],
+            raw["text"],
+            raw["description"],
+            raw["taskId"],
+            raw["outcome"]
+        )
+
+
+class Event(BaseMessage):
+    """
+    Base class for an event
+    """
+
+    TYPE = "event"
 
     def __init__(self, event_type: str) -> None:
-        allowed_types = [self.TYPE_NEW_USER]
+        """
+        Create a new event
+        :param event_type: type of the event, it must be newUserForPlatform
+        :raises ValueError: in case the specified event type is wrong
+        """
+        allowed_types = [NewUserForPlatform.TYPE]
         if event_type not in allowed_types:
             raise ValueError(f"Event type {event_type} not valid. It must be one of {allowed_types}")
-        super().__init__(BaseMessage.TYPE_EVENT)
+        super().__init__(Event.TYPE)
         self.event_type = event_type
 
     def __eq__(self, o: object) -> bool:
@@ -239,11 +370,20 @@ class Event(BaseMessage):
 
 
 class NewUserForPlatform(Event):
+    """
+    Event used to notify the bot that a new user has just logged into the WeNet Hub
+    """
 
-    TYPE = Event.TYPE_NEW_USER
+    TYPE = "newUserForPlatform"
 
     def __init__(self, app_id: str, user_id: str, platform: str) -> None:
-        super().__init__(self.TYPE)
+        """
+        Create a new NewUserForPlatform
+        :param app_id: WeNet app related to the event
+        :param user_id: WeNet user ID that has just logged in
+        :param platform: platform on which the login happened - e.g. Telegram
+        """
+        super().__init__(NewUserForPlatform.TYPE)
         self.app_id = app_id
         self.user_id = user_id
         self.platform = platform

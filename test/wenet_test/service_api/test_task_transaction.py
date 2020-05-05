@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from unittest import TestCase
 
 from wenet.common.model.task.task import TaskAttribute
-from wenet.common.model.task.task_transaction import TaskTransaction
+from wenet.common.model.task.transaction import TaskTransaction
 
 
 class TestTaskTransaction(TestCase):

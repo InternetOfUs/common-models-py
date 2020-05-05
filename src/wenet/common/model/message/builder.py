@@ -2,7 +2,8 @@ from __future__ import absolute_import, annotations
 
 from wenet.common.model.message.exception import NotificationTypeError, EventTypeError, MessageTypeError
 from wenet.common.model.message.message import BaseMessage, TextualMessage, TaskNotification, TaskConcludedNotification, \
-    TaskVolunteerNotification, TaskProposalNotification, MessageFromUserNotification, Event, NewUserForPlatform
+    TaskVolunteerNotification, TaskProposalNotification, MessageFromUserNotification, Event, NewUserForPlatform, \
+    TaskSelectionNotification
 
 
 class MessageBuilder:
@@ -17,23 +18,25 @@ class MessageBuilder:
         :raises ValueError ValueError NotificationTypeError EventTypeError MessageTypeError:
         """
         message_type = raw_message["type"]
-        if message_type == BaseMessage.TYPE_TEXTUAL_MESSAGE:
+        if message_type == TextualMessage.TYPE:
             message = TextualMessage.from_repr(raw_message)
-        elif message_type == BaseMessage.TYPE_TASK_NOTIFICATION:
+        elif message_type == TaskNotification.TYPE:
             notification_type = raw_message["notificationType"]
-            if notification_type == TaskNotification.NOTIFICATION_TYPE_CONCLUDED:
+            if notification_type == TaskConcludedNotification.TYPE:
                 message = TaskConcludedNotification.from_repr(raw_message)
-            elif notification_type == TaskNotification.NOTIFICATION_TYPE_VOLUNTEER:
+            elif notification_type == TaskVolunteerNotification.TYPE:
                 message = TaskVolunteerNotification.from_repr(raw_message)
-            elif notification_type == TaskNotification.NOTIFICATION_TYPE_PROPOSAL:
+            elif notification_type == TaskProposalNotification.TYPE:
                 message = TaskProposalNotification.from_repr(raw_message)
-            elif notification_type == TaskNotification.NOTIFICATION_TYPE_MESSAGE_FROM_USER:
+            elif notification_type == MessageFromUserNotification.TYPE:
                 message = MessageFromUserNotification.from_repr(raw_message)
+            elif notification_type == TaskSelectionNotification.TYPE:
+                message = TaskSelectionNotification.from_repr(raw_message)
             else:
                 raise NotificationTypeError(notification_type)
-        elif message_type == BaseMessage.TYPE_EVENT:
+        elif message_type == Event.TYPE:
             event_type = raw_message["eventType"]
-            if event_type == Event.TYPE_NEW_USER:
+            if event_type == NewUserForPlatform.TYPE:
                 message = NewUserForPlatform.from_repr(raw_message)
             else:
                 raise EventTypeError(event_type)
