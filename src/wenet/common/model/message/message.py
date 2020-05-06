@@ -177,7 +177,7 @@ class TaskVolunteerNotification(TaskNotification):
     """
     TYPE = "taskVolunteer"
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
+    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str, volunteer_id: str) -> None:
         """
         Create a TaskVolunteerNotification
         :param recipient_id: WeNet Id of the recipient
@@ -185,14 +185,26 @@ class TaskVolunteerNotification(TaskNotification):
         :param text: text of the notification
         :param description: description of the notification
         :param task_id: task related to the notification
+        :param volunteer_id: id of the volunteer that applied to the task
         """
         super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
+        self.volunteer_id = volunteer_id
 
     @staticmethod
     def from_repr(raw: dict) -> TaskVolunteerNotification:
         message = TaskNotification.from_repr(raw)
         return TaskVolunteerNotification(message.recipient_id, message.title, message.text, message.description,
-                                         message.task_id)
+                                         message.task_id, raw["volunteerId"])
+
+    def to_repr(self) -> dict:
+        base_repr = super().to_repr()
+        base_repr["volunteerId"] = self.volunteer_id
+        return base_repr
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, TaskVolunteerNotification):
+            return False
+        return super().__eq__(o) and self.volunteer_id == o.volunteer_id
 
 
 class MessageFromUserNotification(TaskNotification):

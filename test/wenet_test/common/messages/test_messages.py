@@ -127,3 +127,17 @@ class TestTaskSelectionNotification(TestCase):
         notification_repr = notification.to_repr()
         self.assertEqual(TaskSelectionNotification.from_repr(notification_repr), notification)
         self.assertEqual(TaskSelectionNotification.TYPE, notification.notification_type)
+
+
+class TestTaskVolunteerNotification(TestCase):
+    def test_repr(self):
+        recipient_id = str(uuid4())
+        title = str(uuid4())
+        text = str(uuid4())
+        description = str(uuid4())
+        task_id = str(uuid4())
+        volunteer_id = str(uuid4())
+        notification = TaskVolunteerNotification(recipient_id, title, text, description, task_id, volunteer_id)
+        notification_repr = notification.to_repr()
+        self.assertEqual(TaskVolunteerNotification.from_repr(notification_repr), notification)
+        self.assertEqual(TaskVolunteerNotification.TYPE, notification.notification_type)
