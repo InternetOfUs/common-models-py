@@ -6,3 +6,11 @@ class TaskNotFound(ValueError):
 class UpdateMetadataError(ValueError):
     def __init__(self, wenet_user_id: str, telegram_id: int) -> None:
         super().__init__(f"No WeNet user [{wenet_user_id}] associated with Telegram id [{telegram_id}]")
+
+
+class TaskCreationError(ValueError):
+    pass
+
+
+class TaskTransactionCreationError(ValueError):
+    pass

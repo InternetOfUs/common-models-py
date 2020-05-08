@@ -2,7 +2,8 @@ from typing import Optional
 
 import requests
 
-from wenet.common.interface.exceptions import TaskNotFound, UpdateMetadataError
+from wenet.common.interface.exceptions import TaskNotFound, UpdateMetadataError, TaskCreationError, \
+    TaskTransactionCreationError
 from wenet.common.model.task.transaction import TaskTransaction
 from wenet.common.model.user.authentication_account import WeNetUserWithAccounts
 from wenet.common.model.task.task import Task
@@ -51,7 +52,9 @@ class ServiceApiInterface:
             raise UpdateMetadataError(wenet_user_id, telegram_id)
 
     def create_task(self, task: Task):
-        requests.post(self.base_url + self.TASK_ENDPOINT, json=task.to_repr())
+        req = requests.post(self.base_url + self.TASK_ENDPOINT, json=task.to_repr())
+        if req.status_code not in [200, 201]:
+            raise TaskCreationError("Service API responded with code %d" % req.status_code)
 
     def get_task(self, task_id: str) -> Task:
         req = requests.get(self.base_url + self.TASK_ENDPOINT + '/%s' % task_id)
@@ -61,7 +64,9 @@ class ServiceApiInterface:
         return task
 
     def create_task_transaction(self, transaction: TaskTransaction):
-        requests.post(self.base_url + self.TASK_ENDPOINT + '/transaction', json=transaction.to_repr())
+        req = requests.post(self.base_url + self.TASK_ENDPOINT + '/transaction', json=transaction.to_repr())
+        if req.status_code not in [200, 201]:
+            raise TaskTransactionCreationError()
 
     def get_user_profile(self, wenet_user_id: str) -> Optional[WeNetUserProfile]:
         req = requests.get(self.base_url + self.USER_ENDPOINT + '/profile/%s' % wenet_user_id)
