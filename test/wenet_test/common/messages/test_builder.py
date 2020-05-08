@@ -26,15 +26,13 @@ class TestBuilder(TestCase):
         text = str(uuid4())
         recipient = str(uuid4())
         task_id = str(uuid4())
-        description = str(uuid4())
-        raw_message = TaskProposalNotification(recipient, title, text, description, task_id)
+        raw_message = TaskProposalNotification(recipient, title, text, task_id)
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TaskProposalNotification)
         self.assertEqual(title, message.title)
         self.assertEqual(text, message.text)
         self.assertEqual(recipient, message.recipient_id)
         self.assertEqual(task_id, message.task_id)
-        self.assertEqual(description, message.description)
         self.assertEqual(TaskNotification.TYPE, message.type)
         self.assertEqual(TaskProposalNotification.TYPE, message.notification_type)
 
@@ -43,16 +41,14 @@ class TestBuilder(TestCase):
         text = str(uuid4())
         recipient = str(uuid4())
         task_id = str(uuid4())
-        description = str(uuid4())
         volunteer_id = str(uuid4())
-        raw_message = TaskVolunteerNotification(recipient, title, text, description, task_id, volunteer_id)
+        raw_message = TaskVolunteerNotification(recipient, title, text, task_id, volunteer_id)
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TaskVolunteerNotification)
         self.assertEqual(title, message.title)
         self.assertEqual(text, message.text)
         self.assertEqual(recipient, message.recipient_id)
         self.assertEqual(task_id, message.task_id)
-        self.assertEqual(description, message.description)
         self.assertEqual(volunteer_id, message.volunteer_id)
         self.assertEqual(TaskNotification.TYPE, message.type)
         self.assertEqual(TaskVolunteerNotification.TYPE, message.notification_type)
@@ -62,16 +58,14 @@ class TestBuilder(TestCase):
         text = str(uuid4())
         recipient = str(uuid4())
         task_id = str(uuid4())
-        description = str(uuid4())
         sender = str(uuid4())
-        raw_message = MessageFromUserNotification(recipient, title, text, description, task_id, sender)
+        raw_message = MessageFromUserNotification(recipient, title, text, task_id, sender)
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, MessageFromUserNotification)
         self.assertEqual(title, message.title)
         self.assertEqual(text, message.text)
         self.assertEqual(recipient, message.recipient_id)
         self.assertEqual(task_id, message.task_id)
-        self.assertEqual(description, message.description)
         self.assertEqual(TaskNotification.TYPE, message.type)
         self.assertEqual(MessageFromUserNotification.TYPE, message.notification_type)
         self.assertEqual(sender, message.sender_id)
@@ -81,18 +75,16 @@ class TestBuilder(TestCase):
         text = str(uuid4())
         recipient = str(uuid4())
         task_id = str(uuid4())
-        description = str(uuid4())
         outcome = random.choice([TaskConcludedNotification.OUTCOME_CANCELLED,
                                  TaskConcludedNotification.OUTCOME_SUCCESSFUL,
                                  TaskConcludedNotification.OUTCOME_FAILED])
-        raw_message = TaskConcludedNotification(recipient, title, text, description, task_id, outcome)
+        raw_message = TaskConcludedNotification(recipient, title, text, task_id, outcome)
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TaskConcludedNotification)
         self.assertEqual(title, message.title)
         self.assertEqual(text, message.text)
         self.assertEqual(recipient, message.recipient_id)
         self.assertEqual(task_id, message.task_id)
-        self.assertEqual(description, message.description)
         self.assertEqual(TaskNotification.TYPE, message.type)
         self.assertEqual(TaskConcludedNotification.TYPE, message.notification_type)
         self.assertEqual(outcome, message.outcome)
@@ -114,15 +106,13 @@ class TestBuilder(TestCase):
         text = str(uuid4())
         recipient = str(uuid4())
         task_id = str(uuid4())
-        description = str(uuid4())
         raw_message = {
             "type": TaskNotification.TYPE,
             "notificationType": "puppa",
             "title": title,
             "text": text,
             "recipientId": recipient,
-            "taskId": task_id,
-            "description": description
+            "taskId": task_id
         }
         self.assertRaises(NotificationTypeError, MessageBuilder.build, raw_message)
 
@@ -144,17 +134,15 @@ class TestBuilder(TestCase):
         text = str(uuid4())
         recipient = str(uuid4())
         task_id = str(uuid4())
-        description = str(uuid4())
         outcome = random.choice([TaskSelectionNotification.OUTCOME_ACCEPTED,
                                  TaskSelectionNotification.OUTCOME_REFUSED])
-        start_message = TaskSelectionNotification(recipient, title, text, description, task_id, outcome)
+        start_message = TaskSelectionNotification(recipient, title, text, task_id, outcome)
         message = MessageBuilder.build(start_message.to_repr())
         self.assertIsInstance(message, TaskSelectionNotification)
         self.assertEqual(title, message.title)
         self.assertEqual(text, message.text)
         self.assertEqual(recipient, message.recipient_id)
         self.assertEqual(task_id, message.task_id)
-        self.assertEqual(description, message.description)
         self.assertEqual(TaskNotification.TYPE, message.type)
         self.assertEqual(TaskSelectionNotification.TYPE, message.notification_type)
         self.assertEqual(outcome, message.outcome)

@@ -99,14 +99,12 @@ class TaskNotification(Message):
 
     TYPE = "taskNotification"
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str,
-                 notification_type: str) -> None:
+    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, notification_type: str) -> None:
         """
         Create a general notification object
         :param recipient_id: WeNet ID of the recipient
         :param title: title of the notification
         :param text: text of the notification
-        :param description: description of the notification
         :param task_id: task related to the notification
         :param notification_type: type of the notification. It must be on of: taskProposal, taskVolunteer, taskConcluded
         or messageFromUser
@@ -117,19 +115,17 @@ class TaskNotification(Message):
                  MessageFromUserNotification.TYPE, TaskSelectionNotification.TYPE]
         if notification_type not in types:
             raise ValueError("Notification type must be either %s. Given [%s]" % (str(types), notification_type))
-        self.description = description
         self.task_id = task_id
         self.notification_type = notification_type
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, TaskNotification):
             return False
-        return super().__eq__(o) and self.description == o.description and self.task_id == o.task_id and \
+        return super().__eq__(o) and self.task_id == o.task_id and \
             self.notification_type == o.notification_type
 
     def to_repr(self) -> dict:
         base_repr = super().to_repr()
-        base_repr["description"] = self.description
         base_repr["taskId"] = self.task_id
         base_repr["notificationType"] = self.notification_type
         return base_repr
@@ -140,7 +136,6 @@ class TaskNotification(Message):
             raw["recipientId"],
             raw["title"],
             raw["text"],
-            raw["description"],
             raw["taskId"],
             raw["notificationType"]
         )
@@ -153,22 +148,20 @@ class TaskProposalNotification(TaskNotification):
 
     TYPE = "taskProposal"
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str) -> None:
+    def __init__(self, recipient_id: str, title: str, text: str, task_id: str) -> None:
         """
         Create a TaskProposalNotification
         :param recipient_id: WeNet ID of the recipient
         :param title: title of the notification
         :param text: text of the notification
-        :param description: description of the notification
         :param task_id: task related to the notification
         """
-        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
+        super().__init__(recipient_id, title, text, task_id, self.TYPE)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskProposalNotification:
         message = TaskNotification.from_repr(raw)
-        return TaskProposalNotification(message.recipient_id, message.title, message.text, message.description,
-                                        message.task_id)
+        return TaskProposalNotification(message.recipient_id, message.title, message.text, message.task_id)
 
 
 class TaskVolunteerNotification(TaskNotification):
@@ -177,24 +170,23 @@ class TaskVolunteerNotification(TaskNotification):
     """
     TYPE = "taskVolunteer"
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str, volunteer_id: str) -> None:
+    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, volunteer_id: str) -> None:
         """
         Create a TaskVolunteerNotification
         :param recipient_id: WeNet Id of the recipient
         :param title: title of the notification
         :param text: text of the notification
-        :param description: description of the notification
         :param task_id: task related to the notification
         :param volunteer_id: id of the volunteer that applied to the task
         """
-        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
+        super().__init__(recipient_id, title, text, task_id, self.TYPE)
         self.volunteer_id = volunteer_id
 
     @staticmethod
     def from_repr(raw: dict) -> TaskVolunteerNotification:
         message = TaskNotification.from_repr(raw)
-        return TaskVolunteerNotification(message.recipient_id, message.title, message.text, message.description,
-                                         message.task_id, raw["volunteerId"])
+        return TaskVolunteerNotification(message.recipient_id, message.title, message.text, message.task_id,
+                                         raw["volunteerId"])
 
     def to_repr(self) -> dict:
         base_repr = super().to_repr()
@@ -214,18 +206,17 @@ class MessageFromUserNotification(TaskNotification):
 
     TYPE = "messageFromUser"
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str,
+    def __init__(self, recipient_id: str, title: str, text: str, task_id: str,
                  sender_id: str) -> None:
         """
         Create a new notification for a new message from an user
         :param recipient_id: WeNet Id of the recipient
         :param title: title of the notification
         :param text: text of the notification
-        :param description: description of the notification
         :param task_id: task related to the notification
         :param sender_id: WeNet Id of the sender
         """
-        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
+        super().__init__(recipient_id, title, text, task_id, self.TYPE)
         self.sender_id = sender_id
 
     def __eq__(self, o: object) -> bool:
@@ -244,7 +235,6 @@ class MessageFromUserNotification(TaskNotification):
             raw["recipientId"],
             raw["title"],
             raw["text"],
-            raw["description"],
             raw["taskId"],
             raw["senderId"]
         )
@@ -261,18 +251,17 @@ class TaskConcludedNotification(TaskNotification):
     OUTCOME_SUCCESSFUL = 'completed'
     OUTCOME_FAILED = 'failed'
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str, outcome: str) -> None:
+    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, outcome: str) -> None:
         """
         Create a notification to close a task
         :param recipient_id: WeNet Id of the recipient
         :param title: title of the notification
         :param text: text of the notification
-        :param description: description of the notification
         :param task_id: task related to the notification
         :param outcome: outcome of the task. Either cancelled, completed or failed
         :raises ValueError: in case the given outcome is not valid
         """
-        super().__init__(recipient_id, title, text, description, task_id, self.TYPE)
+        super().__init__(recipient_id, title, text, task_id, self.TYPE)
         valid_outcomes = [self.OUTCOME_CANCELLED, self.OUTCOME_SUCCESSFUL, self.OUTCOME_FAILED]
         if outcome not in valid_outcomes:
             raise ValueError("Outcome must be either %s. Got [%s]" % (str(valid_outcomes), outcome))
@@ -294,7 +283,6 @@ class TaskConcludedNotification(TaskNotification):
             raw["recipientId"],
             raw["title"],
             raw["text"],
-            raw["description"],
             raw["taskId"],
             raw["outcome"]
         )
@@ -308,13 +296,12 @@ class TaskSelectionNotification(TaskNotification):
     OUTCOME_ACCEPTED = 'accepted'
     OUTCOME_REFUSED = 'refused'
 
-    def __init__(self, recipient_id: str, title: str, text: str, description: str, task_id: str, outcome: str) -> None:
+    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, outcome: str) -> None:
         """
         Create a notification for the positive or negative selection of a volunteer
         :param recipient_id: WeNet Id of the recipient
         :param title: title of the notification
         :param text: text of the notification
-        :param description: description of the notification
         :param task_id: task related to the notification
         :param outcome: outcome of the task. Either cancelled, completed or failed
         :raises ValueError: in case the given outcome is not valid
@@ -322,7 +309,7 @@ class TaskSelectionNotification(TaskNotification):
         allowed_outcomes = [TaskSelectionNotification.OUTCOME_ACCEPTED, TaskSelectionNotification.OUTCOME_REFUSED]
         if outcome not in allowed_outcomes:
             raise ValueError("Outcome must be either %s. Got [%s]" % (str(allowed_outcomes), outcome))
-        super().__init__(recipient_id, title, text, description, task_id, TaskSelectionNotification.TYPE)
+        super().__init__(recipient_id, title, text, task_id, TaskSelectionNotification.TYPE)
         self.outcome = outcome
 
     def __eq__(self, o: object) -> bool:
@@ -341,7 +328,6 @@ class TaskSelectionNotification(TaskNotification):
             raw["recipientId"],
             raw["title"],
             raw["text"],
-            raw["description"],
             raw["taskId"],
             raw["outcome"]
         )
