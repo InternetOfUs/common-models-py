@@ -43,6 +43,42 @@ class TestTask(TestCase):
 
         self.assertEqual(task, from_repr)
 
+    def test_repr2(self):
+
+        task = Task(
+            task_id=None,
+            creation_ts=1577833200,
+            last_update_ts=1577833200,
+            task_type_id="task_type_id",
+            requester_id="requester_id",
+            app_id="app_id",
+            goal=TaskGoal(
+                name="goal",
+                description="description"
+            ),
+            start_ts=1577833100,
+            end_ts=1577833300,
+            deadline_ts=1577833350,
+            norms=[
+                Norm(
+                    norm_id="norm-id",
+                    attribute="attribute",
+                    operator=NormOperator.EQUALS,
+                    comparison=True,
+                    negation=False
+                )
+            ],
+            attributes={
+                "key": "value"
+            }
+        )
+
+        to_repr = task.to_repr()
+        from_repr = Task.from_repr(to_repr)
+
+        self.assertEqual(task, from_repr)
+        self.assertIsNone(from_repr.task_id)
+
     def test_equals(self):
         task = Task(
             task_id="task-id",

@@ -52,7 +52,7 @@ class TaskGoal:
 class Task:
 
     def __init__(self,
-                 task_id: str,
+                 task_id: Optional[str],
                  creation_ts: Optional[Number],
                  last_update_ts: Optional[Number],
                  task_type_id: str,
@@ -82,8 +82,9 @@ class Task:
 
         self.attributes = attributes
 
-        if not isinstance(task_id, str):
-            raise TypeError("TaskId should be a string")
+        if task_id is not None:
+            if not isinstance(task_id, str):
+                raise TypeError("TaskId should be a string")
 
         if creation_ts is not None:
             if not isinstance(creation_ts, Number):
@@ -153,7 +154,7 @@ class Task:
     def from_repr(raw_data: dict, task_id: Optional[str] = None) -> Task:
 
         if task_id is None:
-            task_id = raw_data["taskId"]
+            task_id = raw_data.get("taskId", None)
 
         return Task(
             task_id=task_id,
