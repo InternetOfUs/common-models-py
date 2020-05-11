@@ -73,4 +73,4 @@ class AppDTO:
         return str(self.to_repr())
 
     def __str__(self):
-        return self.__str__()
+        return self.__repr__()
