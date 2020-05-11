@@ -1,8 +1,6 @@
 from __future__ import absolute_import, annotations
 
-from typing import Optional, List
-
-from wenet.common.model.task.task import TaskAttribute
+from typing import Optional
 
 
 class TaskTransaction:
@@ -12,7 +10,7 @@ class TaskTransaction:
     LABEL_REFUSE_VOLUNTEER = 'refuseVolunteer'
     LABEL_TASK_COMPLETED = 'taskCompleted'
 
-    def __init__(self, task_id: str, label: str, attributes: Optional[List[TaskAttribute]]):
+    def __init__(self, task_id: str, label: str, attributes: Optional[dict]):
         self.task_id = task_id
         self.label = label
         self.attributes = attributes
@@ -23,14 +21,10 @@ class TaskTransaction:
             raise TypeError("Type id should be a string")
 
         if self.attributes:
-            if not isinstance(self.attributes, list):
+            if not isinstance(self.attributes, dict):
                 raise TypeError("Attributes should be a list of TaskAttribute")
-            else:
-                for attribute in attributes:
-                    if not isinstance(attribute, TaskAttribute):
-                        raise TypeError("Attributes should be a list of TaskAttribute")
         else:
-            self.attributes: List[TaskAttribute] = []
+            self.attributes = {}
 
         allowed_task_labels = [TaskTransaction.LABEL_ACCEPT_VOLUNTEER, TaskTransaction.LABEL_REFUSE_TASK,
                                TaskTransaction.LABEL_TASK_COMPLETED, TaskTransaction.LABEL_REFUSE_VOLUNTEER,
@@ -42,7 +36,7 @@ class TaskTransaction:
         return {
             "taskId": self.task_id,
             "label": self.label,
-            "attributes": {x.name: x.value for x in self.attributes}
+            "attributes": self.attributes
         }
 
     @staticmethod
@@ -50,7 +44,7 @@ class TaskTransaction:
         return TaskTransaction(
             task_id=raw_data["taskId"],
             label=raw_data["label"],
-            attributes=[TaskAttribute(x, raw_data["attributes"][x]) for x in raw_data["attributes"]]
+            attributes=raw_data.get("attributes", None)
             if raw_data.get("attributes", None) else None
         )
 
@@ -64,7 +58,3 @@ class TaskTransaction:
 
     def __str__(self) -> str:
         return self.__repr__()
-
-    def with_attribute(self, attribute: TaskAttribute) -> TaskTransaction:
-        self.attributes.append(attribute)
-        return self

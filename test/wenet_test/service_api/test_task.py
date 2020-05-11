@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from unittest import TestCase
 
 from wenet.common.model.norm.norm import Norm, NormOperator
-from wenet.common.model.task.task import Task, TaskGoal, TaskAttribute
+from wenet.common.model.task.task import Task, TaskGoal
 
 
 class TestTask(TestCase):
@@ -33,12 +33,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
 
         to_repr = task.to_repr()
@@ -70,12 +67,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task1 = Task(
             task_id="task-id",
@@ -100,12 +94,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task2 = Task(
             task_id="task-id",
@@ -130,12 +121,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task3 = Task(
             task_id="task-id",
@@ -160,12 +148,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task4 = Task(
             task_id="task-id",
@@ -190,12 +175,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task5 = Task(
             task_id="task-id",
@@ -220,12 +202,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task6 = Task(
             task_id="task-id",
@@ -250,12 +229,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
         task7 = Task(
             task_id="task-id",
@@ -280,9 +256,7 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-
-            ]
+            attributes={}
         )
         task8 = Task(
             task_id="task-id",
@@ -307,12 +281,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name1",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key1": "value"
+            }
         )
         task9 = Task(
             task_id="task-id",
@@ -337,12 +308,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
 
         task10 = Task(
@@ -368,12 +336,9 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes=[
-                TaskAttribute(
-                    name="name",
-                    value="value"
-                )
-            ]
+            attributes={
+                "key": "value"
+            }
         )
 
         self.assertEqual(task, task1)
@@ -408,23 +373,3 @@ class TestTaskGoal(TestCase):
         self.assertEqual(task_goal, task_goal1)
         self.assertNotEqual(task_goal, task_goal2)
         self.assertNotEqual(task_goal, task_goal3)
-
-
-class TestTaskAttribute(TestCase):
-
-    def test_repr(self):
-        task_attribute = TaskAttribute("name", "description")
-        from_repr = TaskAttribute.from_repr(task_attribute.to_repr())
-
-        self.assertIsInstance(from_repr, TaskAttribute)
-        self.assertEqual(task_attribute, from_repr)
-
-    def test_equal(self):
-        task_attribute = TaskAttribute("name", "description")
-        task_attribute1 = TaskAttribute("name", "description")
-        task_attribute2 = TaskAttribute("name1", "description")
-        task_attribute3 = TaskAttribute("name", "description1")
-
-        self.assertEqual(task_attribute, task_attribute1)
-        self.assertNotEqual(task_attribute, task_attribute2)
-        self.assertNotEqual(task_attribute, task_attribute3)

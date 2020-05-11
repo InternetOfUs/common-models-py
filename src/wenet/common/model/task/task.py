@@ -49,37 +49,6 @@ class TaskGoal:
         return self.to_repr()
 
 
-class TaskAttribute:
-
-    def __init__(self, name: str, value: str):
-        self.name = name
-        self.value = value
-
-    def to_repr(self) -> dict:
-        return {
-            "name": self.name,
-            "value": self.value
-        }
-
-    @staticmethod
-    def from_repr(raw_data: dict) -> TaskAttribute:
-        return TaskAttribute(
-            name=raw_data["name"],
-            value=raw_data["value"]
-        )
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, TaskAttribute):
-            return False
-        return self.name == o.name and self.value == o.value
-
-    def __repr__(self) -> str:
-        return str(self.to_repr())
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-
 class Task:
 
     def __init__(self,
@@ -94,7 +63,7 @@ class Task:
                  end_ts: Number,
                  deadline_ts: Number,
                  norms: Optional[List[Norm]],
-                 attributes: Optional[List[TaskAttribute]]
+                 attributes: Optional[dict]
                  ):
 
         self.task_id = task_id
@@ -158,15 +127,11 @@ class Task:
         else:
             self.norms = []
 
-        if attributes:
-            if not isinstance(attributes, list):
+        if self.attributes:
+            if not isinstance(self.attributes, dict):
                 raise TypeError("Attributes should be a list of attributes")
-            else:
-                for attribute in attributes:
-                    if not isinstance(attribute, TaskAttribute):
-                        raise TypeError("Attributes should be a list of attributes")
         else:
-            self.attributes = []
+            self.attributes = {}
 
     def to_repr(self) -> dict:
         return {
@@ -181,7 +146,7 @@ class Task:
             "endTs": self.end_ts,
             "deadlineTs": self.deadline_ts,
             "norms": list(x.to_repr() for x in self.norms),
-            "attributes": list(x.to_repr() for x in self.attributes)
+            "attributes": self.attributes
         }
 
     @staticmethod
@@ -202,7 +167,7 @@ class Task:
             end_ts=raw_data.get("endTs", None),
             deadline_ts=raw_data.get("deadlineTs", None),
             norms=list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
-            attributes=list(TaskAttribute.from_repr(x) for x in raw_data["attributes"]) if raw_data.get("attributes", None) else None
+            attributes=raw_data.get("attributes", None)
         )
 
     def prepare_task(self) -> dict:
