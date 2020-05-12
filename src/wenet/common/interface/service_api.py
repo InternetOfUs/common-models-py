@@ -15,9 +15,10 @@ class ServiceApiInterface:
     USER_ENDPOINT = "/user"
     TASK_ENDPOINT = '/task'
 
-    def __init__(self, base_url: str, app_id: str) -> None:
+    def __init__(self, base_url: str, app_id: str, api_token: str) -> None:
         self.base_url = base_url
         self.app_id = app_id
+        self.headers = {"api_key": api_token}
 
     def authenticate_telegram_user(self, telegram_id: int) -> Optional[str]:
         payload = {
@@ -25,7 +26,7 @@ class ServiceApiInterface:
             "appId": self.app_id,
             "telegramId": telegram_id
         }
-        req = requests.post(self.base_url + self.USER_ENDPOINT + '/authenticate', json=payload)
+        req = requests.post(self.base_url + self.USER_ENDPOINT + '/authenticate', json=payload, headers=self.headers)
         if req.status_code == 200:
             return req.json()["userId"]
         else:
@@ -33,7 +34,7 @@ class ServiceApiInterface:
 
     def get_user_accounts(self, wenet_user_id: str) -> Optional[WeNetUserWithAccounts]:
         req = requests.get(self.base_url + self.USER_ENDPOINT + '/accounts',
-                           params={"appId": self.app_id, "userId": wenet_user_id})
+                           params={"appId": self.app_id, "userId": wenet_user_id}, headers=self.headers)
         if req.status_code == 200:
             return WeNetUserWithAccounts.from_repr(req.json())
         else:
@@ -47,29 +48,29 @@ class ServiceApiInterface:
             "telegramId": telegram_id,
             "userId": wenet_user_id
         }
-        req = requests.post(self.base_url + self.USER_ENDPOINT + "/account/metadata", json=payload)
+        req = requests.post(self.base_url + self.USER_ENDPOINT + "/account/metadata", json=payload, headers=self.headers)
         if req.status_code != 200:
             raise UpdateMetadataError(wenet_user_id, telegram_id)
 
     def create_task(self, task: Task):
-        req = requests.post(self.base_url + self.TASK_ENDPOINT, json=task.to_repr())
+        req = requests.post(self.base_url + self.TASK_ENDPOINT, json=task.to_repr(), headers=self.headers)
         if req.status_code not in [200, 201]:
             raise TaskCreationError("Service API responded with code %d" % req.status_code)
 
     def get_task(self, task_id: str) -> Task:
-        req = requests.get(self.base_url + self.TASK_ENDPOINT + '/%s' % task_id)
+        req = requests.get(self.base_url + self.TASK_ENDPOINT + '/%s' % task_id, headers=self.headers)
         if req.status_code == 404:
             raise TaskNotFound(task_id)
         task = Task.from_repr(req.json(), task_id)
         return task
 
     def create_task_transaction(self, transaction: TaskTransaction):
-        req = requests.post(self.base_url + self.TASK_ENDPOINT + '/transaction', json=transaction.to_repr())
+        req = requests.post(self.base_url + self.TASK_ENDPOINT + '/transaction', json=transaction.to_repr(), headers=self.headers)
         if req.status_code not in [200, 201]:
             raise TaskTransactionCreationError()
 
     def get_user_profile(self, wenet_user_id: str) -> Optional[WeNetUserProfile]:
-        req = requests.get(self.base_url + self.USER_ENDPOINT + '/profile/%s' % wenet_user_id)
+        req = requests.get(self.base_url + self.USER_ENDPOINT + '/profile/%s' % wenet_user_id, headers=self.headers)
         if req.status_code == 200:
             return WeNetUserProfile.from_repr(req.json())
         return None
