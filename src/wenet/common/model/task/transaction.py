@@ -4,11 +4,6 @@ from typing import Optional
 
 
 class TaskTransaction:
-    LABEL_VOLUNTEER_FOR_TASK = 'volunteerForTask'
-    LABEL_REFUSE_TASK = 'refuseTask'
-    LABEL_ACCEPT_VOLUNTEER = 'acceptVolunteer'
-    LABEL_REFUSE_VOLUNTEER = 'refuseVolunteer'
-    LABEL_TASK_COMPLETED = 'taskCompleted'
 
     def __init__(self, task_id: str, label: str, attributes: Optional[dict]):
         self.task_id = task_id
@@ -25,12 +20,6 @@ class TaskTransaction:
                 raise TypeError("Attributes should be a list of TaskAttribute")
         else:
             self.attributes = {}
-
-        allowed_task_labels = [TaskTransaction.LABEL_ACCEPT_VOLUNTEER, TaskTransaction.LABEL_REFUSE_TASK,
-                               TaskTransaction.LABEL_TASK_COMPLETED, TaskTransaction.LABEL_REFUSE_VOLUNTEER,
-                               TaskTransaction.LABEL_VOLUNTEER_FOR_TASK]
-        if self.label not in allowed_task_labels:
-            raise ValueError(f"Label {label} not valid, it must be one of {allowed_task_labels}")
 
     def to_repr(self) -> dict:
         return {
