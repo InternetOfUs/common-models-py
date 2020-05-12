@@ -136,7 +136,7 @@ class Task:
 
     def to_repr(self) -> dict:
         return {
-            "taskId": self.task_id,
+            "id": self.task_id,
             "_creationTs": self.creation_ts,
             "_lastUpdateTs": self.last_update_ts,
             "taskTypeId": self.task_type_id,
@@ -154,7 +154,7 @@ class Task:
     def from_repr(raw_data: dict, task_id: Optional[str] = None) -> Task:
 
         if task_id is None:
-            task_id = raw_data.get("taskId", None)
+            task_id = raw_data.get("id", None)
 
         return Task(
             task_id=task_id,
