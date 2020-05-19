@@ -53,7 +53,9 @@ class ServiceApiInterface:
             raise UpdateMetadataError(wenet_user_id, telegram_id)
 
     def create_task(self, task: Task):
-        req = requests.post(self.base_url + self.TASK_ENDPOINT, json=task.to_repr(), headers=self.headers)
+        task_repr = task.to_repr()
+        task_repr.pop("id", None)
+        req = requests.post(self.base_url + self.TASK_ENDPOINT, json=task_repr, headers=self.headers)
         if req.status_code not in [200, 201]:
             raise TaskCreationError("Service API responded with code %d" % req.status_code)
 
