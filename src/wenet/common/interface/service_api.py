@@ -18,7 +18,7 @@ class ServiceApiInterface:
     def __init__(self, base_url: str, app_id: str, api_token: str) -> None:
         self.base_url = base_url
         self.app_id = app_id
-        self.headers = {"api_key": api_token}
+        self.headers = {"appToken": api_token, "appId": self.app_id}
 
     def authenticate_telegram_user(self, telegram_id: int) -> Optional[str]:
         payload = {
