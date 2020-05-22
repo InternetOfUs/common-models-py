@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import requests
 
@@ -6,7 +6,7 @@ from wenet.common.interface.exceptions import TaskNotFound, UpdateMetadataError,
     TaskTransactionCreationError
 from wenet.common.model.task.transaction import TaskTransaction
 from wenet.common.model.user.authentication_account import WeNetUserWithAccounts
-from wenet.common.model.task.task import Task
+from wenet.common.model.task.task import Task, TaskPage
 from wenet.common.model.user.user_profile import WeNetUserProfile
 
 
@@ -76,3 +76,17 @@ class ServiceApiInterface:
         if req.status_code == 200:
             return WeNetUserProfile.from_repr(req.json())
         return None
+
+    def get_tasks_of_user(self, wenet_user_id: str) -> List[Task]:
+        tasks = []
+        req = requests.get(self.base_url + self.TASK_ENDPOINT + "s", headers=self.headers,
+                           params={"appId": self.app_id, "requesterId": wenet_user_id}).json()
+        task_page = TaskPage.from_repr(req)
+        tasks.extend(task_page.tasks)
+        while len(tasks) < task_page.total:
+            offset = len(tasks)
+            req = requests.get(self.base_url + self.TASK_ENDPOINT + "s", headers=self.headers,
+                               params={"appId": self.app_id, "requesterId": wenet_user_id, "offset": offset}).json()
+            task_page = TaskPage.from_repr(req)
+            tasks.extend(task_page.tasks)
+        return tasks
