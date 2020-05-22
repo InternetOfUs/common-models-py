@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from unittest import TestCase
 
 from wenet.common.model.norm.norm import Norm, NormOperator
-from wenet.common.model.task.task import Task, TaskGoal
+from wenet.common.model.task.task import Task, TaskGoal, TaskPage
 
 
 class TestTask(TestCase):
@@ -409,3 +409,74 @@ class TestTaskGoal(TestCase):
         self.assertEqual(task_goal, task_goal1)
         self.assertNotEqual(task_goal, task_goal2)
         self.assertNotEqual(task_goal, task_goal3)
+
+
+class TestTaskPage(TestCase):
+
+    def test_repr(self):
+
+        task_page = TaskPage(
+            offset=1,
+            total=100,
+            tasks=[
+                Task(
+                    task_id="task-id",
+                    creation_ts=1577833200,
+                    last_update_ts=1577833200,
+                    task_type_id="task_type_id",
+                    requester_id="requester_id",
+                    app_id="app_id",
+                    goal=TaskGoal(
+                        name="goal",
+                        description="description"
+                    ),
+                    start_ts=1577833100,
+                    end_ts=1577833300,
+                    deadline_ts=1577833350,
+                    norms=[
+                        Norm(
+                            norm_id="norm-id",
+                            attribute="attribute",
+                            operator=NormOperator.EQUALS,
+                            comparison=True,
+                            negation=False
+                        )
+                    ],
+                    attributes={
+                        "key": "value"
+                    }
+                ),
+                Task(
+                    task_id="task-id1",
+                    creation_ts=1577833200,
+                    last_update_ts=1577833200,
+                    task_type_id="task_type_id",
+                    requester_id="requester_id",
+                    app_id="app_id",
+                    goal=TaskGoal(
+                        name="goal",
+                        description="description"
+                    ),
+                    start_ts=1577833100,
+                    end_ts=1577833300,
+                    deadline_ts=1577833350,
+                    norms=[
+                        Norm(
+                            norm_id="norm-id",
+                            attribute="attribute",
+                            operator=NormOperator.EQUALS,
+                            comparison=True,
+                            negation=False
+                        )
+                    ],
+                    attributes={
+                        "key": "value"
+                    }
+                )
+            ]
+        )
+
+        from_repr = TaskPage.from_repr(task_page.to_repr())
+
+        self.assertIsInstance(from_repr, TaskPage)
+        self.assertEqual(from_repr, task_page)

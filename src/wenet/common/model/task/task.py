@@ -189,3 +189,57 @@ class Task:
         return self.task_id == o.task_id and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts and self.task_type_id == o.task_type_id \
             and self.requester_id == o.requester_id and self.app_id == o.app_id and self.goal == o.goal and self.start_ts == o.start_ts \
             and self.end_ts == o.end_ts and self.deadline_ts == o.deadline_ts and self.norms == o.norms and self.attributes == o.attributes
+
+
+class TaskPage:
+
+    def __init__(self, offset: int, total: int, tasks: Optional[List[Task]]):
+        """
+        Contains a set of tasks, used for the pagination in task list requests
+        @param offset:
+        @param total:
+        @param tasks:
+        """
+        self.offset = offset
+        self.total = total
+        self.tasks = tasks
+
+        if not isinstance(self.offset, int):
+            raise TypeError("Offset should be an integer")
+        if not isinstance(self.total, int):
+            raise TypeError("Total should be an integer")
+        if self.tasks:
+            if isinstance(self.tasks, list):
+                for task in self.tasks:
+                    if not isinstance(task, Task):
+                        raise TypeError("Tasks should be a list of Tasks")
+            else:
+                raise TypeError("Tasks should be a list of Task")
+        else:
+            self.tasks = []
+
+    def to_repr(self) -> dict:
+        return {
+            "offset": self.offset,
+            "total": self.total,
+            "tasks": list(x.to_repr() for x in self.tasks)
+        }
+
+    @staticmethod
+    def from_repr(raw_data: dict) -> TaskPage:
+        return TaskPage(
+            offset=raw_data["offset"],
+            total=raw_data["total"],
+            tasks=list(Task.from_repr(x) for x in raw_data.get("tasks", []))
+        )
+
+    def __eq__(self, o) -> bool:
+        if not isinstance(o, TaskPage):
+            return False
+        return self.offset == o.offset and self.total == o.total and self.tasks == o.tasks
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __str__(self) -> str:
+        return self.__repr__()
