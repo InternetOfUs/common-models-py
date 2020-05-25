@@ -57,7 +57,7 @@ class ServiceApiInterface:
         task_repr.pop("id", None)
         req = requests.post(self.base_url + self.TASK_ENDPOINT, json=task_repr, headers=self.headers)
         if req.status_code not in [200, 201]:
-            raise TaskCreationError("Service API responded with code %d" % req.status_code)
+            raise TaskCreationError(req.status_code, req.json())
 
     def get_task(self, task_id: str) -> Task:
         req = requests.get(self.base_url + self.TASK_ENDPOINT + '/%s' % task_id, headers=self.headers)
@@ -69,7 +69,7 @@ class ServiceApiInterface:
     def create_task_transaction(self, transaction: TaskTransaction):
         req = requests.post(self.base_url + self.TASK_ENDPOINT + '/transaction', json=transaction.to_repr(), headers=self.headers)
         if req.status_code not in [200, 201]:
-            raise TaskTransactionCreationError()
+            raise TaskTransactionCreationError(req.status_code, req.json())
 
     def get_user_profile(self, wenet_user_id: str) -> Optional[WeNetUserProfile]:
         req = requests.get(self.base_url + self.USER_ENDPOINT + '/profile/%s' % wenet_user_id, headers=self.headers)
