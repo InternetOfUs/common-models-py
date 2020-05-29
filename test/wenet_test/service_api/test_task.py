@@ -35,7 +35,8 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=98765432
         )
 
         to_repr = task.to_repr()

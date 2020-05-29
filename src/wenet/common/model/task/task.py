@@ -63,7 +63,8 @@ class Task:
                  end_ts: Number,
                  deadline_ts: Number,
                  norms: Optional[List[Norm]],
-                 attributes: Optional[dict]
+                 attributes: Optional[dict],
+                 close_ts: Optional[Number] = None
                  ):
 
         self.task_id = task_id
@@ -81,6 +82,7 @@ class Task:
         self.norms = norms
 
         self.attributes = attributes
+        self.close_ts = close_ts
 
         if task_id is not None:
             if not isinstance(task_id, str):
@@ -134,6 +136,10 @@ class Task:
         else:
             self.attributes = {}
 
+        if self.close_ts is not None:
+            if not isinstance(self.close_ts, Number):
+                raise TypeError("CloseTS should be an integer")
+
     def to_repr(self) -> dict:
         return {
             "id": self.task_id,
@@ -147,7 +153,8 @@ class Task:
             "endTs": self.end_ts,
             "deadlineTs": self.deadline_ts,
             "norms": list(x.to_repr() for x in self.norms),
-            "attributes": self.attributes
+            "attributes": self.attributes,
+            "closeTs": self.close_ts
         }
 
     @staticmethod
@@ -168,7 +175,8 @@ class Task:
             end_ts=raw_data.get("endTs", None),
             deadline_ts=raw_data.get("deadlineTs", None),
             norms=list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
-            attributes=raw_data.get("attributes", None)
+            attributes=raw_data.get("attributes", None),
+            close_ts=raw_data.get("closeTs", None)
         )
 
     def prepare_task(self) -> dict:
@@ -188,7 +196,8 @@ class Task:
             return False
         return self.task_id == o.task_id and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts and self.task_type_id == o.task_type_id \
             and self.requester_id == o.requester_id and self.app_id == o.app_id and self.goal == o.goal and self.start_ts == o.start_ts \
-            and self.end_ts == o.end_ts and self.deadline_ts == o.deadline_ts and self.norms == o.norms and self.attributes == o.attributes
+            and self.end_ts == o.end_ts and self.deadline_ts == o.deadline_ts and self.norms == o.norms and self.attributes == o.attributes \
+            and self.close_ts == o.close_ts
 
 
 class TaskPage:

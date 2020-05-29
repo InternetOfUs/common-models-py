@@ -77,10 +77,10 @@ class ServiceApiInterface:
             return WeNetUserProfile.from_repr(req.json())
         return None
 
-    def get_tasks_of_user(self, wenet_user_id: str) -> List[Task]:
+    def get_opened_tasks_of_user(self, wenet_user_id: str) -> List[Task]:
         tasks = []
         req = requests.get(self.base_url + self.TASK_ENDPOINT + "s", headers=self.headers,
-                           params={"appId": self.app_id, "requesterId": wenet_user_id}).json()
+                           params={"appId": self.app_id, "requesterId": wenet_user_id, "hasCloseTs": False}).json()
         task_page = TaskPage.from_repr(req)
         tasks.extend(task_page.tasks)
         while len(tasks) < task_page.total:
