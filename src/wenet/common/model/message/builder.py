@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from wenet.common.model.message.exception import NotificationTypeError, EventTypeError, MessageTypeError
 from wenet.common.model.message.message import BaseMessage, TextualMessage, TaskNotification, TaskConcludedNotification, \
     TaskVolunteerNotification, TaskProposalNotification, MessageFromUserNotification, Event, NewUserForPlatform, \
-    TaskSelectionNotification
+    TaskSelectionNotification, WeNetAuthentication
 
 
 class MessageBuilder:
@@ -38,6 +38,8 @@ class MessageBuilder:
             event_type = raw_message["eventType"]
             if event_type == NewUserForPlatform.TYPE:
                 message = NewUserForPlatform.from_repr(raw_message)
+            elif event_type == WeNetAuthentication.TYPE:
+                message = WeNetAuthentication.from_repr(raw_message)
             else:
                 raise EventTypeError(event_type)
         else:

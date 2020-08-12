@@ -346,7 +346,7 @@ class Event(BaseMessage):
         :param event_type: type of the event, it must be newUserForPlatform
         :raises ValueError: in case the specified event type is wrong
         """
-        allowed_types = [NewUserForPlatform.TYPE]
+        allowed_types = [NewUserForPlatform.TYPE, WeNetAuthentication.TYPE]
         if event_type not in allowed_types:
             raise ValueError(f"Event type {event_type} not valid. It must be one of {allowed_types}")
         super().__init__(Event.TYPE)
@@ -407,4 +407,29 @@ class NewUserForPlatform(Event):
             raw["app"],
             raw["userId"],
             raw["platform"]
+        )
+
+
+class WeNetAuthentication(Event):
+
+    TYPE = "weNetAuthentication"
+
+    def __init__(self, external_id: str, code: str):
+        super().__init__(WeNetAuthentication.TYPE)
+        self.external_id = external_id
+        self.code = code
+
+    def to_repr(self) -> dict:
+        base = super().to_repr()
+        base.update({
+            "externalId": self.external_id,
+            "code": self.code
+        })
+        return base
+
+    @staticmethod
+    def from_repr(raw: dict) -> Event:
+        return WeNetAuthentication(
+            raw["externalId"],
+            raw["code"]
         )
