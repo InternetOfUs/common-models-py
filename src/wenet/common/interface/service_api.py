@@ -22,36 +22,12 @@ class ServiceApiInterface:
         self.base_url = base_url
         self.client = oauth2_client
 
-    def authenticate_telegram_user(self, telegram_id: int, app_id) -> Optional[str]:
-        payload = {
-            "type": "telegram",
-            "appId": app_id,
-            "telegramId": telegram_id
-        }
-        req = self.client.post(self.base_url + self.USER_ENDPOINT + '/authenticate', body=payload)
-        if req.status_code == 200:
-            return req.json()["userId"]
-        else:
-            return None
-
     def get_user_accounts(self, wenet_user_id: str, app_id) -> Optional[WeNetUserWithAccounts]:
         req = self.client.get(self.base_url + self.USER_ENDPOINT + '/accounts', query_params={"appId": app_id, "userId": wenet_user_id})
         if req.status_code == 200:
             return WeNetUserWithAccounts.from_repr(req.json())
         else:
             return None
-
-    def update_user_metadata_telegram(self, telegram_id: int, wenet_user_id: str, metadata: dict, app_id: str):
-        payload = {
-            "type": "telegram",
-            "appId": app_id,
-            "metadata": metadata,
-            "telegramId": telegram_id,
-            "userId": wenet_user_id
-        }
-        req = self.client.post(self.base_url + self.USER_ENDPOINT + "/account/metadata", body=payload)
-        if req.status_code != 200:
-            raise UpdateMetadataError(wenet_user_id, telegram_id)
 
     def create_task(self, task: Task):
         task_repr = task.to_repr()
@@ -85,12 +61,17 @@ class ServiceApiInterface:
 
     def get_opened_tasks_of_user(self, wenet_user_id: str, app_id: str) -> List[Task]:
         tasks = []
-        req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s", query_params={"appId": app_id, "requesterId": wenet_user_id, "hasCloseTs": False}).json()
-        task_page = TaskPage.from_repr(req)
-        tasks.extend(task_page.tasks)
-        while len(tasks) < task_page.total:
-            offset = len(tasks)
-            req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s", query_params={"appId": app_id, "requesterId": wenet_user_id, "offset": offset}).json()
-            task_page = TaskPage.from_repr(req)
+        req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s", query_params={"appId": app_id, "requesterId": wenet_user_id, "hasCloseTs": False})
+
+        if req.status_code == 200:
+            task_page = TaskPage.from_repr(req.json())
             tasks.extend(task_page.tasks)
-        return tasks
+            while len(tasks) < task_page.total:
+                offset = len(tasks)
+                req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s", query_params={"appId": app_id, "requesterId": wenet_user_id, "offset": offset}).json()
+                task_page = TaskPage.from_repr(req)
+                tasks.extend(task_page.tasks)
+            return tasks
+        else:
+            logger.warning(f"Unable to retrieve the list of task, server respond with [{req.status_code}], [{req.text}]")
+            return []

@@ -5,6 +5,10 @@ from typing import Optional
 import requests
 import logging
 
+from requests import Response
+
+from wenet.common.interface.exceptions import RefreshTokenExpiredError
+
 logger = logging.getLogger("uhopper.service_api_interface.oauth_client")
 
 
@@ -40,7 +44,8 @@ class Oauth2Client:
 
         return client
 
-    def _refresh_access_token(self) -> None:
+    def refresh_access_token(self) -> None:
+        logger.info(f"Refresh token for client [{self._client_id}]")
         body = {
             "client_id": self._client_id,
             "client_secret": self._client_secret,
@@ -54,7 +59,8 @@ class Oauth2Client:
             self.refresh_token = body["refresh_token"]
             self.token = body["access_token"]
         else:
-            raise Exception("Unable to refresh the token")
+            logger.warning(f"Unable to refresh the token for user [{self._client_id}]")
+            raise RefreshTokenExpiredError("Unable to refresh the token")
 
     def _initialize(self, code: str, redirect_url: str):
         body = {
@@ -73,66 +79,65 @@ class Oauth2Client:
         else:
             raise Exception(f"Unable to retrieve the token, server respond with: {response} {response.json}")
 
-    def _get_authentication_headers(self) -> dict:
+    @staticmethod
+    def get_authentication_headers(token: str) -> dict:
         return {
-            "authorization": f"bearer {self.token}"
+            "authorization": f"bearer {token}"
         }
 
-    def get(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None):
+    def get(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
 
-        if headers is not None:
-            headers.update(self._get_authentication_headers())
-        else:
-            headers = self._get_authentication_headers()
+        if headers is None:
+            headers = {}
 
-        def get_request(retry: bool):
+        def get_request(client: Optional, retry: bool):
+            logger.debug(f"Performing get request with token {client.token} {client.refresh_token}")
+            headers.update(client.get_authentication_headers(client.token))
             response = requests.get(url, params=query_params, headers=headers)
             if response.status_code == 401:
                 if retry:
-                    self._refresh_access_token()
-                    return get_request(False)
+                    client.refresh_access_token()
+                    return get_request(client, False)
                 else:
                     return response
             else:
                 return response
 
-        return get_request(True)
+        return get_request(self, True)
 
-    def post(self, url: str, body: dict, headers: Optional[dict] = None):
-        if headers is not None:
-            headers.update(self._get_authentication_headers())
-        else:
-            headers = self._get_authentication_headers()
+    def post(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+        if headers is None:
+            headers = {}
 
-        def post_request(retry: bool):
+        def post_request(client: Optional, retry: bool):
+            headers.update(client.get_authentication_headers(client.token))
             response = requests.post(url, json=body, headers=headers)
             if response.status_code == 401:
                 if retry:
-                    self._refresh_access_token()
-                    return post_request(False)
+                    client.refresh_access_token()
+                    return post_request(client, False)
                 else:
                     return response
             else:
                 return response
 
-        return post_request(True)
+        return post_request(self, True)
 
-    def put(self, url: str, body: dict, headers: Optional[dict] = None):
-        if headers is not None:
-            headers.update(self._get_authentication_headers())
-        else:
-            headers = self._get_authentication_headers()
+    def put(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+        if headers is None:
+            headers = {}
 
-        def post_request(retry: bool):
+        def put_request(client: Optional, retry: bool):
+            headers.update(client.get(client.token))
             response = requests.put(url, json=body, headers=headers)
             if response.status_code == 401:
                 if retry:
-                    self._refresh_access_token()
-                    return post_request(False)
+                    self.refresh_access_token()
+                    return put_request(client, False)
                 else:
                     return response
             else:
                 return response
 
-        return post_request(True)
+        return put_request(self, True)
 

@@ -24,3 +24,9 @@ class TaskTransactionCreationError(ValueError):
         super().__init__()
         self.http_status = http_status
         self.json_response = json_response
+
+
+class RefreshTokenExpiredError(Exception):
+
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
