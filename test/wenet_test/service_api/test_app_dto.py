@@ -3,7 +3,6 @@ from __future__ import absolute_import, annotations
 from unittest import TestCase
 
 from wenet.common.model.app.app_dto import AppDTO
-from wenet.common.model.app.platform_dto import TelegramPlatformDTO
 
 
 class TestAppDTO(TestCase):
@@ -14,11 +13,6 @@ class TestAppDTO(TestCase):
             app_token="token",
             creation_ts=1231230,
             last_update_ts=1231230,
-            allowed_platforms=[
-                TelegramPlatformDTO(
-                    bot_id="bot_id"
-                )
-            ],
             message_callback_url="callback",
             metadata={}
         )
@@ -34,7 +28,6 @@ class TestAppDTO(TestCase):
             app_token="token",
             creation_ts=None,
             last_update_ts=None,
-            allowed_platforms=[],
             message_callback_url="callback",
             metadata=None
         )

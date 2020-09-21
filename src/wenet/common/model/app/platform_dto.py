@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from wenet.common.model.user.common import PlatformType
 
-
+# TODO remove
 class PlatformDTO:
 
     def __init__(self, platform_type: PlatformType):

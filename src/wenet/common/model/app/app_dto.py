@@ -7,12 +7,11 @@ from wenet.common.model.app.platform_dto import PlatformDTO
 
 class AppDTO:
 
-    def __init__(self, creation_ts: Optional[int], last_update_ts: Optional[int], app_id: str, app_token: str, allowed_platforms: List[PlatformDTO], message_callback_url: Optional[str], metadata: Optional[dict]):
+    def __init__(self, creation_ts: Optional[int], last_update_ts: Optional[int], app_id: str, app_token: str, message_callback_url: Optional[str], metadata: Optional[dict]):
         self.creation_ts = creation_ts
         self.last_update_ts = last_update_ts
         self.app_id = app_id
         self.app_token = app_token
-        self.allowed_platforms = allowed_platforms
         self.message_callback_url = message_callback_url
         self.metadata = metadata
 
@@ -30,12 +29,6 @@ class AppDTO:
             raise TypeError("App id should be a string")
         if not isinstance(self.app_token, str):
             raise TypeError("AppToken should be a string")
-        if isinstance(self.allowed_platforms, list):
-            for platforms in self.allowed_platforms:
-                if not isinstance(platforms, PlatformDTO):
-                    raise TypeError("AllowedPlatforms should be a list of Platforms")
-        else:
-            raise TypeError("AllowedPlatforms should be a list of Platforms")
 
         if not isinstance(self.metadata, dict):
             raise TypeError("metadata should be a dictionary")
@@ -46,7 +39,6 @@ class AppDTO:
             "lastUpdateTs": self.last_update_ts,
             "appId": self.app_id,
             "appToken": self.app_token,
-            "allowedPlatforms": list(x.to_repr() for x in self.allowed_platforms),
             "messageCallbackUrl": self.message_callback_url,
             "metadata": self.metadata
         }
@@ -58,7 +50,6 @@ class AppDTO:
             last_update_ts=raw_data.get("lastUpdateTs", None),
             app_id=raw_data["appId"],
             app_token=raw_data["appToken"],
-            allowed_platforms=list(PlatformDTO.from_repr(x) for x in raw_data["allowedPlatforms"]),
             message_callback_url=raw_data.get("messageCallbackUrl", None),
             metadata=raw_data.get("metadata", None)
         )
@@ -66,7 +57,7 @@ class AppDTO:
     def __eq__(self, o):
         if not isinstance(o, AppDTO):
             return False
-        return self.app_id == o.app_id and self.app_token == o.app_token and self.allowed_platforms == o.allowed_platforms \
+        return self.app_id == o.app_id and self.app_token == o.app_token \
             and self.message_callback_url == o.message_callback_url and self.metadata == o.metadata
 
     def __repr__(self):
