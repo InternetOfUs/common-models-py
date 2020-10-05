@@ -10,7 +10,6 @@ class TestAppDTO(TestCase):
     def test_repr(self):
         app = AppDTO(
             app_id="app id",
-            app_token="token",
             creation_ts=1231230,
             last_update_ts=1231230,
             message_callback_url="callback",
@@ -25,7 +24,6 @@ class TestAppDTO(TestCase):
     def test_repr2(self):
         app = AppDTO(
             app_id="app id",
-            app_token="token",
             creation_ts=None,
             last_update_ts=None,
             message_callback_url="callback",
