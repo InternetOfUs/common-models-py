@@ -2,8 +2,9 @@ from __future__ import absolute_import, annotations
 
 import re
 from numbers import Number
-from typing import List, Optional
+from typing import List, Optional, Dict
 
+from wenet.common.model.scope import AbstractScopeMappings, Scope
 from wenet.common.model.user.common import Gender, Date, UserLanguage
 from wenet.common.model.norm.norm import Norm
 from babel.core import Locale
@@ -37,6 +38,19 @@ class PublicWeNetUserProfile:
 
 
 class CoreWeNetUserProfile:
+
+    class ScopeMappings(AbstractScopeMappings):
+        @staticmethod
+        def _get_mappings() -> Dict[Scope, str]:
+            return {
+                Scope.ID: "id",
+                Scope.BIRTHDATE: "dateOfBirth",
+                Scope.GENDER: "gender",
+                Scope.NATIONALITY: "nationality",
+                Scope.LOCALE: "locale",
+                Scope.PHONE_NUMBER: "phoneNumber",
+                Scope.EMAIL: "email",
+            }
 
     def __init__(self,
                  name: Optional[UserName],
@@ -136,6 +150,20 @@ class CoreWeNetUserProfile:
             "_lastUpdateTs": self.last_update_ts,
             "id": str(self.profile_id),
         }
+
+    def to_filtered_repr(self, scope_list: List[Scope]) -> dict:
+        profile_repr = self.to_repr()
+
+        result = {
+            "name": self.name.to_filtered_repr(scope_list) if self.name is not None else None
+        }
+
+        for scope in scope_list:
+            field = self.ScopeMappings.get_field(scope)
+            if field is not None:
+                result[field] = profile_repr[field]
+
+        return result
 
     @staticmethod
     def from_repr(raw_data: dict, profile_id: Optional[str] = None) -> CoreWeNetUserProfile:
@@ -425,6 +453,17 @@ class WeNetUserProfile(CoreWeNetUserProfile):
 
 class UserName:
 
+    class ScopeMappings(AbstractScopeMappings):
+        @staticmethod
+        def _get_mappings() -> Dict[Scope, str]:
+            return {
+                Scope.FIRST_NAME: "first",
+                Scope.MIDDLE_NAME: "middle",
+                Scope.LAST_NAME: "last",
+                Scope.PREFIX_NAME: "prefix",
+                Scope.SUFFIX_NAME: "suffix",
+            }
+
     def __init__(self, first: Optional[str], middle: Optional[str], last: Optional[str], prefix: Optional[str], suffix: Optional[str]):
         self.first = first
         self.middle = middle
@@ -462,6 +501,17 @@ class UserName:
                 "prefix": self.prefix,
                 "suffix": self.suffix
             }
+
+    def to_filtered_repr(self, scope_list: List[Scope]) -> dict:
+        name_repr = self.to_repr()
+        result = {}
+
+        for scope in scope_list:
+            field = self.ScopeMappings.get_field(scope)
+            if field is not None:
+                result[field] = name_repr[field]
+
+        return result
 
     @staticmethod
     def from_repr(raw_data: dict) -> UserName:
