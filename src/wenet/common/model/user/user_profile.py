@@ -9,6 +9,33 @@ from wenet.common.model.norm.norm import Norm
 from babel.core import Locale
 
 
+class PublicWeNetUserProfile:
+
+    def __init__(self, profile_id: str, name: Optional[UserName]):
+        self.profile_id = profile_id
+        self.name = name
+
+    def to_repr(self) -> dict:
+        return {
+            "id": self.profile_id,
+            "name": self.name.to_repr(public_profile=True) if self.name is not None else None
+        }
+
+    @staticmethod
+    def from_repr(raw_data: dict) -> PublicWeNetUserProfile:
+        return PublicWeNetUserProfile(
+            profile_id=raw_data["id"],
+            name=UserName.from_repr(raw_data["name"]) if raw_data.get("name", None) is not None else None
+        )
+
+    @staticmethod
+    def from_profile(profile: CoreWeNetUserProfile):
+        return PublicWeNetUserProfile(
+            profile_id=profile.profile_id,
+            name=profile.name
+        )
+
+
 class CoreWeNetUserProfile:
 
     def __init__(self,
@@ -421,14 +448,20 @@ class UserName:
             if not isinstance(suffix, str):
                 raise TypeError("Suffix should be a string")
 
-    def to_repr(self) -> dict:
-        return {
-            "first": self.first,
-            "middle": self.middle,
-            "last": self.last,
-            "prefix": self.prefix,
-            "suffix": self.suffix
-        }
+    def to_repr(self, public_profile: bool = False) -> dict:
+        if public_profile:
+            return {
+                "first": self.first,
+                "last": self.last,
+            }
+        else:
+            return {
+                "first": self.first,
+                "middle": self.middle,
+                "last": self.last,
+                "prefix": self.prefix,
+                "suffix": self.suffix
+            }
 
     @staticmethod
     def from_repr(raw_data: dict) -> UserName:
