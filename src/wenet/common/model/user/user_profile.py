@@ -57,6 +57,14 @@ class CoreWeNetUserProfile:
         if name:
             if not isinstance(name, UserName):
                 raise TypeError("Name should be a UserName object")
+        else:
+            self.name = UserName(
+                first=None,
+                middle=None,
+                last=None,
+                prefix=None,
+                suffix=None
+            )
         if date_of_birth:
             if not isinstance(date_of_birth, Date):
                 raise TypeError("Date of birth should be a Date")
