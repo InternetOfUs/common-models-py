@@ -10,33 +10,6 @@ from wenet.common.model.norm.norm import Norm
 from babel.core import Locale
 
 
-class PublicWeNetUserProfile:
-
-    def __init__(self, profile_id: str, name: Optional[UserName]):
-        self.profile_id = profile_id
-        self.name = name
-
-    def to_repr(self) -> dict:
-        return {
-            "id": self.profile_id,
-            "name": self.name.to_repr(public_profile=True) if self.name is not None else None
-        }
-
-    @staticmethod
-    def from_repr(raw_data: dict) -> PublicWeNetUserProfile:
-        return PublicWeNetUserProfile(
-            profile_id=raw_data["id"],
-            name=UserName.from_repr(raw_data["name"]) if raw_data.get("name", None) is not None else None
-        )
-
-    @staticmethod
-    def from_profile(profile: CoreWeNetUserProfile):
-        return PublicWeNetUserProfile(
-            profile_id=profile.profile_id,
-            name=profile.name
-        )
-
-
 class CoreWeNetUserProfile:
 
     class ScopeMappings(AbstractScopeMappings):
@@ -164,6 +137,15 @@ class CoreWeNetUserProfile:
                 result[field] = profile_repr[field]
 
         return result
+
+    def to_public_repr(self) -> dict:
+        scopes = [
+            Scope.ID,
+            Scope.FIRST_NAME,
+            Scope.LAST_NAME
+        ]
+
+        return self.to_filtered_repr(scopes)
 
     @staticmethod
     def from_repr(raw_data: dict, profile_id: Optional[str] = None) -> CoreWeNetUserProfile:
