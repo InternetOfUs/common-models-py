@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from unittest import TestCase
 
 from wenet.common.model.scope import Scope
-from wenet.common.model.user.common import Date, Gender, UserLanguage
+from wenet.common.model.user.common import Date, Gender
 from wenet.common.model.norm.norm import Norm, NormOperator
 from wenet.common.model.user.user_profile import UserName, WeNetUserProfile
 
@@ -112,13 +112,6 @@ class TestUserProfile(TestCase):
             locale="it_IT",
             avatar="avatar",
             nationality="it",
-            languages=[
-                UserLanguage(
-                    name="ita",
-                    level="C2",
-                    code="it"
-                )
-            ],
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
@@ -134,8 +127,10 @@ class TestUserProfile(TestCase):
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
-            social_practices=[],
-            personal_behaviours=[]
+            personal_behaviours=[],
+            materials=[],
+            competences=[],
+            meanings=[]
         )
 
         to_repr = user_profile.to_repr()
@@ -165,7 +160,6 @@ class TestUserProfile(TestCase):
             locale=None,
             avatar=None,
             nationality=None,
-            languages=[],
             occupation=None,
             creation_ts=None,
             last_update_ts=None,
@@ -174,8 +168,10 @@ class TestUserProfile(TestCase):
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
-            social_practices=[],
-            personal_behaviours=[]
+            personal_behaviours=[],
+            materials=[],
+            competences=[],
+            meanings=[]
         )
 
         to_repr = user_profile.to_repr()
@@ -205,7 +201,6 @@ class TestUserProfile(TestCase):
             locale=None,
             avatar=None,
             nationality=None,
-            languages=[],
             occupation=None,
             creation_ts=None,
             last_update_ts=None,
@@ -214,8 +209,10 @@ class TestUserProfile(TestCase):
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
-            social_practices=[],
-            personal_behaviours=[]
+            personal_behaviours=[],
+            materials=[],
+            competences=[],
+            meanings=[]
         )
 
         to_repr = user_profile.to_repr()
@@ -245,13 +242,6 @@ class TestUserProfile(TestCase):
             locale="it_IT",
             avatar="avatar",
             nationality="it",
-            languages=[
-                UserLanguage(
-                    name="ita",
-                    level="C2",
-                    code="it"
-                )
-            ],
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
@@ -267,8 +257,10 @@ class TestUserProfile(TestCase):
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
-            social_practices=[],
-            personal_behaviours=[]
+            personal_behaviours=[],
+            materials=[],
+            competences=[],
+            meanings=[]
         )
 
         to_repr = user_profile.to_repr()
@@ -298,13 +290,6 @@ class TestUserProfile(TestCase):
             locale="it_IT",
             avatar="avatar",
             nationality="it",
-            languages=[
-                UserLanguage(
-                    name="ita",
-                    level="C2",
-                    code="it"
-                )
-            ],
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
@@ -320,8 +305,10 @@ class TestUserProfile(TestCase):
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
-            social_practices=[],
-            personal_behaviours=[]
+            personal_behaviours=[],
+            materials=[],
+            competences=[],
+            meanings=[]
         )
 
         to_repr = user_profile.to_public_repr()
@@ -364,13 +351,6 @@ class TestUserProfile(TestCase):
             locale="it_IT",
             avatar="avatar",
             nationality="it",
-            languages=[
-                UserLanguage(
-                    name="ita",
-                    level="C2",
-                    code="it"
-                )
-            ],
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
@@ -386,8 +366,10 @@ class TestUserProfile(TestCase):
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
-            social_practices=[],
-            personal_behaviours=[]
+            personal_behaviours=[],
+            materials=[],
+            competences=[],
+            meanings=[]
         )
 
         to_repr = user_profile.to_filtered_repr(scope_list=[Scope.ID, Scope.PHONE_NUMBER])

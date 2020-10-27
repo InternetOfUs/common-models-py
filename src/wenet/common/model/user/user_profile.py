@@ -34,7 +34,7 @@ class CoreWeNetUserProfile:
                  locale: Optional[str],
                  avatar: Optional[str],
                  nationality: Optional[str],
-                 languages: Optional[List[UserLanguage]],
+                 #languages: Optional[List[UserLanguage]],
                  occupation: Optional[str],
                  creation_ts: Optional[Number],
                  last_update_ts: Optional[Number],
@@ -48,7 +48,7 @@ class CoreWeNetUserProfile:
         self.locale = locale
         self.avatar = avatar
         self.nationality = nationality
-        self.languages = languages
+        # self.languages = languages
         self.occupation = occupation
         self.creation_ts = creation_ts
         self.last_update_ts = last_update_ts
@@ -91,13 +91,13 @@ class CoreWeNetUserProfile:
             if not isinstance(nationality, str):
                 raise TypeError("Nationality should be a string")
 
-        if languages:
-            if not isinstance(languages, list):
-                raise TypeError("Languages should be list of UserLanguage")
-            else:
-                for language in languages:
-                    if not isinstance(language, UserLanguage):
-                        raise TypeError("Languages should be list of UserLanguage")
+        # if languages:
+        #     if not isinstance(languages, list):
+        #         raise TypeError("Languages should be list of UserLanguage")
+        #     else:
+        #         for language in languages:
+        #             if not isinstance(language, UserLanguage):
+        #                 raise TypeError("Languages should be list of UserLanguage")
         else:
             self.languages = []
         if occupation:
@@ -125,7 +125,6 @@ class CoreWeNetUserProfile:
             "locale": self.locale,
             "avatar": self.avatar,
             "nationality": self.nationality,
-            "languages": list(x.to_repr() for x in self.languages),
             "occupation": self.occupation,
             "_creationTs": self.creation_ts,
             "_lastUpdateTs": self.last_update_ts,
@@ -169,7 +168,6 @@ class CoreWeNetUserProfile:
             locale=raw_data.get("locale", None),
             avatar=raw_data.get("avatar", None),
             nationality=raw_data.get("nationality", None),
-            languages=list(UserLanguage.from_repr(x) for x in raw_data["languages"]) if raw_data.get("languages", None) else None,
             occupation=raw_data.get("occupation", None),
             creation_ts=raw_data.get("_creationTs", None),
             last_update_ts=raw_data.get("_lastUpdateTs", None),
@@ -186,7 +184,6 @@ class CoreWeNetUserProfile:
         self.locale = other.locale
         self.avatar = other.avatar
         self.nationality = other.nationality
-        self.languages = other.languages
         self.occupation = other.occupation
         self.creation_ts = other.creation_ts
         self.last_update_ts = other.last_update_ts
@@ -217,7 +214,7 @@ class CoreWeNetUserProfile:
             return False
         return self.name == o.name and self.date_of_birth == o.date_of_birth and self.gender == o.gender and self.email == o.email \
             and self.phone_number == o.phone_number and self.locale == o.locale and self.avatar == o.avatar and self.nationality == o.nationality \
-            and self.languages == o.languages and self.occupation == o.occupation and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts \
+            and self.occupation == o.occupation and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts \
             and self.profile_id == o.profile_id
 
     @staticmethod
@@ -231,7 +228,6 @@ class CoreWeNetUserProfile:
             locale=None,
             avatar=None,
             nationality=None,
-            languages=None,
             occupation=None,
             creation_ts=None,
             last_update_ts=None,
@@ -250,7 +246,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
                  locale: Optional[str],
                  avatar: Optional[str],
                  nationality: Optional[str],
-                 languages: Optional[List[UserLanguage]],
                  occupation: Optional[str],
                  creation_ts: Optional[Number],
                  last_update_ts: Optional[Number],
@@ -259,8 +254,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
                  planned_activities: Optional[list],
                  relevant_locations: Optional[list],
                  relationships: Optional[list],
-                 social_practices: Optional[list],
-                 personal_behaviours: Optional[list]
+                 personal_behaviours: Optional[list],
+                 materials: Optional[list],
+                 competences: Optional[list],
+                 meanings: Optional[list]
                  ):
 
         super().__init__(
@@ -272,7 +269,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             locale=locale,
             avatar=avatar,
             nationality=nationality,
-            languages=languages,
             occupation=occupation,
             creation_ts=creation_ts,
             last_update_ts=last_update_ts,
@@ -282,8 +278,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         self.planned_activities = planned_activities
         self.relevant_locations = relevant_locations
         self.relationships = relationships
-        self.social_practices = social_practices
         self.personal_behaviours = personal_behaviours
+        self.materials = materials
+        self.competences = competences
+        self.meanings = meanings
 
         if norms:
             if not isinstance(norms, list):
@@ -294,6 +292,24 @@ class WeNetUserProfile(CoreWeNetUserProfile):
                         raise TypeError("Norms should be a list of norms")
         else:
             self.norms = []
+
+        if materials:
+            if not isinstance(materials, list):
+                raise TypeError("Materials should be a list")
+        else:
+            self.materials = []
+
+        if competences:
+            if not isinstance(competences, list):
+                raise TypeError("Competences should be a list")
+        else:
+            self.competences = []
+
+        if meanings:
+            if not isinstance(meanings, list):
+                raise TypeError("Meanings should be a list")
+        else:
+            self.meanings = []
 
         if planned_activities:
             if not isinstance(planned_activities, list):
@@ -313,12 +329,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         else:
             self.relationships = []
 
-        if social_practices:
-            if not isinstance(social_practices, list):
-                raise TypeError("SocialPractices should be a list")
-        else:
-            self.social_practices = []
-
         if personal_behaviours:
             if not isinstance(personal_behaviours, list):
                 raise TypeError("personalBehaviors should be a list")
@@ -332,8 +342,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             "plannedActivities": self.planned_activities,
             "relevantLocations": self.relevant_locations,
             "relationships": self.relationships,
-            "socialPractices": self.social_practices,
-            "personalBehaviors": self.personal_behaviours
+            "personalBehaviors": self.personal_behaviours,
+            "materials": self.materials,
+            "competences": self.competences,
+            "meanings": self.meanings
         })
 
         return base_repr
@@ -353,7 +365,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             locale=raw_data.get("locale", None),
             avatar=raw_data.get("avatar", None),
             nationality=raw_data.get("nationality", None),
-            languages=list(UserLanguage.from_repr(x) for x in raw_data["languages"]) if raw_data.get("languages", None) else None,
             occupation=raw_data.get("occupation", None),
             creation_ts=raw_data.get("_creationTs", None),
             last_update_ts=raw_data.get("_lastUpdateTs", None),
@@ -362,8 +373,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             planned_activities=raw_data.get("plannedActivities", None),
             relevant_locations=raw_data.get("relevantLocations", None),
             relationships=raw_data.get("relationships", None),
-            social_practices=raw_data.get("socialPractices", None),
-            personal_behaviours=raw_data.get("personalBehaviors", None)
+            personal_behaviours=raw_data.get("personalBehaviors", None),
+            materials=raw_data.get("materials", None),
+            competences=raw_data.get("competences", None),
+            meanings=raw_data.get("meanings", None)
         )
 
     def update(self, other: CoreWeNetUserProfile) -> WeNetUserProfile:
@@ -375,8 +388,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             self.planned_activities = other.planned_activities
             self.relevant_locations = other.relevant_locations
             self.relationships = other.relationships
-            self.social_practices = other.social_practices
             self.personal_behaviours = other.personal_behaviours
+            self.materials = other.materials
+            self.competences = other.competences
+            self.meanings = other.meanings
 
         return self
 
@@ -390,7 +405,8 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         if not isinstance(o, WeNetUserProfile):
             return False
         return super().__eq__(o) and self.norms == o.norms and self.planned_activities == o.planned_activities and self.relevant_locations == o.relationships \
-            and self.relationships == o.relationships and self.social_practices == o.social_practices and self.personal_behaviours == o.personal_behaviours
+            and self.relationships == o.relationships and self.personal_behaviours == o.personal_behaviours and self.materials == o.materials \
+            and self.competences == o.competences and self.meanings == o.meanings
 
     @staticmethod
     def empty(wenet_user_id: str) -> WeNetUserProfile:
@@ -403,7 +419,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             locale=None,
             avatar=None,
             nationality=None,
-            languages=None,
             occupation=None,
             creation_ts=None,
             last_update_ts=None,
@@ -412,8 +427,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             planned_activities=None,
             relevant_locations=None,
             relationships=None,
-            social_practices=None,
-            personal_behaviours=None
+            personal_behaviours=None,
+            materials=None,
+            competences=None,
+            meanings=None
         )
 
     @staticmethod
@@ -427,7 +444,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             locale=profile.locale,
             avatar=profile.avatar,
             nationality=profile.nationality,
-            languages=profile.languages,
             occupation=profile.occupation,
             creation_ts=profile.creation_ts,
             last_update_ts=profile.last_update_ts,
