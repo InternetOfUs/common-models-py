@@ -1,435 +1,229 @@
-from __future__ import absolute_import, annotations
+from __future__ import absolute_import
+from __future__ import annotations
 
 
-class BaseMessage:
+class Message:
     """
-    Generic class representing a message coming from WeNet
-    """
+    Base message from WeNet to the user.
 
-    def __init__(self, message_type: str) -> None:
-        """
-        Create a BaseMessage instance
-        :param message_type: the type of message, one of Task notification, Event or Textual message
-        :raises ValueError: in case the specified type is not one of the aforementioned
-        """
-        allowed_types = [TaskNotification.TYPE, TextualMessage.TYPE, Event.TYPE]
-        if message_type not in allowed_types:
-            raise ValueError(f"type {message_type} not valid. It must be one of {allowed_types}")
-        self.type = message_type
-
-    def to_repr(self) -> dict:
-        return {"type": self.type}
-
-    @staticmethod
-    def from_repr(raw: dict) -> BaseMessage:
-        return BaseMessage(raw["type"])
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, BaseMessage):
-            return False
-        return self.type == o.type
-
-
-class Message(BaseMessage):
-    """
-    Common class for a message, that can be either a textual message or a notification
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - community_id: ID of the community related to the message
+        - task_id: The identifier of the target task
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - label: The type of the message
+        - attributes: dictionary with additional attributes of the message
     """
 
-    def __init__(self, message_type: str, recipient_id: str, title: str, text: str) -> None:
-        """
-        Create a Message instance
-        :param message_type: type of the message, either a notification or a textual message
-        :param recipient_id: WeNet ID of the recipient
-        :param title: title of the message
-        :param text: text of the message
-        :raises ValueError: in case the message type is wrong
-        """
-        types = [TaskNotification.TYPE, TextualMessage.TYPE]
-        if message_type not in types:
-            raise ValueError("Message type must be either %s given [%s]" % (str(types), message_type))
-        super().__init__(message_type)
-        self.recipient_id = recipient_id
-        self.title = title
-        self.text = text
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, Message):
-            return False
-        return self.type == o.type and self.recipient_id == o.recipient_id and self.title == o.title and self.text == o.text
+    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, label: str,
+                 attributes: dict) -> None:
+        self.app_id = app_id
+        self.community_id = community_id
+        self.task_id = task_id
+        self.receiver_id = receiver_id
+        self.label = label
+        self.attributes = attributes
 
     def to_repr(self) -> dict:
         return {
-            "type": self.type,
-            "recipientId": self.recipient_id,
-            "title": self.title,
-            "text": self.text
+            "appId": self.app_id,
+            "communityId": self.community_id,
+            "taskId": self.task_id,
+            "receiverId": self.receiver_id,
+            "label": self.label,
+            "attributes": self.attributes
         }
 
     @staticmethod
     def from_repr(raw: dict) -> Message:
-        return Message(raw["type"], raw["recipientId"], raw["title"], raw["text"])
+        return Message(
+            raw["appId"],
+            raw["communityId"],
+            raw["taskId"],
+            raw["receiverId"],
+            raw["label"],
+            raw["attributes"]
+        )
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, Message):
+            return False
+        return self.app_id == o.app_id and self.community_id == o.community_id and self.task_id == o.task_id and \
+            self.receiver_id == o.receiver_id and self.label == o.label and self.attributes == o.attributes
 
 
 class TextualMessage(Message):
     """
-    Class representing a textual message between two users
+    A simple textual message from WeNet to the user.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - community_id: ID of the community related to the message
+        - task_id: The identifier of the target task
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - title: The title of the message
+        - text: the content of the message
     """
+    LABEL = "TextualMessage"
 
-    TYPE = "textualMessage"
+    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, title: str, text: str) -> None:
+        attributes = {
+            "title": title,
+            "text": text,
+        }
+        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
 
-    def __init__(self, recipient_id: str, title: str, text: str) -> None:
-        """
-        Construct a TextualMessage
-        :param recipient_id: the WeNet ID of the recipient
-        :param title: the title of the message
-        :param text: the text of the message
-        """
-        super().__init__(self.TYPE, recipient_id, title, text)
+    @property
+    def text(self) -> str:
+        return self.attributes["text"]
+
+    @property
+    def title(self) -> str:
+        return self.attributes["title"]
 
     @staticmethod
     def from_repr(raw: dict) -> TextualMessage:
-        message = Message.from_repr(raw)
-        return TextualMessage(message.recipient_id, message.title, message.text)
-
-
-class TaskNotification(Message):
-    """
-    General notification class
-    """
-
-    TYPE = "taskNotification"
-
-    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, notification_type: str) -> None:
-        """
-        Create a general notification object
-        :param recipient_id: WeNet ID of the recipient
-        :param title: title of the notification
-        :param text: text of the notification
-        :param task_id: task related to the notification
-        :param notification_type: type of the notification. It must be on of: taskProposal, taskVolunteer, taskConcluded
-        or messageFromUser
-        :raises ValueError: in case the notification type is wrong
-        """
-        super().__init__(TaskNotification.TYPE, recipient_id, title, text)
-        types = [TaskProposalNotification.TYPE, TaskVolunteerNotification.TYPE, TaskConcludedNotification.TYPE,
-                 MessageFromUserNotification.TYPE, TaskSelectionNotification.TYPE]
-        if notification_type not in types:
-            raise ValueError("Notification type must be either %s. Given [%s]" % (str(types), notification_type))
-        self.task_id = task_id
-        self.notification_type = notification_type
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, TaskNotification):
-            return False
-        return super().__eq__(o) and self.task_id == o.task_id and \
-            self.notification_type == o.notification_type
-
-    def to_repr(self) -> dict:
-        base_repr = super().to_repr()
-        base_repr["taskId"] = self.task_id
-        base_repr["notificationType"] = self.notification_type
-        return base_repr
-
-    @staticmethod
-    def from_repr(raw: dict) -> TaskNotification:
-        return TaskNotification(
-            raw["recipientId"],
-            raw["title"],
-            raw["text"],
+        return TextualMessage(
+            raw["appId"],
+            raw["communityId"],
             raw["taskId"],
-            raw["notificationType"]
+            raw["receiverId"],
+            raw["attributes"]["title"],
+            raw["attributes"]["text"]
         )
 
 
-class TaskProposalNotification(TaskNotification):
+class TaskProposalNotification(Message):
     """
-    Notification used to propose a task to a user
+    This notification is used in order to propose a user to volunteer to a newly created task
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - community_id: ID of the community related to the message
+        - task_id: The identifier of the target task
+        - receiver_id: The Wenet user ID of the recipient of the message
     """
+    LABEL = "TaskProposalNotification"
 
-    TYPE = "taskProposal"
-
-    def __init__(self, recipient_id: str, title: str, text: str, task_id: str) -> None:
-        """
-        Create a TaskProposalNotification
-        :param recipient_id: WeNet ID of the recipient
-        :param title: title of the notification
-        :param text: text of the notification
-        :param task_id: task related to the notification
-        """
-        super().__init__(recipient_id, title, text, task_id, self.TYPE)
+    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str) -> None:
+        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, {})
 
     @staticmethod
     def from_repr(raw: dict) -> TaskProposalNotification:
-        message = TaskNotification.from_repr(raw)
-        return TaskProposalNotification(message.recipient_id, message.title, message.text, message.task_id)
+        return TaskProposalNotification(
+            raw["appId"],
+            raw["communityId"],
+            raw["taskId"],
+            raw["receiverId"]
+        )
 
 
-class TaskVolunteerNotification(TaskNotification):
+class TaskVolunteerNotification(Message):
     """
-    Notification used to notify a task owner that a candidate volunteer has sent its application to participate
-    """
-    TYPE = "taskVolunteer"
+    This notification is used in order to notify the task creator that a new volunteer is proposing to participate
+    to the task.
 
-    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, volunteer_id: str) -> None:
-        """
-        Create a TaskVolunteerNotification
-        :param recipient_id: WeNet Id of the recipient
-        :param title: title of the notification
-        :param text: text of the notification
-        :param task_id: task related to the notification
-        :param volunteer_id: id of the volunteer that applied to the task
-        """
-        super().__init__(recipient_id, title, text, task_id, self.TYPE)
-        self.volunteer_id = volunteer_id
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - community_id: ID of the community related to the message
+        - task_id: The identifier of the target task
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - volunteer_id: The Wenet user ID of the volunteer
+    """
+    LABEL = "TaskVolunteerNotification"
+
+    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, volunteer_id: str) -> None:
+        attributes = {"volunteerId": volunteer_id}
+        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskVolunteerNotification:
-        message = TaskNotification.from_repr(raw)
-        return TaskVolunteerNotification(message.recipient_id, message.title, message.text, message.task_id,
-                                         raw["volunteerId"])
-
-    def to_repr(self) -> dict:
-        base_repr = super().to_repr()
-        base_repr["volunteerId"] = self.volunteer_id
-        return base_repr
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, TaskVolunteerNotification):
-            return False
-        return super().__eq__(o) and self.volunteer_id == o.volunteer_id
-
-
-class MessageFromUserNotification(TaskNotification):
-    """
-    Notification to notify of a new message from a WeNet user
-    """
-
-    TYPE = "messageFromUser"
-
-    def __init__(self, recipient_id: str, title: str, text: str, task_id: str,
-                 sender_id: str) -> None:
-        """
-        Create a new notification for a new message from an user
-        :param recipient_id: WeNet Id of the recipient
-        :param title: title of the notification
-        :param text: text of the notification
-        :param task_id: task related to the notification
-        :param sender_id: WeNet Id of the sender
-        """
-        super().__init__(recipient_id, title, text, task_id, self.TYPE)
-        self.sender_id = sender_id
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, MessageFromUserNotification):
-            return False
-        return super().__eq__(o) and self.sender_id == o.sender_id
-
-    def to_repr(self) -> dict:
-        base_repr = super().to_repr()
-        base_repr["senderId"] = self.sender_id
-        return base_repr
-
-    @staticmethod
-    def from_repr(raw: dict) -> MessageFromUserNotification:
-        return MessageFromUserNotification(
-            raw["recipientId"],
-            raw["title"],
-            raw["text"],
+        return TaskVolunteerNotification(
+            raw["appId"],
+            raw["communityId"],
             raw["taskId"],
-            raw["senderId"]
+            raw["receiverId"],
+            raw["attributes"]["volunteerId"]
         )
 
+    @property
+    def volunteer_id(self) -> str:
+        return self.attributes["volunteerId"]
 
-class TaskConcludedNotification(TaskNotification):
+
+class TaskSelectionNotification(Message):
     """
-    Notification used to conclude a task
+    This notification is used in order to notify the user who volunteered about the decision of the task creator.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - community_id: ID of the community related to the message
+        - task_id: The identifier of the target task
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - outcome: The outcome of the selection, either 'accepted' or 'refused'
     """
-
-    TYPE = "taskConcluded"
-
-    OUTCOME_CANCELLED = 'cancelled'
-    OUTCOME_SUCCESSFUL = 'completed'
-    OUTCOME_FAILED = 'failed'
-
-    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, outcome: str) -> None:
-        """
-        Create a notification to close a task
-        :param recipient_id: WeNet Id of the recipient
-        :param title: title of the notification
-        :param text: text of the notification
-        :param task_id: task related to the notification
-        :param outcome: outcome of the task. Either cancelled, completed or failed
-        :raises ValueError: in case the given outcome is not valid
-        """
-        super().__init__(recipient_id, title, text, task_id, self.TYPE)
-        valid_outcomes = [self.OUTCOME_CANCELLED, self.OUTCOME_SUCCESSFUL, self.OUTCOME_FAILED]
-        if outcome not in valid_outcomes:
-            raise ValueError("Outcome must be either %s. Got [%s]" % (str(valid_outcomes), outcome))
-        self.outcome = outcome
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, TaskConcludedNotification):
-            return False
-        return super().__eq__(o) and self.outcome == o.outcome
-
-    def to_repr(self) -> dict:
-        base_repr = super().to_repr()
-        base_repr["outcome"] = self.outcome
-        return base_repr
-
-    @staticmethod
-    def from_repr(raw: dict) -> TaskConcludedNotification:
-        return TaskConcludedNotification(
-            raw["recipientId"],
-            raw["title"],
-            raw["text"],
-            raw["taskId"],
-            raw["outcome"]
-        )
-
-
-class TaskSelectionNotification(TaskNotification):
-    """
-    This notification is used in order to notify the user who volunteer about the decision of the task creator
-    """
-    TYPE = "selectionVolunteer"
+    LABEL = "TaskSelectionNotification"
     OUTCOME_ACCEPTED = 'accepted'
     OUTCOME_REFUSED = 'refused'
 
-    def __init__(self, recipient_id: str, title: str, text: str, task_id: str, outcome: str) -> None:
-        """
-        Create a notification for the positive or negative selection of a volunteer
-        :param recipient_id: WeNet Id of the recipient
-        :param title: title of the notification
-        :param text: text of the notification
-        :param task_id: task related to the notification
-        :param outcome: outcome of the task. Either cancelled, completed or failed
-        :raises ValueError: in case the given outcome is not valid
-        """
-        allowed_outcomes = [TaskSelectionNotification.OUTCOME_ACCEPTED, TaskSelectionNotification.OUTCOME_REFUSED]
-        if outcome not in allowed_outcomes:
-            raise ValueError("Outcome must be either %s. Got [%s]" % (str(allowed_outcomes), outcome))
-        super().__init__(recipient_id, title, text, task_id, TaskSelectionNotification.TYPE)
-        self.outcome = outcome
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, TaskSelectionNotification):
-            return False
-        return super().__eq__(o) and self.outcome == o.outcome
-
-    def to_repr(self) -> dict:
-        base_repr = super().to_repr()
-        base_repr["outcome"] = self.outcome
-        return base_repr
+    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, outcome: str) -> None:
+        accepted_outcomes = [self.OUTCOME_ACCEPTED, self.OUTCOME_REFUSED]
+        if outcome not in accepted_outcomes:
+            raise ValueError(f"Outcome must be one of {accepted_outcomes}, got [{outcome}]")
+        attributes = {"outcome": outcome}
+        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskSelectionNotification:
         return TaskSelectionNotification(
-            raw["recipientId"],
-            raw["title"],
-            raw["text"],
+            raw["appId"],
+            raw["communityId"],
             raw["taskId"],
-            raw["outcome"]
+            raw["receiverId"],
+            raw["attributes"]["outcome"]
         )
 
+    @property
+    def outcome(self) -> str:
+        return self.attributes["outcome"]
 
-class Event(BaseMessage):
+
+class TaskConcludedNotification(Message):
     """
-    Base class for an event
+    This notification is used in order to notify task participants that a task has been completed, the outcome could be:
+        - completed (if completed correctly)
+        - failed (if something went wrong)
+        - cancelled (the creator cancelled the task)
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - community_id: ID of the community related to the message
+        - task_id: The identifier of the target task
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - outcome: The outcome of the task
     """
+    LABEL = "TaskConcludedNotification"
+    OUTCOME_COMPLETED = "completed"
+    OUTCOME_CANCELLED = "cancelled"
+    OUTCOME_FAILED = "failed"
 
-    TYPE = "event"
-
-    def __init__(self, event_type: str) -> None:
-        """
-        Create a new event
-        :param event_type: type of the event, it must be newUserForPlatform
-        :raises ValueError: in case the specified event type is wrong
-        """
-        allowed_types = [NewUserForPlatform.TYPE, WeNetAuthentication.TYPE]
-        if event_type not in allowed_types:
-            raise ValueError(f"Event type {event_type} not valid. It must be one of {allowed_types}")
-        super().__init__(Event.TYPE)
-        self.event_type = event_type
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, Event):
-            return False
-        return super().__eq__(o) and self.event_type == o.event_type
-
-    def to_repr(self) -> dict:
-        base = super().to_repr()
-        base["eventType"] = self.event_type
-        return base
+    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, outcome: str) -> None:
+        accepted_outcomes = [self.OUTCOME_COMPLETED, self.OUTCOME_CANCELLED, self.OUTCOME_FAILED]
+        if outcome not in accepted_outcomes:
+            raise ValueError(f"Outcome must be one of {accepted_outcomes}, got [{outcome}]")
+        attributes = {"outcome": outcome}
+        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
-    def from_repr(raw: dict) -> Event:
-        return Event(raw["eventType"])
-
-
-class NewUserForPlatform(Event):
-    """
-    Event used to notify the bot that a new user has just logged into the WeNet Hub
-    """
-
-    TYPE = "newUserForPlatform"
-
-    def __init__(self, app_id: str, user_id: str, platform: str) -> None:
-        """
-        Create a new NewUserForPlatform
-        :param app_id: WeNet app related to the event
-        :param user_id: WeNet user ID that has just logged in
-        :param platform: platform on which the login happened - e.g. Telegram
-        """
-        super().__init__(NewUserForPlatform.TYPE)
-        self.app_id = app_id
-        self.user_id = user_id
-        self.platform = platform
-
-    def __eq__(self, o: object) -> bool:
-        if not isinstance(o, NewUserForPlatform):
-            return False
-        return super().__eq__(o) and self.app_id == o.app_id and self.user_id == o.user_id and \
-            self.platform == o.platform
-
-    def to_repr(self) -> dict:
-        base = super().to_repr()
-        base.update({
-            "app": self.app_id,
-            "userId": self.user_id,
-            "platform": self.platform
-        })
-        return base
-
-    @staticmethod
-    def from_repr(raw: dict) -> NewUserForPlatform:
-        return NewUserForPlatform(
-            raw["app"],
-            raw["userId"],
-            raw["platform"]
+    def from_repr(raw: dict) -> TaskConcludedNotification:
+        return TaskConcludedNotification(
+            raw["appId"],
+            raw["communityId"],
+            raw["taskId"],
+            raw["receiverId"],
+            raw["attributes"]["outcome"]
         )
 
-
-class WeNetAuthentication(Event):
-
-    TYPE = "weNetAuthentication"
-
-    def __init__(self, external_id: str, code: str):
-        super().__init__(WeNetAuthentication.TYPE)
-        self.external_id = external_id
-        self.code = code
-
-    def to_repr(self) -> dict:
-        base = super().to_repr()
-        base.update({
-            "externalId": self.external_id,
-            "code": self.code
-        })
-        return base
-
-    @staticmethod
-    def from_repr(raw: dict) -> Event:
-        return WeNetAuthentication(
-            raw["externalId"],
-            raw["code"]
-        )
+    @property
+    def outcome(self) -> str:
+        return self.attributes["outcome"]
