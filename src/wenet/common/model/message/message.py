@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import annotations
 
+from typing import Optional
+
 
 class Message:
     """
@@ -8,18 +10,15 @@ class Message:
 
     Attributes:
         - app_id: ID of the Wenet application related to the message
-        - community_id: ID of the community related to the message
-        - task_id: The identifier of the target task
         - receiver_id: The Wenet user ID of the recipient of the message
         - label: The type of the message
-        - attributes: dictionary with additional attributes of the message
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
     """
 
-    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, label: str,
-                 attributes: dict) -> None:
+    def __init__(self, app_id: str, receiver_id: str, label: str, attributes: dict) -> None:
         self.app_id = app_id
-        self.community_id = community_id
-        self.task_id = task_id
         self.receiver_id = receiver_id
         self.label = label
         self.attributes = attributes
@@ -27,8 +26,6 @@ class Message:
     def to_repr(self) -> dict:
         return {
             "appId": self.app_id,
-            "communityId": self.community_id,
-            "taskId": self.task_id,
             "receiverId": self.receiver_id,
             "label": self.label,
             "attributes": self.attributes
@@ -38,8 +35,6 @@ class Message:
     def from_repr(raw: dict) -> Message:
         return Message(
             raw["appId"],
-            raw["communityId"],
-            raw["taskId"],
             raw["receiverId"],
             raw["label"],
             raw["attributes"]
@@ -48,8 +43,16 @@ class Message:
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, Message):
             return False
-        return self.app_id == o.app_id and self.community_id == o.community_id and self.task_id == o.task_id and \
-            self.receiver_id == o.receiver_id and self.label == o.label and self.attributes == o.attributes
+        return self.app_id == o.app_id and self.receiver_id == o.receiver_id and self.label == o.label and \
+            self.attributes == o.attributes
+
+    @property
+    def community_id(self) -> Optional[str]:
+        return self.attributes["communityId"] if "communityId" in self.attributes else None
+
+    @property
+    def task_id(self) -> Optional[str]:
+        return self.attributes["taskId"] if "taskId" in self.attributes else None
 
 
 class TextualMessage(Message):
@@ -58,20 +61,21 @@ class TextualMessage(Message):
 
     Attributes:
         - app_id: ID of the Wenet application related to the message
-        - community_id: ID of the community related to the message
-        - task_id: The identifier of the target task
         - receiver_id: The Wenet user ID of the recipient of the message
         - title: The title of the message
         - text: the content of the message
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
     """
     LABEL = "TextualMessage"
 
-    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, title: str, text: str) -> None:
-        attributes = {
+    def __init__(self, app_id: str, receiver_id: str, title: str, text: str, attributes: dict) -> None:
+        attributes.update({
             "title": title,
             "text": text,
-        }
-        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
+        })
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
 
     @property
     def text(self) -> str:
@@ -85,11 +89,10 @@ class TextualMessage(Message):
     def from_repr(raw: dict) -> TextualMessage:
         return TextualMessage(
             raw["appId"],
-            raw["communityId"],
-            raw["taskId"],
             raw["receiverId"],
             raw["attributes"]["title"],
-            raw["attributes"]["text"]
+            raw["attributes"]["text"],
+            raw["attributes"]
         )
 
 
@@ -99,22 +102,22 @@ class TaskProposalNotification(Message):
 
     Attributes:
         - app_id: ID of the Wenet application related to the message
-        - community_id: ID of the community related to the message
-        - task_id: The identifier of the target task
         - receiver_id: The Wenet user ID of the recipient of the message
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
     """
     LABEL = "TaskProposalNotification"
 
-    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str) -> None:
-        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, {})
+    def __init__(self, app_id: str, receiver_id: str, attributes: dict) -> None:
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskProposalNotification:
         return TaskProposalNotification(
             raw["appId"],
-            raw["communityId"],
-            raw["taskId"],
-            raw["receiverId"]
+            raw["receiverId"],
+            raw["attributes"]
         )
 
 
@@ -125,25 +128,25 @@ class TaskVolunteerNotification(Message):
 
     Attributes:
         - app_id: ID of the Wenet application related to the message
-        - community_id: ID of the community related to the message
-        - task_id: The identifier of the target task
         - receiver_id: The Wenet user ID of the recipient of the message
         - volunteer_id: The Wenet user ID of the volunteer
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
     """
     LABEL = "TaskVolunteerNotification"
 
-    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, volunteer_id: str) -> None:
-        attributes = {"volunteerId": volunteer_id}
-        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
+    def __init__(self, app_id: str, receiver_id: str, volunteer_id: str, attributes: dict) -> None:
+        attributes.update({"volunteerId": volunteer_id})
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskVolunteerNotification:
         return TaskVolunteerNotification(
             raw["appId"],
-            raw["communityId"],
-            raw["taskId"],
             raw["receiverId"],
-            raw["attributes"]["volunteerId"]
+            raw["attributes"]["volunteerId"],
+            raw["attributes"]
         )
 
     @property
@@ -157,30 +160,30 @@ class TaskSelectionNotification(Message):
 
     Attributes:
         - app_id: ID of the Wenet application related to the message
-        - community_id: ID of the community related to the message
-        - task_id: The identifier of the target task
         - receiver_id: The Wenet user ID of the recipient of the message
         - outcome: The outcome of the selection, either 'accepted' or 'refused'
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
     """
     LABEL = "TaskSelectionNotification"
     OUTCOME_ACCEPTED = 'accepted'
     OUTCOME_REFUSED = 'refused'
 
-    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, outcome: str) -> None:
+    def __init__(self, app_id: str, receiver_id: str, outcome: str, attributes: dict) -> None:
         accepted_outcomes = [self.OUTCOME_ACCEPTED, self.OUTCOME_REFUSED]
         if outcome not in accepted_outcomes:
             raise ValueError(f"Outcome must be one of {accepted_outcomes}, got [{outcome}]")
-        attributes = {"outcome": outcome}
-        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
+        attributes.update({"outcome": outcome})
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskSelectionNotification:
         return TaskSelectionNotification(
             raw["appId"],
-            raw["communityId"],
-            raw["taskId"],
             raw["receiverId"],
-            raw["attributes"]["outcome"]
+            raw["attributes"]["outcome"],
+            raw["attributes"]
         )
 
     @property
@@ -197,33 +200,137 @@ class TaskConcludedNotification(Message):
 
     Attributes:
         - app_id: ID of the Wenet application related to the message
-        - community_id: ID of the community related to the message
-        - task_id: The identifier of the target task
         - receiver_id: The Wenet user ID of the recipient of the message
         - outcome: The outcome of the task
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
     """
     LABEL = "TaskConcludedNotification"
     OUTCOME_COMPLETED = "completed"
     OUTCOME_CANCELLED = "cancelled"
     OUTCOME_FAILED = "failed"
 
-    def __init__(self, app_id: str, community_id: str, task_id: str, receiver_id: str, outcome: str) -> None:
+    def __init__(self, app_id: str, receiver_id: str, outcome: str, attributes: dict) -> None:
         accepted_outcomes = [self.OUTCOME_COMPLETED, self.OUTCOME_CANCELLED, self.OUTCOME_FAILED]
         if outcome not in accepted_outcomes:
             raise ValueError(f"Outcome must be one of {accepted_outcomes}, got [{outcome}]")
-        attributes = {"outcome": outcome}
-        super().__init__(app_id, community_id, task_id, receiver_id, self.LABEL, attributes)
+        attributes.update({"outcome": outcome})
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
 
     @staticmethod
     def from_repr(raw: dict) -> TaskConcludedNotification:
         return TaskConcludedNotification(
             raw["appId"],
-            raw["communityId"],
-            raw["taskId"],
             raw["receiverId"],
-            raw["attributes"]["outcome"]
+            raw["attributes"]["outcome"],
+            raw["attributes"]
         )
 
     @property
     def outcome(self) -> str:
         return self.attributes["outcome"]
+
+
+class IncentiveMessage(Message):
+    """
+    This message is used to send an incentive to an user.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - issuer: the issuer of the incentive
+        - content: the content of the incentive
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
+    """
+    LABEL = "IncentiveMessage"
+
+    def __init__(self, app_id: str, receiver_id: str, issuer: str, content: str, attributes: dict) -> None:
+        attributes.update({
+            "issuer": issuer,
+            "content": content,
+        })
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
+
+    @staticmethod
+    def from_repr(raw: dict) -> IncentiveMessage:
+        return IncentiveMessage(
+            raw["appId"],
+            raw["receiverId"],
+            raw["attributes"]["issuer"],
+            raw["attributes"]["content"],
+            raw["attributes"]
+        )
+
+    @property
+    def issuer(self) -> str:
+        return self.attributes["issuer"]
+
+    @property
+    def content(self) -> str:
+        return self.attributes["content"]
+
+
+class IncentiveBadge(Message):
+    """
+    This message is used to send a badge to an user.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - issuer: the issuer of the incentive
+        - badge_class: the class of the badge
+        - image_url: the URL of the image of the badge
+        - criteria: the criteria with which the badge was given
+        - message: the content of the incentive
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
+    """
+    LABEL = "IncentiveBadge"
+
+    def __init__(self, app_id: str, receiver_id: str, issuer: str, badge_class: str, image_url: str, criteria: str,
+                 message: str, attributes: dict) -> None:
+        attributes.update({
+            "issuer": issuer,
+            "badgeClass": badge_class,
+            "imageUrl": image_url,
+            "criteria": criteria,
+            "message": message,
+        })
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
+
+    @staticmethod
+    def from_repr(raw: dict) -> IncentiveBadge:
+        return IncentiveBadge(
+            raw["appId"],
+            raw["receiverId"],
+            raw["attributes"]["issuer"],
+            raw["attributes"]["badgeClass"],
+            raw["attributes"]["imageUrl"],
+            raw["attributes"]["criteria"],
+            raw["attributes"]["message"],
+            raw["attributes"]
+        )
+
+    @property
+    def issuer(self) -> str:
+        return self.attributes["issuer"]
+
+    @property
+    def badge_class(self) -> str:
+        return self.attributes["badgeClass"]
+
+    @property
+    def image_url(self) -> str:
+        return self.attributes["imageUrl"]
+
+    @property
+    def criteria(self) -> str:
+        return self.attributes["criteria"]
+
+    @property
+    def message(self) -> str:
+        return self.attributes["message"]
