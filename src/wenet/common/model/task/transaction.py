@@ -7,8 +7,8 @@ from wenet.common.model.message.message import Message
 
 class TaskTransaction:
 
-    def __init__(self, id: str, task_id: str, label: str, creation_ts: int, last_update_ts: int, actioneer_id: str,
-                 attributes: Optional[dict], messages: Optional[List[Message]] = None):
+    def __init__(self, id: Optional[str], task_id: str, label: str, creation_ts: int, last_update_ts: int,
+                 actioneer_id: str, attributes: Optional[dict], messages: Optional[List[Message]] = None):
         self.task_id = task_id
         self.label = label
         self.attributes = attributes

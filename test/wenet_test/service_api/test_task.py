@@ -4,6 +4,7 @@ from unittest import TestCase
 
 from wenet.common.model.norm.norm import Norm, NormOperator
 from wenet.common.model.task.task import Task, TaskGoal, TaskPage
+from wenet.common.model.task.transaction import TaskTransaction
 
 
 class TestTask(TestCase):
@@ -21,9 +22,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -36,7 +34,9 @@ class TestTask(TestCase):
             attributes={
                 "key": "value"
             },
-            close_ts=98765432
+            close_ts=98765432,
+            transactions=[],
+            community_id="community_id"
         )
 
         to_repr = task.to_repr()
@@ -57,9 +57,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -71,7 +68,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
 
         to_repr = task.to_repr()
@@ -92,9 +92,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -106,7 +103,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task1 = Task(
             task_id="task-id",
@@ -119,9 +119,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -133,7 +130,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task2 = Task(
             task_id="task-id",
@@ -146,9 +146,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -160,7 +157,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task3 = Task(
             task_id="task-id",
@@ -173,9 +173,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -187,7 +184,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task4 = Task(
             task_id="task-id",
@@ -200,9 +200,6 @@ class TestTask(TestCase):
                 name="goal1",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -214,7 +211,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task5 = Task(
             task_id="task-id",
@@ -227,9 +227,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833101,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -241,7 +238,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833301,
+            transactions=[],
+            community_id="community_id"
         )
         task6 = Task(
             task_id="task-id",
@@ -254,9 +254,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id1",
@@ -268,7 +265,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task7 = Task(
             task_id="task-id",
@@ -281,9 +281,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -293,7 +290,10 @@ class TestTask(TestCase):
                     negation=False
                 )
             ],
-            attributes={}
+            attributes={},
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task8 = Task(
             task_id="task-id",
@@ -306,9 +306,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833300,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -320,7 +317,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key1": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id"
         )
         task9 = Task(
             task_id="task-id",
@@ -333,9 +333,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833301,
-            deadline_ts=1577833350,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -347,7 +344,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[],
+            community_id="community_id_2"
         )
 
         task10 = Task(
@@ -361,9 +361,6 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            start_ts=1577833100,
-            end_ts=1577833301,
-            deadline_ts=1577833351,
             norms=[
                 Norm(
                     norm_id="norm-id",
@@ -375,7 +372,10 @@ class TestTask(TestCase):
             ],
             attributes={
                 "key": "value"
-            }
+            },
+            close_ts=1577833300,
+            transactions=[TaskTransaction(None, "task_id", "label", 123, 123, "actioneer_id", {}, [])],
+            community_id="community_id"
         )
 
         self.assertEqual(task, task1)
@@ -431,9 +431,6 @@ class TestTaskPage(TestCase):
                         name="goal",
                         description="description"
                     ),
-                    start_ts=1577833100,
-                    end_ts=1577833300,
-                    deadline_ts=1577833350,
                     norms=[
                         Norm(
                             norm_id="norm-id",
@@ -445,7 +442,10 @@ class TestTaskPage(TestCase):
                     ],
                     attributes={
                         "key": "value"
-                    }
+                    },
+                    close_ts=1577833300,
+                    transactions=[],
+                    community_id="community_id"
                 ),
                 Task(
                     task_id="task-id1",
@@ -458,9 +458,6 @@ class TestTaskPage(TestCase):
                         name="goal",
                         description="description"
                     ),
-                    start_ts=1577833100,
-                    end_ts=1577833300,
-                    deadline_ts=1577833350,
                     norms=[
                         Norm(
                             norm_id="norm-id",
@@ -472,7 +469,10 @@ class TestTaskPage(TestCase):
                     ],
                     attributes={
                         "key": "value"
-                    }
+                    },
+                    close_ts=1577833300,
+                    transactions=[],
+                    community_id="community_id"
                 )
             ]
         )

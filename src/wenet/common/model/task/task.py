@@ -59,7 +59,7 @@ class Task:
                  task_type_id: str,
                  requester_id: str,
                  app_id: str,
-                 community_id: str,
+                 community_id: Optional[str],
                  goal: TaskGoal,
                  norms: Optional[List[Norm]],
                  attributes: Optional[dict] = None,
