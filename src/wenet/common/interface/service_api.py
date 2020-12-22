@@ -53,10 +53,9 @@ class ServiceApiInterface:
             req = self.client.get(self.base_url + self.USER_ENDPOINT + '/profile/%s' % wenet_user_id)
         else:
             req = self.client.get(self.base_url + self.USER_ENDPOINT + '/profile')
-
         if req.status_code == 200:
             return WeNetUserProfile.from_repr(req.json())
-        logger.warning(f"Unable to retrieve the user profile, service api respond with: {req.status_code} {req}")
+        logger.warning(f"Unable to retrieve the user profile, service api respond with: {req.status_code} {req.text}")
         return None
 
     def get_opened_tasks_of_user(self, wenet_user_id: str, app_id: str) -> List[Task]:
