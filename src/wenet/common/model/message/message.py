@@ -334,3 +334,95 @@ class IncentiveBadge(Message):
     @property
     def message(self) -> str:
         return self.attributes["message"]
+
+
+class QuestionToAnswerMessage(Message):
+    """
+    Message containing a new question to be answered.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - label: The type of the message
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
+            - question: The question to be answered
+            - user_id: The author of the question
+    """
+    LABEL = "QuestionToAnswerMessage"
+
+    def __init__(self, app_id: str, receiver_id: str, attributes: dict, question: str, user_id: str) -> None:
+        attributes.update({
+            "question": question,
+            "userId": user_id,
+        })
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
+
+    @staticmethod
+    def from_repr(raw: dict) -> QuestionToAnswerMessage:
+        return QuestionToAnswerMessage(
+            raw["appId"],
+            raw["receiverId"],
+            raw["attributes"],
+            raw["attributes"]["question"],
+            raw["attributes"]["userId"]
+        )
+
+    @property
+    def question(self) -> str:
+        return self.attributes["question"]
+
+    @property
+    def user_id(self) -> str:
+        return self.attributes["userId"]
+
+
+class AnsweredQuestionMessage(Message):
+    """
+    Message containing a new answer to a question.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - label: The type of the message
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
+            - answer: The answer to the question
+            - userId: The author of the question
+            - transaction_id: The id of the transaction associated with the answer
+    """
+    LABEL = "AnsweredQuestionMessage"
+
+    def __init__(self, app_id: str, receiver_id: str, answer: str, transaction_id: str, user_id: str,
+                 attributes: dict) -> None:
+        attributes.update({
+            "answer": answer,
+            "transactionId": transaction_id,
+            "userId": user_id,
+        })
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
+
+    @staticmethod
+    def from_repr(raw: dict) -> AnsweredQuestionMessage:
+        return AnsweredQuestionMessage(
+            raw["appId"],
+            raw["receiverId"],
+            raw["attributes"]["answer"],
+            raw["attributes"]["transactionId"],
+            raw["attributes"]["userId"],
+            raw["attributes"]
+        )
+
+    @property
+    def answer(self) -> str:
+        return self.attributes["answer"]
+
+    @property
+    def transaction_id(self) -> str:
+        return self.attributes["transactionId"]
+
+    @property
+    def user_id(self) -> str:
+        return self.attributes["userId"]

@@ -3,7 +3,8 @@ from unittest import TestCase
 from uuid import uuid4
 
 from wenet.common.model.message.message import Message, TextualMessage, TaskProposalNotification, \
-    TaskVolunteerNotification, TaskSelectionNotification, TaskConcludedNotification, IncentiveMessage, IncentiveBadge
+    TaskVolunteerNotification, TaskSelectionNotification, TaskConcludedNotification, IncentiveMessage, IncentiveBadge, \
+    QuestionToAnswerMessage, AnsweredQuestionMessage
 
 
 class TestMessage(TestCase):
@@ -120,3 +121,29 @@ class TestIncentiveBadge(TestCase):
         badge = IncentiveBadge(app_id, receiver_id, issuer, badge_class, image_url, criteria, message, {})
         self.assertEqual(IncentiveBadge.from_repr(badge.to_repr()), badge)
         self.assertEqual(IncentiveBadge.LABEL, badge.label)
+
+
+class TestQuestionToAnswerMessage(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        question = str(uuid4())
+        user_id = str(uuid4())
+        message = QuestionToAnswerMessage(app_id, receiver_id, {}, question, user_id)
+        self.assertEqual(QuestionToAnswerMessage.from_repr(message.to_repr()), message)
+        self.assertEqual(question, message.question)
+        self.assertEqual(user_id, message.user_id)
+
+
+class TestAnsweredQuestionMessage(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        answer = str(uuid4())
+        user_id = str(uuid4())
+        transaction_id = str(uuid4())
+        message = AnsweredQuestionMessage(app_id, receiver_id, answer, transaction_id, user_id, {})
+        self.assertEqual(AnsweredQuestionMessage.from_repr(message.to_repr()), message)
+        self.assertEqual(answer, message.answer)
+        self.assertEqual(user_id, message.user_id)
+        self.assertEqual(transaction_id, message.transaction_id)

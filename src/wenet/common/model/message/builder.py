@@ -2,7 +2,8 @@ from __future__ import absolute_import, annotations
 
 from wenet.common.model.message.event import Event, WeNetAuthenticationEvent
 from wenet.common.model.message.message import TextualMessage, Message, TaskConcludedNotification, \
-    TaskVolunteerNotification, TaskProposalNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge
+    TaskVolunteerNotification, TaskProposalNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, \
+    QuestionToAnswerMessage, AnsweredQuestionMessage
 
 
 class MessageBuilder:
@@ -31,6 +32,10 @@ class MessageBuilder:
             message = IncentiveMessage.from_repr(raw_message)
         elif message_label == IncentiveBadge.LABEL:
             message = IncentiveBadge.from_repr(raw_message)
+        elif message_label == QuestionToAnswerMessage.LABEL:
+            message = QuestionToAnswerMessage.from_repr(raw_message)
+        elif message_label == AnsweredQuestionMessage.LABEL:
+            message = AnsweredQuestionMessage.from_repr(raw_message)
         else:
             message = Message.from_repr(raw_message)
         return message

@@ -5,7 +5,8 @@ from uuid import uuid4
 from wenet.common.model.message.builder import MessageBuilder, EventBuilder
 from wenet.common.model.message.event import Event, WeNetAuthenticationEvent
 from wenet.common.model.message.message import TextualMessage, TaskProposalNotification, TaskVolunteerNotification, \
-    TaskConcludedNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge
+    TaskConcludedNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, QuestionToAnswerMessage, \
+    AnsweredQuestionMessage
 
 
 class TestMessageBuilder(TestCase):
@@ -106,6 +107,30 @@ class TestMessageBuilder(TestCase):
         self.assertEqual(badge_class, message.badge_class)
         self.assertEqual(badge_message, message.message)
         self.assertEqual(criteria, message.criteria)
+
+    def test_question_to_answer_message(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        question = str(uuid4())
+        user_id = str(uuid4())
+        start_message = QuestionToAnswerMessage(app_id, receiver_id, {}, question, user_id)
+        message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, QuestionToAnswerMessage)
+        self.assertEqual(question, message.question)
+        self.assertEqual(user_id, message.user_id)
+
+    def test_answer_to_question_message(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        answer = str(uuid4())
+        user_id = str(uuid4())
+        transaction_id = str(uuid4())
+        start_message = AnsweredQuestionMessage(app_id, receiver_id, answer, transaction_id, user_id, {})
+        message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, AnsweredQuestionMessage)
+        self.assertEqual(answer, message.answer)
+        self.assertEqual(user_id, message.user_id)
+        self.assertEqual(transaction_id, message.transaction_id)
 
 
 class TestEventBuilder(TestCase):
