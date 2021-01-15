@@ -20,6 +20,7 @@ class Scope(Enum):
     PHONE_NUMBER = "phone_number"
     WRITE_FEED = "write_feed"
     EMAIL = "email"
+    CONVERSATIONS = "conversations"
 
 
 class AbstractScopeMappings(abc.ABC):
