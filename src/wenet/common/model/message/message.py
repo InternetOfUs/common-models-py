@@ -33,12 +33,32 @@ class Message:
 
     @staticmethod
     def from_repr(raw: dict) -> Message:
-        return Message(
-            raw["appId"],
-            raw["receiverId"],
-            raw["label"],
-            raw["attributes"]
-        )
+        message_type = raw["label"]
+        if message_type == TextualMessage.LABEL:
+            return TextualMessage.from_repr(raw)
+        elif message_type == TaskProposalNotification.LABEL:
+            return TaskProposalNotification.from_repr(raw)
+        elif message_type == TaskConcludedNotification.LABEL:
+            return TaskConcludedNotification.from_repr(raw)
+        elif message_type == TaskSelectionNotification.LABEL:
+            return TaskSelectionNotification.from_repr(raw)
+        elif message_type == TaskVolunteerNotification.LABEL:
+            return TaskVolunteerNotification.from_repr(raw)
+        elif message_type == IncentiveMessage.LABEL:
+            return IncentiveMessage.from_repr(raw)
+        elif message_type == IncentiveBadge.LABEL:
+            return IncentiveBadge.from_repr(raw)
+        elif message_type == QuestionToAnswerMessage.LABEL:
+            return QuestionToAnswerMessage.from_repr(raw)
+        elif message_type == AnsweredQuestionMessage.LABEL:
+            return AnsweredQuestionMessage.from_repr(raw)
+        else:
+            return Message(
+                raw["appId"],
+                raw["receiverId"],
+                raw["label"],
+                raw["attributes"]
+            )
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, Message):

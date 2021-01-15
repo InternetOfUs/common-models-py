@@ -41,7 +41,7 @@ class TaskTransaction:
             "_creationTs": self.creation_ts,
             "_lastUpdateTs": self.last_update_ts,
             "actioneerId": self.actioneer_id,
-            "messages": self.messages,
+            "messages": [message.to_repr() for message in self.messages],
         }
 
     @staticmethod
@@ -54,7 +54,8 @@ class TaskTransaction:
             raw_data["_lastUpdateTs"],
             raw_data["actioneerId"],
             raw_data.get("attributes", None) if raw_data.get("attributes", None) else None,
-            raw_data.get("messages", None) if raw_data.get("messages", None) else None
+            [Message.from_repr(message) for message in raw_data.get("messages", [])]
+            if raw_data.get("messages", None) else None
         )
 
     def __eq__(self, o) -> bool:

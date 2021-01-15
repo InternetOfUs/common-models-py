@@ -20,28 +20,31 @@ class TaskState(Enum):
 
 class TaskGoal:
 
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str, keywords: Optional[List[str]] = None):
         self.name = name
         self.description = description
+        self.keywords = keywords if keywords else []
 
     def to_repr(self) -> dict:
         return {
             "name": self.name,
-            "description": self.description
+            "description": self.description,
+            "keywords": self.keywords,
         }
 
     @staticmethod
     def from_repr(raw_data: dict) -> TaskGoal:
         return TaskGoal(
             name=raw_data["name"],
-            description=raw_data["description"]
+            description=raw_data["description"],
+            keywords=raw_data.get("keywords", None)
         )
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, TaskGoal):
             return False
 
-        return self.name == o.name and self.description == o.description
+        return self.name == o.name and self.description == o.description and self.keywords == o.keywords
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -61,7 +64,7 @@ class Task:
                  app_id: str,
                  community_id: Optional[str],
                  goal: TaskGoal,
-                 norms: Optional[List[Norm]],
+                 norms: Optional[List[Norm]] = None,
                  attributes: Optional[dict] = None,
                  close_ts: Optional[Number] = None,
                  transactions: Optional[List[TaskTransaction]] = None
@@ -142,7 +145,7 @@ class Task:
             "attributes": self.attributes,
             "closeTs": self.close_ts,
             "communityId": self.community_id,
-            "transactions": self.transactions,
+            "transactions": [t.to_repr() for t in self.transactions],
         }
 
     @staticmethod
@@ -158,12 +161,13 @@ class Task:
             raw_data["taskTypeId"],
             raw_data["requesterId"],
             raw_data["appId"],
-            raw_data["communityId"],
+            raw_data.get("communityId", None),
             TaskGoal.from_repr(raw_data["goal"]),
             list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
             raw_data.get("attributes", None),
             raw_data.get("closeTs", None),
-            raw_data.get("transactions", None)
+            [TaskTransaction.from_repr(t) for t in raw_data.get("transactions", None)]
+            if raw_data.get("transactions", None) else None
         )
 
     def prepare_task(self) -> dict:

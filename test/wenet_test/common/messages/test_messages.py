@@ -57,7 +57,7 @@ class TestTaskProposalNotification(TestCase):
         receiver_id = str(uuid4())
         notification = TaskProposalNotification(app_id, receiver_id, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskProposalNotification.from_repr(notification_repr), notification)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
         self.assertEqual(TaskProposalNotification.LABEL, notification.label)
 
 
@@ -70,7 +70,7 @@ class TestTaskConcludedNotification(TestCase):
         outcome = random.choice(possible_outcomes)
         notification = TaskConcludedNotification(app_id, receiver_id, outcome, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskConcludedNotification.from_repr(notification_repr), notification)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
         self.assertEqual(TaskConcludedNotification.LABEL, notification.label)
 
 
@@ -82,7 +82,7 @@ class TestTaskSelectionNotification(TestCase):
         outcome = random.choice(possible_outcomes)
         notification = TaskSelectionNotification(app_id, receiver_id, outcome, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskSelectionNotification.from_repr(notification_repr), notification)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
         self.assertEqual(TaskSelectionNotification.LABEL, notification.label)
 
 
@@ -93,7 +93,7 @@ class TestTaskVolunteerNotification(TestCase):
         volunteer_id = str(uuid4())
         notification = TaskVolunteerNotification(app_id, receiver_id, volunteer_id, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskVolunteerNotification.from_repr(notification_repr), notification)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
         self.assertEqual(TaskVolunteerNotification.LABEL, notification.label)
 
 
@@ -105,7 +105,7 @@ class TestIncentiveMessage(TestCase):
         content = str(uuid4())
         message = IncentiveMessage(app_id, receiver_id, issuer, content, {})
         message_repr = message.to_repr()
-        self.assertEqual(IncentiveMessage.from_repr(message_repr), message)
+        self.assertEqual(Message.from_repr(message_repr), message)
         self.assertEqual(IncentiveMessage.LABEL, message.label)
 
 
@@ -119,7 +119,7 @@ class TestIncentiveBadge(TestCase):
         message = str(uuid4())
         criteria = str(uuid4())
         badge = IncentiveBadge(app_id, receiver_id, issuer, badge_class, image_url, criteria, message, {})
-        self.assertEqual(IncentiveBadge.from_repr(badge.to_repr()), badge)
+        self.assertEqual(Message.from_repr(badge.to_repr()), badge)
         self.assertEqual(IncentiveBadge.LABEL, badge.label)
 
 
@@ -130,7 +130,7 @@ class TestQuestionToAnswerMessage(TestCase):
         question = str(uuid4())
         user_id = str(uuid4())
         message = QuestionToAnswerMessage(app_id, receiver_id, {}, question, user_id)
-        self.assertEqual(QuestionToAnswerMessage.from_repr(message.to_repr()), message)
+        self.assertEqual(Message.from_repr(message.to_repr()), message)
         self.assertEqual(question, message.question)
         self.assertEqual(user_id, message.user_id)
 
@@ -143,7 +143,7 @@ class TestAnsweredQuestionMessage(TestCase):
         user_id = str(uuid4())
         transaction_id = str(uuid4())
         message = AnsweredQuestionMessage(app_id, receiver_id, answer, transaction_id, user_id, {})
-        self.assertEqual(AnsweredQuestionMessage.from_repr(message.to_repr()), message)
+        self.assertEqual(Message.from_repr(message.to_repr()), message)
         self.assertEqual(answer, message.answer)
         self.assertEqual(user_id, message.user_id)
         self.assertEqual(transaction_id, message.transaction_id)
