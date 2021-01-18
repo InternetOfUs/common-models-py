@@ -33,8 +33,7 @@ class TaskTransaction:
             self.messages = []
 
     def to_repr(self) -> dict:
-        return {
-            "id": self.id,
+        repr_dict = {
             "taskId": self.task_id,
             "label": self.label,
             "attributes": self.attributes,
@@ -43,11 +42,14 @@ class TaskTransaction:
             "actioneerId": self.actioneer_id,
             "messages": [message.to_repr() for message in self.messages],
         }
+        if self.id:
+            repr_dict.update({"id": self.id})
+        return repr_dict
 
     @staticmethod
     def from_repr(raw_data: dict) -> TaskTransaction:
         return TaskTransaction(
-            raw_data["id"],
+            raw_data.get("id", None),
             raw_data["taskId"],
             raw_data["label"],
             raw_data["_creationTs"],
