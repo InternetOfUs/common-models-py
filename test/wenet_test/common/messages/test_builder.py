@@ -2,147 +2,151 @@ import random
 from unittest import TestCase
 from uuid import uuid4
 
-from wenet.common.model.message.builder import MessageBuilder
-from wenet.common.model.message.exception import MessageTypeError, NotificationTypeError
-from wenet.common.model.message.message import TextualMessage, TaskNotification, TaskProposalNotification, \
-    TaskVolunteerNotification, MessageFromUserNotification, TaskConcludedNotification, NewUserForPlatform, Event, \
-    TaskSelectionNotification
+from wenet.common.model.message.builder import MessageBuilder, EventBuilder
+from wenet.common.model.message.event import Event, WeNetAuthenticationEvent
+from wenet.common.model.message.message import TextualMessage, TaskProposalNotification, TaskVolunteerNotification, \
+    TaskConcludedNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, QuestionToAnswerMessage, \
+    AnsweredQuestionMessage
 
 
-class TestBuilder(TestCase):
+class TestMessageBuilder(TestCase):
     def test_incoming_textual_message_parsing(self):
         title = str(uuid4())
         text = str(uuid4())
-        recipient = str(uuid4())
-        raw_message = TextualMessage(recipient, title, text)
+        receiver_id = str(uuid4())
+        app_id = str(uuid4())
+        community_id = str(uuid4())
+        task_id = str(uuid4())
+        attributes = {
+            "taskId": task_id,
+            "communityId": community_id
+        }
+        raw_message = TextualMessage(app_id, receiver_id, title, text, attributes)
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TextualMessage)
         self.assertEqual(title, message.title)
         self.assertEqual(text, message.text)
-        self.assertEqual(text, message.text)
+        self.assertEqual(task_id, message.task_id)
+        self.assertEqual(community_id, message.community_id)
 
     def test_notification_proposal_parsing(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        task_id = str(uuid4())
-        raw_message = TaskProposalNotification(recipient, title, text, task_id)
+        receiver_id = str(uuid4())
+        app_id = str(uuid4())
+        raw_message = TaskProposalNotification(app_id, receiver_id, {})
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TaskProposalNotification)
-        self.assertEqual(title, message.title)
-        self.assertEqual(text, message.text)
-        self.assertEqual(recipient, message.recipient_id)
-        self.assertEqual(task_id, message.task_id)
-        self.assertEqual(TaskNotification.TYPE, message.type)
-        self.assertEqual(TaskProposalNotification.TYPE, message.notification_type)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertIsNone(message.task_id)
+        self.assertIsNone(message.community_id)
+        self.assertEqual(TaskProposalNotification.LABEL, message.label)
 
     def test_notification_volunteer_parsing(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        task_id = str(uuid4())
+        receiver_id = str(uuid4())
+        app_id = str(uuid4())
         volunteer_id = str(uuid4())
-        raw_message = TaskVolunteerNotification(recipient, title, text, task_id, volunteer_id)
+        raw_message = TaskVolunteerNotification(app_id, receiver_id, volunteer_id, {})
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TaskVolunteerNotification)
-        self.assertEqual(title, message.title)
-        self.assertEqual(text, message.text)
-        self.assertEqual(recipient, message.recipient_id)
-        self.assertEqual(task_id, message.task_id)
+        self.assertEqual(receiver_id, message.receiver_id)
         self.assertEqual(volunteer_id, message.volunteer_id)
-        self.assertEqual(TaskNotification.TYPE, message.type)
-        self.assertEqual(TaskVolunteerNotification.TYPE, message.notification_type)
-
-    def test_message_from_user_parsing(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        task_id = str(uuid4())
-        sender = str(uuid4())
-        raw_message = MessageFromUserNotification(recipient, title, text, task_id, sender)
-        message = MessageBuilder.build(raw_message.to_repr())
-        self.assertIsInstance(message, MessageFromUserNotification)
-        self.assertEqual(title, message.title)
-        self.assertEqual(text, message.text)
-        self.assertEqual(recipient, message.recipient_id)
-        self.assertEqual(task_id, message.task_id)
-        self.assertEqual(TaskNotification.TYPE, message.type)
-        self.assertEqual(MessageFromUserNotification.TYPE, message.notification_type)
-        self.assertEqual(sender, message.sender_id)
+        self.assertEqual(TaskVolunteerNotification.LABEL, message.label)
 
     def test_message_task_concluded_parsing(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        task_id = str(uuid4())
+        receiver_id = str(uuid4())
+        app_id = str(uuid4())
         outcome = random.choice([TaskConcludedNotification.OUTCOME_CANCELLED,
-                                 TaskConcludedNotification.OUTCOME_SUCCESSFUL,
+                                 TaskConcludedNotification.OUTCOME_COMPLETED,
                                  TaskConcludedNotification.OUTCOME_FAILED])
-        raw_message = TaskConcludedNotification(recipient, title, text, task_id, outcome)
+        raw_message = TaskConcludedNotification(app_id, receiver_id, outcome, {})
         message = MessageBuilder.build(raw_message.to_repr())
         self.assertIsInstance(message, TaskConcludedNotification)
-        self.assertEqual(title, message.title)
-        self.assertEqual(text, message.text)
-        self.assertEqual(recipient, message.recipient_id)
-        self.assertEqual(task_id, message.task_id)
-        self.assertEqual(TaskNotification.TYPE, message.type)
-        self.assertEqual(TaskConcludedNotification.TYPE, message.notification_type)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertEqual(TaskConcludedNotification.LABEL, message.label)
         self.assertEqual(outcome, message.outcome)
-
-    def test_wrong_message_type_parsing(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        raw_message = {
-            "type": "puppa",
-            "recipientId": recipient,
-            "title": title,
-            "text": text
-        }
-        self.assertRaises(MessageTypeError, MessageBuilder.build, raw_message)
-
-    def test_wrong_notification_type_parsing(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        task_id = str(uuid4())
-        raw_message = {
-            "type": TaskNotification.TYPE,
-            "notificationType": "puppa",
-            "title": title,
-            "text": text,
-            "recipientId": recipient,
-            "taskId": task_id
-        }
-        self.assertRaises(NotificationTypeError, MessageBuilder.build, raw_message)
-
-    def testNewUserForPlatformType(self):
-        app_id = str(uuid4())
-        user_id = str(uuid4())
-        platform = str(uuid4())
-        new_user = NewUserForPlatform(app_id, user_id, platform)
-        message = MessageBuilder.build(new_user.to_repr())
-        self.assertIsInstance(message, NewUserForPlatform)
-        self.assertEqual(app_id, message.app_id)
-        self.assertEqual(user_id, message.user_id)
-        self.assertEqual(platform, message.platform)
-        self.assertEqual(Event.TYPE, message.type)
-        self.assertEqual(NewUserForPlatform.TYPE, message.event_type)
 
     def testTaskSelectionNotification(self):
-        title = str(uuid4())
-        text = str(uuid4())
-        recipient = str(uuid4())
-        task_id = str(uuid4())
+        receiver_id = str(uuid4())
+        app_id = str(uuid4())
         outcome = random.choice([TaskSelectionNotification.OUTCOME_ACCEPTED,
                                  TaskSelectionNotification.OUTCOME_REFUSED])
-        start_message = TaskSelectionNotification(recipient, title, text, task_id, outcome)
+        start_message = TaskSelectionNotification(app_id, receiver_id, outcome, {})
         message = MessageBuilder.build(start_message.to_repr())
         self.assertIsInstance(message, TaskSelectionNotification)
-        self.assertEqual(title, message.title)
-        self.assertEqual(text, message.text)
-        self.assertEqual(recipient, message.recipient_id)
-        self.assertEqual(task_id, message.task_id)
-        self.assertEqual(TaskNotification.TYPE, message.type)
-        self.assertEqual(TaskSelectionNotification.TYPE, message.notification_type)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertEqual(TaskSelectionNotification.LABEL, message.label)
         self.assertEqual(outcome, message.outcome)
+
+    def test_incentive_message(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        issuer = str(uuid4())
+        content = str(uuid4())
+        start_message = IncentiveMessage(app_id, receiver_id, issuer, content, {})
+        message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, IncentiveMessage)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertEqual(IncentiveMessage.LABEL, message.label)
+        self.assertEqual(issuer, message.issuer)
+        self.assertEqual(content, message.content)
+
+    def test_incentive_badge(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        issuer = str(uuid4())
+        image_url = str(uuid4())
+        badge_class = str(uuid4())
+        badge_message = str(uuid4())
+        criteria = str(uuid4())
+        start_message = IncentiveBadge(app_id, receiver_id, issuer, badge_class, image_url, criteria, badge_message, {})
+        message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, IncentiveBadge)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertEqual(IncentiveBadge.LABEL, message.label)
+        self.assertEqual(issuer, message.issuer)
+        self.assertEqual(image_url, message.image_url)
+        self.assertEqual(badge_class, message.badge_class)
+        self.assertEqual(badge_message, message.message)
+        self.assertEqual(criteria, message.criteria)
+
+    def test_question_to_answer_message(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        question = str(uuid4())
+        user_id = str(uuid4())
+        start_message = QuestionToAnswerMessage(app_id, receiver_id, {}, question, user_id)
+        message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, QuestionToAnswerMessage)
+        self.assertEqual(question, message.question)
+        self.assertEqual(user_id, message.user_id)
+
+    def test_answer_to_question_message(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        answer = str(uuid4())
+        user_id = str(uuid4())
+        transaction_id = str(uuid4())
+        start_message = AnsweredQuestionMessage(app_id, receiver_id, answer, transaction_id, user_id, {})
+        message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, AnsweredQuestionMessage)
+        self.assertEqual(answer, message.answer)
+        self.assertEqual(user_id, message.user_id)
+        self.assertEqual(transaction_id, message.transaction_id)
+
+
+class TestEventBuilder(TestCase):
+    def test_event(self):
+        event_type = str(uuid4())
+        event = Event(event_type)
+        parsed_event = EventBuilder.build(event.to_repr())
+        self.assertIsInstance(parsed_event, Event)
+        self.assertEqual(parsed_event.event_type, event.event_type)
+
+    def test_authentication_event(self):
+        code = str(uuid4())
+        external_id = str(uuid4())
+        event = WeNetAuthenticationEvent(external_id, code)
+        parsed_event = EventBuilder.build(event.to_repr())
+        self.assertIsInstance(parsed_event, WeNetAuthenticationEvent)
+        self.assertEqual(parsed_event.event_type, event.event_type)
+        self.assertEqual(parsed_event.external_id, event.external_id)
+        self.assertEqual(parsed_event.code, event.code)

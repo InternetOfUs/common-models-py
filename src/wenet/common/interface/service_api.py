@@ -53,10 +53,9 @@ class ServiceApiInterface:
             req = self.client.get(self.base_url + self.USER_ENDPOINT + '/profile/%s' % wenet_user_id)
         else:
             req = self.client.get(self.base_url + self.USER_ENDPOINT + '/profile')
-
         if req.status_code == 200:
             return WeNetUserProfile.from_repr(req.json())
-        logger.warning(f"Unable to retrieve the user profile, service api respond with: {req.status_code} {req}")
+        logger.warning(f"Unable to retrieve the user profile, service api respond with: {req.status_code} {req.text}")
         return None
 
     def get_opened_tasks_of_user(self, wenet_user_id: str, app_id: str) -> List[Task]:
@@ -74,4 +73,25 @@ class ServiceApiInterface:
             return tasks
         else:
             logger.warning(f"Unable to retrieve the list of task, server respond with [{req.status_code}], [{req.text}]")
+            return []
+
+    def get_tasks(self, app_id: str, requester_id: Optional[str] = None, has_close_ts: Optional[bool] = None,
+                  limit: Optional[int] = None, offset: Optional[int] = None):
+        params = {
+            "appId": app_id
+        }
+        if requester_id:
+            params["requesterId"] = requester_id
+        if has_close_ts is not None:
+            params["hasCloseTs"] = has_close_ts
+        if limit is not None:
+            params["limit"] = limit
+        if offset is not None:
+            params["offset"] = offset
+        req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s", query_params=params)
+        if req.status_code == 200:
+            return [Task.from_repr(task) for task in req.json()["tasks"]]
+        else:
+            logger.warning(
+                f"Unable to retrieve the list of task, server respond with [{req.status_code}], [{req.text}]")
             return []

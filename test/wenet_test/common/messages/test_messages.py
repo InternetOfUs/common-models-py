@@ -2,136 +2,148 @@ import random
 from unittest import TestCase
 from uuid import uuid4
 
-from wenet.common.model.message.message import TextualMessage, TaskNotification, Event, BaseMessage, Message, \
-    MessageFromUserNotification, TaskConcludedNotification, TaskVolunteerNotification, TaskProposalNotification, \
-    NewUserForPlatform, TaskSelectionNotification
-
-
-class TestBaseMessage(TestCase):
-    def test_repr(self):
-        types = [TextualMessage.TYPE, TaskNotification.TYPE, Event.TYPE]
-        message = BaseMessage(random.choice(types))
-        message_repr = message.to_repr()
-        self.assertEqual(BaseMessage.from_repr(message_repr), message)
-
-    def test_strict_types(self):
-        type = str(uuid4())
-        self.assertRaises(ValueError, BaseMessage, type)
+from wenet.common.model.message.message import Message, TextualMessage, TaskProposalNotification, \
+    TaskVolunteerNotification, TaskSelectionNotification, TaskConcludedNotification, IncentiveMessage, IncentiveBadge, \
+    QuestionToAnswerMessage, AnsweredQuestionMessage
 
 
 class TestMessage(TestCase):
     def test_repr(self):
-        types = [TextualMessage.TYPE, TaskNotification.TYPE]
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        message = Message(random.choice(types), recipient_id, title, text)
+        app_id = str(uuid4())
+        community_id = str(uuid4())
+        receiver_id = str(uuid4())
+        task_id = str(uuid4())
+        label = str(uuid4())
+        attributes = {
+            "key": "value",
+            "communityId": community_id,
+            "taskId": task_id
+        }
+        message = Message(app_id, receiver_id, label, attributes)
         message_repr = message.to_repr()
         self.assertEqual(Message.from_repr(message_repr), message)
+        self.assertEqual(message.task_id, task_id)
+        self.assertEqual(message.community_id, community_id)
+
+    def test_with_empty_attributes(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        label = str(uuid4())
+        attributes = {
+            "key": "value",
+        }
+        message = Message(app_id, receiver_id, label, attributes)
+        message_repr = message.to_repr()
+        self.assertEqual(Message.from_repr(message_repr), message)
+        self.assertIsNone(message.community_id)
+        self.assertIsNone(message.task_id)
 
 
 class TestTextualMessage(TestCase):
     def test_repr(self):
-        recipient_id = str(uuid4())
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
         title = str(uuid4())
         text = str(uuid4())
-        message = TextualMessage(recipient_id, title, text)
+        message = TextualMessage(app_id, receiver_id, title, text, {})
         message_repr = message.to_repr()
         self.assertEqual(Message.from_repr(message_repr), message)
-        self.assertEqual(TextualMessage.TYPE, message.type)
-
-
-class TestTaskNotification(TestCase):
-    def test_repr(self):
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        task_id = str(uuid4())
-        types = [MessageFromUserNotification.TYPE, TaskConcludedNotification.TYPE,
-                 TaskVolunteerNotification.TYPE, TaskProposalNotification.TYPE]
-        type = random.choice(types)
-        notification = TaskNotification(recipient_id, title, text, task_id, type)
-        notification_repr = notification.to_repr()
-        self.assertEqual(TaskNotification.from_repr(notification_repr), notification)
-        self.assertEqual(TaskNotification.TYPE, notification.type)
+        self.assertEqual(TextualMessage.LABEL, message.label)
 
 
 class TestTaskProposalNotification(TestCase):
     def test_repr(self):
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        task_id = str(uuid4())
-        notification = TaskProposalNotification(recipient_id, title, text, task_id)
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        notification = TaskProposalNotification(app_id, receiver_id, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskProposalNotification.from_repr(notification_repr), notification)
-        self.assertEqual(TaskProposalNotification.TYPE, notification.notification_type)
-
-
-class TestMessageFromUserNotification(TestCase):
-    def test_repr(self):
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        task_id = str(uuid4())
-        sender_id = str(uuid4())
-        notification = MessageFromUserNotification(recipient_id, title, text, task_id, sender_id)
-        notification_repr = notification.to_repr()
-        self.assertEqual(MessageFromUserNotification.from_repr(notification_repr), notification)
-        self.assertEqual(MessageFromUserNotification.TYPE, notification.notification_type)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
+        self.assertEqual(TaskProposalNotification.LABEL, notification.label)
 
 
 class TestTaskConcludedNotification(TestCase):
     def test_repr(self):
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        task_id = str(uuid4())
-        possible_outcomes = [TaskConcludedNotification.OUTCOME_FAILED, TaskConcludedNotification.OUTCOME_SUCCESSFUL,
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        possible_outcomes = [TaskConcludedNotification.OUTCOME_FAILED, TaskConcludedNotification.OUTCOME_COMPLETED,
                              TaskConcludedNotification.OUTCOME_CANCELLED]
         outcome = random.choice(possible_outcomes)
-        notification = TaskConcludedNotification(recipient_id, title, text, task_id, outcome)
+        notification = TaskConcludedNotification(app_id, receiver_id, outcome, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskConcludedNotification.from_repr(notification_repr), notification)
-        self.assertEqual(TaskConcludedNotification.TYPE, notification.notification_type)
-
-
-class TestEvent(TestCase):
-    def test_repr(self):
-        event = Event(NewUserForPlatform.TYPE)
-        event_repr = event.to_repr()
-        self.assertEqual(Event.from_repr(event_repr), event)
-
-
-class TestNewUserForPlatform(TestCase):
-    def test_repr(self):
-        message = NewUserForPlatform(str(uuid4()), str(uuid4()), str(uuid4()))
-        message_repr = message.to_repr()
-        self.assertEqual(NewUserForPlatform.from_repr(message_repr), message)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
+        self.assertEqual(TaskConcludedNotification.LABEL, notification.label)
 
 
 class TestTaskSelectionNotification(TestCase):
     def test_repr(self):
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        task_id = str(uuid4())
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
         possible_outcomes = [TaskSelectionNotification.OUTCOME_REFUSED, TaskSelectionNotification.OUTCOME_ACCEPTED]
         outcome = random.choice(possible_outcomes)
-        notification = TaskSelectionNotification(recipient_id, title, text, task_id, outcome)
+        notification = TaskSelectionNotification(app_id, receiver_id, outcome, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskSelectionNotification.from_repr(notification_repr), notification)
-        self.assertEqual(TaskSelectionNotification.TYPE, notification.notification_type)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
+        self.assertEqual(TaskSelectionNotification.LABEL, notification.label)
 
 
 class TestTaskVolunteerNotification(TestCase):
     def test_repr(self):
-        recipient_id = str(uuid4())
-        title = str(uuid4())
-        text = str(uuid4())
-        task_id = str(uuid4())
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
         volunteer_id = str(uuid4())
-        notification = TaskVolunteerNotification(recipient_id, title, text, task_id, volunteer_id)
+        notification = TaskVolunteerNotification(app_id, receiver_id, volunteer_id, {})
         notification_repr = notification.to_repr()
-        self.assertEqual(TaskVolunteerNotification.from_repr(notification_repr), notification)
-        self.assertEqual(TaskVolunteerNotification.TYPE, notification.notification_type)
+        self.assertEqual(Message.from_repr(notification_repr), notification)
+        self.assertEqual(TaskVolunteerNotification.LABEL, notification.label)
+
+
+class TestIncentiveMessage(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        issuer = str(uuid4())
+        content = str(uuid4())
+        message = IncentiveMessage(app_id, receiver_id, issuer, content, {})
+        message_repr = message.to_repr()
+        self.assertEqual(Message.from_repr(message_repr), message)
+        self.assertEqual(IncentiveMessage.LABEL, message.label)
+
+
+class TestIncentiveBadge(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        issuer = str(uuid4())
+        image_url = str(uuid4())
+        badge_class = str(uuid4())
+        message = str(uuid4())
+        criteria = str(uuid4())
+        badge = IncentiveBadge(app_id, receiver_id, issuer, badge_class, image_url, criteria, message, {})
+        self.assertEqual(Message.from_repr(badge.to_repr()), badge)
+        self.assertEqual(IncentiveBadge.LABEL, badge.label)
+
+
+class TestQuestionToAnswerMessage(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        question = str(uuid4())
+        user_id = str(uuid4())
+        message = QuestionToAnswerMessage(app_id, receiver_id, {}, question, user_id)
+        self.assertEqual(Message.from_repr(message.to_repr()), message)
+        self.assertEqual(question, message.question)
+        self.assertEqual(user_id, message.user_id)
+
+
+class TestAnsweredQuestionMessage(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        answer = str(uuid4())
+        user_id = str(uuid4())
+        transaction_id = str(uuid4())
+        message = AnsweredQuestionMessage(app_id, receiver_id, answer, transaction_id, user_id, {})
+        self.assertEqual(Message.from_repr(message.to_repr()), message)
+        self.assertEqual(answer, message.answer)
+        self.assertEqual(user_id, message.user_id)
+        self.assertEqual(transaction_id, message.transaction_id)

@@ -5,6 +5,7 @@ from numbers import Number
 from typing import Optional, List
 
 from wenet.common.model.norm.norm import Norm
+from wenet.common.model.task.transaction import TaskTransaction
 
 
 class TaskState(Enum):
@@ -19,28 +20,31 @@ class TaskState(Enum):
 
 class TaskGoal:
 
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str, keywords: Optional[List[str]] = None):
         self.name = name
         self.description = description
+        self.keywords = keywords if keywords else []
 
     def to_repr(self) -> dict:
         return {
             "name": self.name,
-            "description": self.description
+            "description": self.description,
+            "keywords": self.keywords,
         }
 
     @staticmethod
     def from_repr(raw_data: dict) -> TaskGoal:
         return TaskGoal(
             name=raw_data["name"],
-            description=raw_data["description"]
+            description=raw_data.get("description", ""),
+            keywords=raw_data.get("keywords", None)
         )
 
     def __eq__(self, o: object) -> bool:
         if not isinstance(o, TaskGoal):
             return False
 
-        return self.name == o.name and self.description == o.description
+        return self.name == o.name and self.description == o.description and self.keywords == o.keywords
 
     def __repr__(self) -> str:
         return str(self.to_repr())
@@ -58,13 +62,12 @@ class Task:
                  task_type_id: str,
                  requester_id: str,
                  app_id: str,
+                 community_id: Optional[str],
                  goal: TaskGoal,
-                 start_ts: Number,
-                 end_ts: Number,
-                 deadline_ts: Number,
-                 norms: Optional[List[Norm]],
-                 attributes: Optional[dict],
-                 close_ts: Optional[Number] = None
+                 norms: Optional[List[Norm]] = None,
+                 attributes: Optional[dict] = None,
+                 close_ts: Optional[Number] = None,
+                 transactions: Optional[List[TaskTransaction]] = None
                  ):
 
         self.task_id = task_id
@@ -75,14 +78,12 @@ class Task:
         self.requester_id = requester_id
         self.app_id = app_id
         self.goal = goal
+        self.community_id = community_id
 
-        self.start_ts = start_ts
-        self.end_ts = end_ts
-        self.deadline_ts = deadline_ts
         self.norms = norms
-
         self.attributes = attributes
         self.close_ts = close_ts
+        self.transactions = transactions
 
         if task_id is not None:
             if not isinstance(task_id, str):
@@ -108,18 +109,6 @@ class Task:
         if not isinstance(goal, TaskGoal):
             raise TypeError("Goal should be an instance of TaskGoal")
 
-        if start_ts is not None:
-            if not isinstance(start_ts, Number):
-                raise TypeError("StartTs should be an integer")
-
-        if end_ts is not None:
-            if not isinstance(end_ts, Number):
-                raise TypeError("EndTs should be an integer")
-
-        if deadline_ts is not None:
-            if not isinstance(deadline_ts, Number):
-                raise TypeError("DeadlineTs should be an integer")
-
         if norms:
             if not isinstance(norms, list):
                 raise ValueError("Norms should be a list of Norm")
@@ -140,6 +129,9 @@ class Task:
             if not isinstance(self.close_ts, Number):
                 raise TypeError("CloseTS should be an integer")
 
+        if not self.transactions:
+            self.transactions = []
+
     def to_repr(self) -> dict:
         return {
             "id": self.task_id,
@@ -149,12 +141,11 @@ class Task:
             "requesterId": self.requester_id,
             "appId": self.app_id,
             "goal": self.goal.to_repr(),
-            "startTs": self.start_ts,
-            "endTs": self.end_ts,
-            "deadlineTs": self.deadline_ts,
             "norms": list(x.to_repr() for x in self.norms),
             "attributes": self.attributes,
-            "closeTs": self.close_ts
+            "closeTs": self.close_ts,
+            "communityId": self.community_id,
+            "transactions": [t.to_repr() for t in self.transactions],
         }
 
     @staticmethod
@@ -164,19 +155,19 @@ class Task:
             task_id = raw_data.get("id", None)
 
         return Task(
-            task_id=task_id,
-            creation_ts=raw_data.get("_creationTs", None),
-            last_update_ts=raw_data.get("_lastUpdateTs", None),
-            task_type_id=raw_data["taskTypeId"],
-            requester_id=raw_data["requesterId"],
-            app_id=raw_data["appId"],
-            goal=TaskGoal.from_repr(raw_data["goal"]),
-            start_ts=raw_data.get("startTs", None),
-            end_ts=raw_data.get("endTs", None),
-            deadline_ts=raw_data.get("deadlineTs", None),
-            norms=list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
-            attributes=raw_data.get("attributes", None),
-            close_ts=raw_data.get("closeTs", None)
+            task_id,
+            raw_data.get("_creationTs", None),
+            raw_data.get("_lastUpdateTs", None),
+            raw_data["taskTypeId"],
+            raw_data["requesterId"],
+            raw_data["appId"],
+            raw_data.get("communityId", None),
+            TaskGoal.from_repr(raw_data["goal"]),
+            list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
+            raw_data.get("attributes", None),
+            raw_data.get("closeTs", None),
+            [TaskTransaction.from_repr(t) for t in raw_data.get("transactions", None)]
+            if raw_data.get("transactions", None) else None
         )
 
     def prepare_task(self) -> dict:
@@ -194,10 +185,11 @@ class Task:
     def __eq__(self, o):
         if not isinstance(o, Task):
             return False
-        return self.task_id == o.task_id and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts and self.task_type_id == o.task_type_id \
-            and self.requester_id == o.requester_id and self.app_id == o.app_id and self.goal == o.goal and self.start_ts == o.start_ts \
-            and self.end_ts == o.end_ts and self.deadline_ts == o.deadline_ts and self.norms == o.norms and self.attributes == o.attributes \
-            and self.close_ts == o.close_ts
+        return self.task_id == o.task_id and self.creation_ts == o.creation_ts and \
+            self.last_update_ts == o.last_update_ts and self.task_type_id == o.task_type_id and \
+            self.requester_id == o.requester_id and self.app_id == o.app_id and self.goal == o.goal and \
+            self.norms == o.norms and self.attributes == o.attributes and self.close_ts == o.close_ts and \
+            self.community_id == o.community_id and self.transactions == o.transactions
 
 
 class TaskPage:
