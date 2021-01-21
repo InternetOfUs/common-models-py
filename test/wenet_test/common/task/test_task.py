@@ -53,3 +53,20 @@ class TestTask(TestCase):
         except Exception:
             self.fail("From repr should not fail")
 
+    def test_task_with_no_description(self):
+        data = {
+            "taskId": "task_id",
+            "taskTypeId": "taskTypeId",
+            "requesterId": "requesterId",
+            "appId": "appId",
+            "goal": {
+                "name": "name",
+            },
+        }
+        try:
+            task = Task.from_repr(data)
+            self.assertIsInstance(task, Task)
+            self.assertEqual(task.goal.description, "")
+        except Exception:
+            self.fail("From repr should not fail")
+

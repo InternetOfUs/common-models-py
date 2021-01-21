@@ -36,7 +36,7 @@ class TaskGoal:
     def from_repr(raw_data: dict) -> TaskGoal:
         return TaskGoal(
             name=raw_data["name"],
-            description=raw_data["description"],
+            description=raw_data.get("description", ""),
             keywords=raw_data.get("keywords", None)
         )
 
