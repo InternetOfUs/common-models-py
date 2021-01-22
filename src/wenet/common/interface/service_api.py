@@ -1,7 +1,7 @@
 from typing import Optional, List
 
 from wenet.common.interface.client import Oauth2Client
-from wenet.common.interface.exceptions import TaskNotFound, UpdateMetadataError, TaskCreationError, \
+from wenet.common.interface.exceptions import TaskNotFound, TaskCreationError, \
     TaskTransactionCreationError
 from wenet.common.model.task.transaction import TaskTransaction
 from wenet.common.model.user.authentication_account import WeNetUserWithAccounts
