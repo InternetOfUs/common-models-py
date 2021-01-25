@@ -16,6 +16,16 @@ class TestTextualContent(TestCase):
         content.with_button("button", "payload")
         self.assertEqual(content, BaseContent.from_repr(content.to_repr()))
 
+    def test_repr2(self):
+
+        payload = {
+            "value": "val"
+        }
+
+        from_repr = TextualContent.from_repr(payload)
+        self.assertIsInstance(from_repr, TextualContent)
+        self.assertEqual(payload["value"], from_repr.value)
+
 
 class TestAttachmentContent(TestCase):
     def test_repr(self):

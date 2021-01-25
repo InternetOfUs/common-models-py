@@ -139,7 +139,7 @@ class TextualContent(ContentWithButtons):
     def from_repr(raw: dict) -> BaseContent:
         return TextualContent(
             raw["value"],
-            [ActionContent.from_repr(b) for b in raw["buttons"]]
+            [ActionContent.from_repr(b) for b in raw.get("buttons", [])]
         )
 
     def __eq__(self, o: object) -> bool:
