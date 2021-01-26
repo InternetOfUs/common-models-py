@@ -76,7 +76,7 @@ class ServiceApiInterface:
             return []
 
     def get_tasks(self, app_id: str, requester_id: Optional[str] = None, has_close_ts: Optional[bool] = None,
-                  limit: Optional[int] = None, offset: Optional[int] = None):
+                  limit: Optional[int] = None, offset: Optional[int] = None) -> List[Task]:
         params = {
             "appId": app_id
         }
@@ -91,6 +91,26 @@ class ServiceApiInterface:
         req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s", query_params=params)
         if req.status_code == 200:
             return [Task.from_repr(task) for task in req.json()["tasks"]]
+        else:
+            logger.warning(
+                f"Unable to retrieve the list of task, server respond with [{req.status_code}], [{req.text}]")
+            return []
+
+    def get_all_tasks_of_application(self, app_id: str) -> List[Task]:
+        tasks = []
+        req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s",
+                              query_params={"appId": app_id, "hasCloseTs": False})
+
+        if req.status_code == 200:
+            task_page = TaskPage.from_repr(req.json())
+            tasks.extend(task_page.tasks)
+            while len(tasks) < task_page.total:
+                offset = len(tasks)
+                req = self.client.get(self.base_url + self.TASK_ENDPOINT + "s",
+                                      query_params={"appId": app_id, "offset": offset}).json()
+                task_page = TaskPage.from_repr(req)
+                tasks.extend(task_page.tasks)
+            return tasks
         else:
             logger.warning(
                 f"Unable to retrieve the list of task, server respond with [{req.status_code}], [{req.text}]")
