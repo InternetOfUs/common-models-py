@@ -3,6 +3,7 @@ from typing import Optional, List
 from wenet.common.interface.client import Oauth2Client
 from wenet.common.interface.exceptions import TaskNotFound, TaskCreationError, \
     TaskTransactionCreationError
+from wenet.common.model.logging_messages.messages import BaseMessage
 from wenet.common.model.task.transaction import TaskTransaction
 from wenet.common.model.user.authentication_account import WeNetUserWithAccounts
 from wenet.common.model.task.task import Task, TaskPage
@@ -17,6 +18,7 @@ class ServiceApiInterface:
 
     USER_ENDPOINT = "/user"
     TASK_ENDPOINT = '/task'
+    LOG_ENDPOINT = '/log/messages'
 
     def __init__(self, base_url: str, oauth2_client: Oauth2Client) -> None:
         self.base_url = base_url
@@ -115,3 +117,11 @@ class ServiceApiInterface:
             logger.warning(
                 f"Unable to retrieve the list of task, server respond with [{req.status_code}], [{req.text}]")
             return []
+
+    def log_message(self, message: BaseMessage) -> bool:
+        """
+        Log a message to the service API, either a request, response or notification.
+        Returns True if the operation is successful, False otherwise
+        """
+        req = self.client.post(self.base_url + self.LOG_ENDPOINT, message.to_repr())
+        return req.status_code == 200
