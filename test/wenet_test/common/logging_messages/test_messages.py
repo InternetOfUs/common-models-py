@@ -17,7 +17,7 @@ class TestResponseMessage(TestCase):
     def test_repr(self):
         content = TextualContent("text")
         content.with_button("button", "value")
-        message = ResponseMessage("message_id", "channel", "user_id", "project", content)
+        message = ResponseMessage("message_id", "channel", "user_id", "project", content, "responseTo")
         self.assertEqual(message, BaseMessage.from_repr(message.to_repr()))
 
 

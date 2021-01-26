@@ -124,4 +124,4 @@ class ServiceApiInterface:
         Returns True if the operation is successful, False otherwise
         """
         req = self.client.post(self.base_url + self.LOG_ENDPOINT, message.to_repr())
-        return req.status_code == 200
+        return req.status_code in [200, 201]
