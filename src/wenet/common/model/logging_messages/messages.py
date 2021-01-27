@@ -17,6 +17,7 @@ class BaseMessage(abc.ABC):
         - project: the project in which the message is exchanged
         - content: the content of the message
         - timestamp: the timestamp of the message. If None is given, the current timestamp is used
+        - metadata: an optional dictionary containing key-value pairs
     """
     @staticmethod
     @abc.abstractmethod
@@ -27,7 +28,7 @@ class BaseMessage(abc.ABC):
         pass
 
     def __init__(self, message_id: str, channel: str, user_id: str, project: str, content: BaseContent,
-                 timestamp: Optional[datetime] = None) -> None:
+                 timestamp: Optional[datetime] = None, metadata: Optional[dict] = None) -> None:
         self.type = self.get_type()
         self.message_id = message_id
         self.channel = channel
@@ -35,8 +36,11 @@ class BaseMessage(abc.ABC):
         self.project = project
         self.content = content
         self.timestamp = timestamp
+        self.metadata = metadata
         if not self.timestamp:
             self.timestamp = datetime.now()
+        if not self.metadata:
+            self.metadata = {}
 
     def to_repr(self) -> dict:
         return {
@@ -47,6 +51,7 @@ class BaseMessage(abc.ABC):
             "project": self.project,
             "content": self.content.to_repr(),
             "timestamp": self.timestamp.isoformat(),
+            "metadata": self.metadata,
         }
 
     @staticmethod
@@ -65,7 +70,7 @@ class BaseMessage(abc.ABC):
             return False
         return self.type == o.type and self.message_id == o.message_id and self.channel == o.channel and \
             self.user_id == o.user_id and self.project == o.project and self.content == o.content and \
-            self.timestamp == o.timestamp
+            self.timestamp == o.timestamp and self.metadata == o.metadata
 
 
 class RequestMessage(BaseMessage):
@@ -86,7 +91,8 @@ class RequestMessage(BaseMessage):
             raw["userId"],
             raw["project"],
             BaseContent.from_repr(raw["content"]),
-            datetime.fromisoformat(raw["timestamp"])
+            datetime.fromisoformat(raw["timestamp"]),
+            raw.get("metadata", None)
         )
 
 
@@ -95,6 +101,11 @@ class ResponseMessage(BaseMessage):
     Request message, with the same attributes of the base message
     """
     TYPE = "RESPONSE"
+
+    def __init__(self, message_id: str, channel: str, user_id: str, project: str, content: BaseContent,
+                 response_to: str, timestamp: Optional[datetime] = None, metadata: Optional[dict] = None) -> None:
+        super().__init__(message_id, channel, user_id, project, content, timestamp, metadata)
+        self.response_to = response_to
 
     @staticmethod
     def get_type() -> str:
@@ -108,8 +119,15 @@ class ResponseMessage(BaseMessage):
             raw["userId"],
             raw["project"],
             BaseContent.from_repr(raw["content"]),
-            datetime.fromisoformat(raw["timestamp"])
+            raw["responseTo"],
+            datetime.fromisoformat(raw["timestamp"]),
+            raw.get("metadata", None)
         )
+
+    def to_repr(self) -> dict:
+        base_repr = super().to_repr()
+        base_repr.update({"responseTo": self.response_to})
+        return base_repr
 
 
 class NotificationMessage(BaseMessage):
@@ -130,5 +148,6 @@ class NotificationMessage(BaseMessage):
             raw["userId"],
             raw["project"],
             BaseContent.from_repr(raw["content"]),
-            datetime.fromisoformat(raw["timestamp"])
+            datetime.fromisoformat(raw["timestamp"]),
+            raw.get("metadata", None)
         )
