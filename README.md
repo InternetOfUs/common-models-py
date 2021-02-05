@@ -7,7 +7,8 @@ The repository contains the following models:
 - tasks and transactions;
 - norms;
 - messages from the Wenet platform to the applications;
-- App DTOs.
+- App DTOs;
+- messages for logging on Wenet
 
 ## Interface utilities
 The repository also contains some utility classes to interface with the service API, and to handle exceptions.
