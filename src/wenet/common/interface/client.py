@@ -69,6 +69,8 @@ class Oauth2Client:
         }
 
         response = requests.post(self.management_url, json=body)
+        logger.debug(f"Refresh token endpoint returned a code [{response.status_code}]")
+        logger.debug(f"Refresh token endpoint returned: {response.text}")
         if response.status_code == 200:
             body = response.json()
             refresh_token = body["refresh_token"]
@@ -81,7 +83,7 @@ class Oauth2Client:
             )
             logger.info(f"Refreshed oauth2 token for resource [{self._resource_id}]")
         else:
-            logger.warning(f"Unable to refresh the token for user [{self._client_id}]")
+            logger.error(f"Unable to refresh the token for client ID [{self._client_id}]")
             raise RefreshTokenExpiredError("Unable to refresh the token")
 
     def _initialize(self, code: str, redirect_url: str):
@@ -123,7 +125,7 @@ class Oauth2Client:
             logger.debug(f"Performing get request with token {client.token} {client.refresh_token}")
             headers.update(client.get_authentication_headers(client.token))
             response = requests.get(url, params=query_params, headers=headers)
-            if response.status_code == 401:
+            if response.status_code in [400, 401, 403]:
                 if retry:
                     client.refresh_access_token()
                     return get_request(client, False)
@@ -141,7 +143,7 @@ class Oauth2Client:
         def post_request(client: Optional, retry: bool):
             headers.update(client.get_authentication_headers(client.token))
             response = requests.post(url, json=body, headers=headers)
-            if response.status_code == 401:
+            if response.status_code in [400, 401, 403]:
                 if retry:
                     client.refresh_access_token()
                     return post_request(client, False)
