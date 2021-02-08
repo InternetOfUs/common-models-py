@@ -1,5 +1,8 @@
 # Wenet common models - Changelog
 
+## Version 1.0.2
+- Bug fix on OAuth token refresh, in case the OAuth server returns a 400-coded response.
+
 ## Version 1.0.1
 - Added models of messages to log requests, responses and notifications to the Wenet logging tool.
 - Added support for redis caching system.
