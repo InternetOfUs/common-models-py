@@ -115,17 +115,6 @@ class TextualMessage(Message):
             raw["attributes"]
         )
 
-    def to_repr(self) -> dict:
-        return {
-            "appId": self.app_id,
-            "receiverId": self.receiver_id,
-            "label": self.LABEL,
-            "attributes": {
-                "title": self.title,
-                "text": self.text
-            }
-        }
-
 
 class TaskProposalNotification(Message):
     """
