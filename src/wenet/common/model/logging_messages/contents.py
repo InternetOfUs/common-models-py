@@ -37,7 +37,12 @@ class BaseContent(abc.ABC):
         if content_type == TextualContent.get_type():
             return TextualContent.from_repr(raw)
         elif content_type == ActionContent.get_type():
-            return ActionContent.from_repr(raw)
+            # ActionContent and ActionRequest have the same type
+            try:
+                action = ActionContent.from_repr(raw)
+            except KeyError:
+                action = ActionRequest.from_repr(raw)
+            return action
         elif content_type == AttachmentContent.get_type():
             return AttachmentContent.from_repr(raw)
         elif content_type == LocationContent.get_type():
@@ -111,6 +116,38 @@ class ActionContent(BaseContent):
         return ActionContent(
             raw["buttonText"],
             raw["buttonId"]
+        )
+
+
+class ActionRequest(BaseContent):
+    """
+    An action with a single string value, used in requests
+    """
+    TYPE = "action"
+
+    def __init__(self, value: str) -> None:
+        super().__init__()
+        self.value = value
+
+    @staticmethod
+    def get_type() -> str:
+        return ActionRequest.TYPE
+
+    def __eq__(self, o: object) -> bool:
+        if not isinstance(o, ActionRequest):
+            return False
+        return self.value == o.value
+
+    def to_repr(self) -> dict:
+        return {
+            "type": self.TYPE,
+            "value": self.value,
+        }
+
+    @staticmethod
+    def from_repr(raw: dict) -> ActionRequest:
+        return ActionRequest(
+            raw["value"]
         )
 
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from wenet.common.model.logging_messages.contents import TextualContent, BaseContent, ActionContent, AttachmentContent,\
-    LocationContent, Card, CarouselContent
+from wenet.common.model.logging_messages.contents import TextualContent, BaseContent, ActionContent, AttachmentContent, \
+    LocationContent, Card, CarouselContent, ActionRequest
 
 
 class TestActionContent(TestCase):
@@ -60,3 +60,9 @@ class TestCarouselContent(TestCase):
         ]
         content = CarouselContent(cards)
         self.assertEqual(content, BaseContent.from_repr(content.to_repr()))
+
+
+class TestActionRequest(TestCase):
+    def test_repr(self):
+        content = ActionRequest("value")
+        self.assertEqual(content, ActionRequest.from_repr(content.to_repr()))
