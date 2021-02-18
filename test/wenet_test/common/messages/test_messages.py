@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from wenet.common.model.message.message import Message, TextualMessage, TaskProposalNotification, \
     TaskVolunteerNotification, TaskSelectionNotification, TaskConcludedNotification, IncentiveMessage, IncentiveBadge, \
-    QuestionToAnswerMessage, AnsweredQuestionMessage
+    QuestionToAnswerMessage, AnsweredQuestionMessage, AnsweredPickedMessage
 
 
 class TestMessage(TestCase):
@@ -146,4 +146,16 @@ class TestAnsweredQuestionMessage(TestCase):
         self.assertEqual(Message.from_repr(message.to_repr()), message)
         self.assertEqual(answer, message.answer)
         self.assertEqual(user_id, message.user_id)
+        self.assertEqual(transaction_id, message.transaction_id)
+
+
+class TestAnsweredPickedMessage(TestCase):
+    def test_repr(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        task_id = str(uuid4())
+        transaction_id = str(uuid4())
+        message = AnsweredPickedMessage(app_id, receiver_id, task_id, transaction_id, {})
+        self.assertEqual(Message.from_repr(message.to_repr()), message)
+        self.assertEqual(task_id, message.task_id)
         self.assertEqual(transaction_id, message.transaction_id)

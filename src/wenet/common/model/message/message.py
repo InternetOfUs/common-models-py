@@ -52,6 +52,8 @@ class Message:
             return QuestionToAnswerMessage.from_repr(raw)
         elif message_type == AnsweredQuestionMessage.LABEL:
             return AnsweredQuestionMessage.from_repr(raw)
+        elif message_type == AnsweredPickedMessage.LABEL:
+            return AnsweredPickedMessage.from_repr(raw)
         else:
             return Message(
                 raw["appId"],
@@ -446,3 +448,44 @@ class AnsweredQuestionMessage(Message):
     @property
     def user_id(self) -> str:
         return self.attributes["userId"]
+
+
+class AnsweredPickedMessage(Message):
+    """
+    Message received when an answer is picked as the best one.
+
+    Attributes:
+        - app_id: ID of the Wenet application related to the message
+        - receiver_id: The Wenet user ID of the recipient of the message
+        - label: The type of the message
+        - attributes: dictionary with additional attributes of the message. It may contain
+            - community_id: ID of the community related to the message
+            - task_id: The identifier of the target task
+            - transaction_id: The id of the transaction associated with the answer
+    """
+    LABEL = "AnsweredPickedMessage"
+
+    def __init__(self, app_id: str, receiver_id: str, task_id: str, transaction_id: str, attributes: dict) -> None:
+        attributes.update({
+            "transactionId": transaction_id,
+            "taskId": task_id,
+        })
+        super().__init__(app_id, receiver_id, self.LABEL, attributes)
+
+    @staticmethod
+    def from_repr(raw: dict) -> AnsweredPickedMessage:
+        return AnsweredPickedMessage(
+            raw["appId"],
+            raw["receiverId"],
+            raw["attributes"]["taskId"],
+            raw["attributes"]["transactionId"],
+            raw["attributes"]
+        )
+
+    @property
+    def transaction_id(self) -> str:
+        return self.attributes["transactionId"]
+
+    @property
+    def task_id(self) -> str:
+        return self.attributes["taskId"]
