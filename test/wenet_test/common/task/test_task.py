@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from wenet.common.model.task.task import Task, TaskGoal
+from wenet.common.model.task.task import Task, TaskGoal, TaskPage
 from wenet.common.model.task.transaction import TaskTransaction
 
 
@@ -70,3 +70,21 @@ class TestTask(TestCase):
         except Exception:
             self.fail("From repr should not fail")
 
+
+class TestTaskPage(TestCase):
+    def test_repr(self):
+        task_page = TaskPage(0, 0, None)
+        self.assertEqual(task_page, TaskPage.from_repr(task_page.to_repr()))
+
+        task = Task(
+            None,
+            None,
+            None,
+            "type",
+            "requester",
+            "app_id",
+            None,
+            TaskGoal("name", "description")
+        )
+        task_page = TaskPage(0, 0, [task])
+        self.assertEqual(task_page, TaskPage.from_repr(task_page.to_repr()))
