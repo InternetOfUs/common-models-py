@@ -88,3 +88,11 @@ class TestTaskPage(TestCase):
         )
         task_page = TaskPage(0, 0, [task])
         self.assertEqual(task_page, TaskPage.from_repr(task_page.to_repr()))
+
+    def test_null_task_repr(self):
+        task_page_repr = {
+            "offset": 0,
+            "total": 0,
+            "tasks": None
+        }
+        self.assertIsInstance(TaskPage.from_repr(task_page_repr), TaskPage)

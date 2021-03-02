@@ -109,10 +109,13 @@ class TaskTransactionPage:
 
     @staticmethod
     def from_repr(raw_data: dict) -> TaskTransactionPage:
+        transactions = raw_data.get("transactions")
+        if transactions:
+            transactions = list(TaskTransaction.from_repr(x) for x in transactions)
         return TaskTransactionPage(
             offset=raw_data["offset"],
             total=raw_data["total"],
-            transactions=list(TaskTransaction.from_repr(x) for x in raw_data.get("transactions", []))
+            transactions=transactions
         )
 
     def __eq__(self, o) -> bool:
