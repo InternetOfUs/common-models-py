@@ -43,3 +43,11 @@ class TestTaskTransactionPage(TestCase):
         )
         task_transaction_page = TaskTransactionPage(0, 0, [transaction])
         self.assertEqual(task_transaction_page, TaskTransactionPage.from_repr(task_transaction_page.to_repr()))
+
+    def test_null_task_repr(self):
+        task_transaction_page_repr = {
+            "offset": 0,
+            "total": 0,
+            "transactions": None
+        }
+        self.assertIsInstance(TaskTransactionPage.from_repr(task_transaction_page_repr), TaskTransactionPage)

@@ -228,10 +228,13 @@ class TaskPage:
 
     @staticmethod
     def from_repr(raw_data: dict) -> TaskPage:
+        tasks = raw_data.get("tasks")
+        if tasks:
+            tasks = list(Task.from_repr(x) for x in tasks)
         return TaskPage(
             offset=raw_data["offset"],
             total=raw_data["total"],
-            tasks=list(Task.from_repr(x) for x in raw_data.get("tasks", []))
+            tasks=tasks
         )
 
     def __eq__(self, o) -> bool:
