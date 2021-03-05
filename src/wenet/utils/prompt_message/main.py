@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     argParser = argparse.ArgumentParser(description="Prompt message - Send a message to the whole community of an app")
 
-    argParser.add_argument("-i", "--instance", type=str, default="https://wenet.u-hopper.com/dev/", help="The target WeNet instance")
+    argParser.add_argument("-i", "--instance", type=str, default="https://wenet.u-hopper.com/dev", help="The target WeNet instance")
     argParser.add_argument("-a", "--app_id", required=True, type=str, help="The target application")
 
     subParsers = argParser.add_subparsers(dest="subparser", help="Message source")
