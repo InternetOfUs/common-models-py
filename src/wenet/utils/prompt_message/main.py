@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     argParser = argparse.ArgumentParser(description="Prompt message - Send a message to the whole community of an app")
 
-    argParser.add_argument("-i", "--instance", required=True, type=str, default="https://wenet.u-hopper.com/dev/", help="The target WeNet instance")
+    argParser.add_argument("-i", "--instance", type=str, default="https://wenet.u-hopper.com/dev/", help="The target WeNet instance")
     argParser.add_argument("-a", "--app_id", required=True, type=str, help="The target application")
 
     subParsers = argParser.add_subparsers(dest="subparser", help="Message source")
@@ -39,10 +39,6 @@ if __name__ == "__main__":
     text_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
 
     args = argParser.parse_args()
-
-    if not args.app_id and not args.app_callback:
-        logging.warning("Either app_id or app_callback are required (mutually exclusive)")
-        exit(1)
 
     if args.subparser == "text":
 
