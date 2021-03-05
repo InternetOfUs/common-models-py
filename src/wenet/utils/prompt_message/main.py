@@ -9,11 +9,11 @@ from wenet.common.interface.hub import HubInterface
 from wenet.common.model.message.message import TextualMessage
 
 
-def message_for_user(app_id: str, user_id: str, text: str, app_callback: str) -> None:
+def message_for_user(app_id: str, receiver_id: str, text: str, app_callback: str, title: str = "") -> None:
     message = TextualMessage(
         app_id,
-        user_id,
-        "",
+        receiver_id,
+        title,
         text,
         {
             "communityId": None,
@@ -34,8 +34,9 @@ if __name__ == "__main__":
 
     subParsers = argParser.add_subparsers(dest="subparser", help="Message source")
 
-    text_parser = subParsers.add_parser("text", help="Single text")
-    text_parser.add_argument("-t", "--text", required=True, type=str, help="The text to send")
+    text_parser = subParsers.add_parser("text", help="Send a single text")
+    text_parser.add_argument("-t", "--text", required=True, type=str, help="The text for the message to send")
+    text_parser.add_argument("-ti", "--title", type=str, help="The title for the message to send")
     text_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
 
     args = argParser.parse_args()
@@ -48,13 +49,12 @@ if __name__ == "__main__":
         if args.user_id:
             # message for specific user
             logging.debug(f"Publishing text [{args.text}] for user [{args.user_id}]")
-            message_for_user(args.app_id, args.user_id, args.text, app_details["messageCallbackUrl"])
+            message_for_user(args.app_id, args.user_id, args.text, app_details["messageCallbackUrl"], title=args.title)
         else:
-            hub_interface = HubInterface(f"{args.instance}/hub/frontend")
             user_ids = hub_interface.get_user_ids_for_app(args.app_id)
             for user_id in user_ids:
                 logging.debug(f"Publishing text [{args.text}] for user [{user_id}]")
-                message_for_user(args.app_id, user_id, args.text, app_details["messageCallbackUrl"])
+                message_for_user(args.app_id, user_id, args.text, app_details["messageCallbackUrl"], title=args.title)
 
     else:
-        logging.warning("You should choose the working mode [text, ]")
+        logging.warning("You should choose the working mode [text]")
