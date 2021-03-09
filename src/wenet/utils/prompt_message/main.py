@@ -1,7 +1,10 @@
 from __future__ import absolute_import, annotations
 
 import argparse
+import csv
 import logging
+import os
+from datetime import datetime
 
 import requests
 
@@ -42,16 +45,16 @@ if __name__ == "__main__":
     text_parser.add_argument("-ti", "--title", type=str, default="", help="The title for the message to send")
     text_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
 
-    file_parser = sub_parsers.add_parser("input", help="Send the text message of the current day from an input csv/tsv file, it should have 2 columns, `Date` and `Message`")
-    file_parser.add_argument("-p", "--path", required=True, type=str, help="The path of the csv/tsv file")
-    file_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
+    input_parser = sub_parsers.add_parser("input", help="Send the text message of the current day from an input csv/tsv file, it should have 2 columns: `Date` in the first and `Message` in the second")
+    input_parser.add_argument("-p", "--path", required=True, type=str, help="The path of the csv/tsv file")
+    input_parser.add_argument("-ti", "--title", type=str, default="", help="The title for the message to send")
+    input_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
 
     args = arg_parser.parse_args()
+    hub_interface = HubInterface(f"{args.instance}/hub/frontend")
+    app_details = hub_interface.get_app_details(args.app_id)
 
     if args.subParser == "text":
-
-        hub_interface = HubInterface(f"{args.instance}/hub/frontend")
-        app_details = hub_interface.get_app_details(args.app_id)
 
         if args.user_id:
             # message for specific user
@@ -64,7 +67,35 @@ if __name__ == "__main__":
                 message_for_user(args.app_id, user_id, args.text, app_details["messageCallbackUrl"], title=args.title)
 
     elif args.subParser == "input":
-        logger.debug("do logic here")
+        name, extension = os.path.splitext(args.path)
+        if extension == ".csv":
+            file = csv.reader(open(args.path, "r"))
+        elif extension == ".tsv":
+            file = csv.reader(open(args.path, "r"), delimiter="\t")
+        else:
+            logger.warning(f"You should pass the path of one of the following type of file [csv, tsv], instead you pass [{extension}]")
+            raise ValueError(f"You should pass the path of one of the following type of file [csv, tsv], instead you pass [{extension}]")
+
+        go_ahead = False
+        for row in file:
+            if not go_ahead and row != ["Date", "Message"]:  # input should have 2 columns with `Date` in the first and `Message` in the second
+                logger.warning(f"The tsv file should have 2 columns: `Date` in the first and `Message` in the second, instead your first row is {row}")
+                raise ValueError(f"The tsv file should have 2 columns: `Date` in the first and `Message` in the second, instead your first row is {row}")
+            elif not go_ahead and row == ["Date", "Message"]:
+                go_ahead = True
+            else:
+                message_date = datetime.strptime(row[0], "%Y/%m/%d")  # data should look like "2021/03/09"
+                if message_date.date() == datetime.now().date():
+                    if args.user_id:
+                        # message for specific user
+                        logger.debug(f"Publishing text [{row[1]}] for user [{args.user_id}]")
+                        message_for_user(args.app_id, args.user_id, row[1], app_details["messageCallbackUrl"], title=args.title)
+                    else:
+                        user_ids = hub_interface.get_user_ids_for_app(args.app_id)
+                        for user_id in user_ids:
+                            logger.debug(f"Publishing text [{row[1]}] for user [{user_id}]")
+                            message_for_user(args.app_id, user_id, row[1], app_details["messageCallbackUrl"], title=args.title)
 
     else:
-        logger.warning("You should choose one of the following working modes [text, input]")
+        logger.warning(f"You should choose one of the following working modes [text, input], instead you choose [{args.subParser}]")
+        raise ValueError(f"You should choose one of the following working modes [text, input], instead you choose [{args.subParser}]")
