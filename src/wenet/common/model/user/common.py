@@ -17,6 +17,8 @@ class Gender(Enum):
     MALE = "M"
     FEMALE = "F"
     OTHER = "O"
+    NON_BINARY = "non-binary"
+    NOT_SAY = "not-say"
 
 
 class Date:
