@@ -45,7 +45,7 @@ if __name__ == "__main__":
     text_parser.add_argument("-ti", "--title", type=str, default="", help="The title for the message to send")
     text_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
 
-    input_parser = sub_parsers.add_parser("input", help="Send the text message of the current day from an input csv/tsv file, it should have 2 columns: `Date` in the first and `Message` in the second")
+    input_parser = sub_parsers.add_parser("file", help="Select textual messages from an input csv/tsv file (it should have 2 columns: `Date` and `Message`)")
     input_parser.add_argument("-p", "--path", required=True, type=str, help="The path of the csv/tsv file")
     input_parser.add_argument("-ti", "--title", type=str, default="", help="The title for the message to send")
     input_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
@@ -66,7 +66,7 @@ if __name__ == "__main__":
                 logger.debug(f"Publishing text [{args.text}] for user [{user_id}]")
                 message_for_user(args.app_id, user_id, args.text, app_details["messageCallbackUrl"], title=args.title)
 
-    elif args.subParser == "input":
+    elif args.subParser == "file":
         name, extension = os.path.splitext(args.path)
         if extension == ".csv":
             file = csv.reader(open(args.path, "r"))
@@ -84,7 +84,7 @@ if __name__ == "__main__":
             elif not go_ahead and row == ["Date", "Message"]:
                 go_ahead = True
             else:
-                message_date = datetime.strptime(row[0], "%Y/%m/%d")  # data should look like "2021/03/09"
+                message_date = datetime.strptime(row[0], "%Y/%m/%d")
                 if message_date.date() == datetime.now().date():
                     if args.user_id:
                         # message for specific user
