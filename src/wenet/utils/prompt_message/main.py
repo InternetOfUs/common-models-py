@@ -73,8 +73,8 @@ if __name__ == "__main__":
         elif extension == ".tsv":
             file = csv.reader(open(args.path, "r"), delimiter="\t")
         else:
-            logger.warning(f"You should pass the path of one of the following type of file [csv, tsv], instead you pass [{extension}]")
-            raise ValueError(f"You should pass the path of one of the following type of file [csv, tsv], instead you pass [{extension}]")
+            logger.warning(f"You should pass the path of one of the following type of file [.csv, .tsv], instead you pass [{extension}]")
+            raise ValueError(f"You should pass the path of one of the following type of file [.csv, .tsv], instead you pass [{extension}]")
 
         go_ahead = False
         for row in file:
