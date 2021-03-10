@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
         go_ahead = False
         for row in file:
-            if not go_ahead and row != ["Date", "Message"]:  # input should have 2 columns with `Date` in the first and `Message` in the second
+            if not go_ahead and row != ["Date", "Message"]:
                 logger.warning(f"The tsv file should have 2 columns: `Date` in the first and `Message` in the second, instead your first row is {row}")
                 raise ValueError(f"The tsv file should have 2 columns: `Date` in the first and `Message` in the second, instead your first row is {row}")
             elif not go_ahead and row == ["Date", "Message"]:
@@ -97,5 +97,5 @@ if __name__ == "__main__":
                             message_for_user(args.app_id, user_id, row[1], app_details["messageCallbackUrl"], title=args.title)
 
     else:
-        logger.warning(f"You should choose one of the following working modes [text, input], instead you choose [{args.subParser}]")
-        raise ValueError(f"You should choose one of the following working modes [text, input], instead you choose [{args.subParser}]")
+        logger.warning(f"You should choose one of the following working modes [text, file], instead you choose [{args.subParser}]")
+        raise ValueError(f"You should choose one of the following working modes [text, file], instead you choose [{args.subParser}]")
