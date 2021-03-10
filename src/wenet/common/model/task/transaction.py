@@ -71,3 +71,60 @@ class TaskTransaction:
 
     def __str__(self) -> str:
         return self.__repr__()
+
+
+class TaskTransactionPage:
+
+    def __init__(self, offset: int, total: int, transactions: Optional[List[TaskTransaction]]):
+        """
+        Contains a set of transactions, used for the pagination in transactions list requests
+        @param offset:
+        @param total:
+        @param transactions:
+        """
+        self.offset = offset
+        self.total = total
+        self.transactions = transactions
+
+        if not isinstance(self.offset, int):
+            raise TypeError("Offset should be an integer")
+        if not isinstance(self.total, int):
+            raise TypeError("Total should be an integer")
+        if self.transactions:
+            if isinstance(self.transactions, list):
+                for transaction in self.transactions:
+                    if not isinstance(transaction, TaskTransaction):
+                        raise TypeError("Transactions should be a list of TaskTransaction")
+            else:
+                raise TypeError("Transactions should be a list of TaskTransaction")
+        else:
+            self.transactions = []
+
+    def to_repr(self) -> dict:
+        return {
+            "offset": self.offset,
+            "total": self.total,
+            "transactions": list(x.to_repr() for x in self.transactions)
+        }
+
+    @staticmethod
+    def from_repr(raw_data: dict) -> TaskTransactionPage:
+        transactions = raw_data.get("transactions")
+        if transactions:
+            transactions = list(TaskTransaction.from_repr(x) for x in transactions)
+        return TaskTransactionPage(
+            offset=raw_data["offset"],
+            total=raw_data["total"],
+            transactions=transactions
+        )
+
+    def __eq__(self, o) -> bool:
+        if not isinstance(o, TaskTransactionPage):
+            return False
+        return self.offset == o.offset and self.total == o.total and self.transactions == o.transactions
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __str__(self) -> str:
+        return self.__repr__()

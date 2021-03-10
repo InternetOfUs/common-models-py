@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from wenet.common.model.message.message import TaskProposalNotification, TextualMessage
-from wenet.common.model.task.transaction import TaskTransaction
+from wenet.common.model.task.transaction import TaskTransaction, TaskTransactionPage
 
 
 class TestTransaction(TestCase):
@@ -25,3 +25,29 @@ class TestTransaction(TestCase):
     def test_repr_without_id(self):
         transaction = TaskTransaction(None, "task_id", "label", 123456, 1234567, "actioneer", {})
         self.assertEqual(transaction, TaskTransaction.from_repr(transaction.to_repr()))
+
+
+class TestTaskTransactionPage(TestCase):
+    def test_repr(self):
+        task_transaction_page = TaskTransactionPage(0, 0, None)
+        self.assertEqual(task_transaction_page, TaskTransactionPage.from_repr(task_transaction_page.to_repr()))
+
+        transaction = TaskTransaction(
+            None,
+            "task_id",
+            "label",
+            123456,
+            1234567,
+            "actioneer",
+            None
+        )
+        task_transaction_page = TaskTransactionPage(0, 0, [transaction])
+        self.assertEqual(task_transaction_page, TaskTransactionPage.from_repr(task_transaction_page.to_repr()))
+
+    def test_null_task_repr(self):
+        task_transaction_page_repr = {
+            "offset": 0,
+            "total": 0,
+            "transactions": None
+        }
+        self.assertIsInstance(TaskTransactionPage.from_repr(task_transaction_page_repr), TaskTransactionPage)

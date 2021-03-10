@@ -1,5 +1,12 @@
 # Wenet common models - Changelog
 
+## Version 1.1.0
+
+- Added script for sending prompt message to users
+- Updated Logger models
+- Added TaskTransactionPage model
+- Minor fixes to WeNet models
+
 ## Version 1.0.2
 - Bug fix on OAuth token refresh, in case the OAuth server returns a 400-coded response.
 
