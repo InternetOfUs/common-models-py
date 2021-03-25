@@ -549,3 +549,114 @@ class UserName:
         if not isinstance(o, UserName):
             return False
         return self.first == o.first and self.middle == o.middle and self.last == o.last and self.prefix == o.prefix and self.suffix == o.suffix
+
+
+class WeNetUserProfilesPage:
+
+    def __init__(self, offset: int, total: int, profiles: Optional[List[WeNetUserProfile]]):
+        """
+        Contains a set of profiles, used for the pagination in profiles list requests
+        @param offset:
+        @param total:
+        @param profiles:
+        """
+        self.offset = offset
+        self.total = total
+        self.profiles = profiles
+
+        if not isinstance(self.offset, int):
+            raise TypeError("offset should be an integer")
+        if not isinstance(self.total, int):
+            raise TypeError("total should be an integer")
+        if self.profiles:
+            if isinstance(self.profiles, list):
+                for profile in self.profiles:
+                    if not isinstance(profile, WeNetUserProfile):
+                        raise TypeError("profiles should be a list of WeNetUserProfile")
+            else:
+                raise TypeError("profiles should be a list of WeNetUserProfile")
+        else:
+            self.profiles = []
+
+    def to_repr(self) -> dict:
+        return {
+            "offset": self.offset,
+            "total": self.total,
+            "profiles": list(x.to_repr() for x in self.profiles)
+        }
+
+    @staticmethod
+    def from_repr(raw_data: dict) -> WeNetUserProfilesPage:
+        profiles = raw_data.get("profiles")
+        if profiles:
+            profiles = list(WeNetUserProfile.from_repr(x) for x in profiles)
+        return WeNetUserProfilesPage(
+            offset=raw_data["offset"],
+            total=raw_data["total"],
+            profiles=profiles
+        )
+
+    def __eq__(self, o) -> bool:
+        if not isinstance(o, WeNetUserProfilesPage):
+            return False
+        return self.offset == o.offset and self.total == o.total and self.profiles == o.profiles
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+
+class UserIdentifiersPage:
+
+    def __init__(self, offset: int, total: int, user_ids: Optional[List[str]]):
+        """
+        Contains a set of identifiers, used for the pagination in identifiers list requests
+        @param offset:
+        @param total:
+        @param user_ids:
+        """
+        self.offset = offset
+        self.total = total
+        self.user_ids = user_ids
+
+        if not isinstance(self.offset, int):
+            raise TypeError("offset should be an integer")
+        if not isinstance(self.total, int):
+            raise TypeError("total should be an integer")
+        if self.user_ids:
+            if isinstance(self.user_ids, list):
+                for user_id in self.user_ids:
+                    if not isinstance(user_id, str):
+                        raise TypeError("user_ids should be a list of str")
+            else:
+                raise TypeError("user_ids should be a list of str")
+        else:
+            self.user_ids = []
+
+    def to_repr(self) -> dict:
+        return {
+            "offset": self.offset,
+            "total": self.total,
+            "userIds": self.user_ids
+        }
+
+    @staticmethod
+    def from_repr(raw_data: dict) -> UserIdentifiersPage:
+        return UserIdentifiersPage(
+            offset=raw_data["offset"],
+            total=raw_data["total"],
+            user_ids=raw_data.get("userIds")
+        )
+
+    def __eq__(self, o) -> bool:
+        if not isinstance(o, UserIdentifiersPage):
+            return False
+        return self.offset == o.offset and self.total == o.total and self.user_ids == o.user_ids
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __str__(self) -> str:
+        return self.__repr__()
