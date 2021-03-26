@@ -34,9 +34,8 @@ if __name__ == "__main__":
             empty_profile_counter += 1
             logger.debug(f"profile [{profile_user_id}] without user")
             if not args.check:
-                pass
-                # profile_manager_connector.delete_user_profile(profile_user_id)
-                # logger.debug(f"deleted profile [{profile_user_id}]")
+                profile_manager_connector.delete_user_profile(profile_user_id)
+                logger.debug(f"deleted profile [{profile_user_id}]")
 
     logger.warning(f"{empty_profile_counter} profiles without user")
 
@@ -46,7 +45,7 @@ if __name__ == "__main__":
             empty_user_counter += 1
             logger.debug(f"user [{user_id}] without profile")
             if not args.check:
-                pass
+                pass  # TODO when the endpoint for deleting users will be implemented, it will be possible to delete the users without a profile
                 # hub_interface.delete_user(user_id)
                 # logger.debug(f"deleted user [{user_id}]")
 

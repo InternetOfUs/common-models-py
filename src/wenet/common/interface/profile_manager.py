@@ -32,7 +32,7 @@ class ProfileManagerInterface:
     def delete_user_profile(self, user_id: str) -> None:
         result = requests.delete(self._base_url + "/profiles/" + user_id, headers=self._create_apikey_header())
 
-        if result.status_code == 204:  # TODO check if the code it is correct
+        if result.status_code == 204:
             return
         else:
             raise Exception(f"request has return a code {result.status_code} with content {result.content}")
