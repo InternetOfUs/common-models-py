@@ -37,7 +37,7 @@ if __name__ == "__main__":
                 profile_manager_connector.delete_user_profile(profile_user_id)
                 logger.debug(f"deleted profile [{profile_user_id}]")
 
-    logger.warning(f"{empty_profile_counter} profiles without user")
+    logger.info(f"{empty_profile_counter} profiles without user")
 
     empty_user_counter = 0
     for user_id in user_ids:
@@ -49,4 +49,4 @@ if __name__ == "__main__":
                 # hub_interface.delete_user(user_id)
                 # logger.debug(f"deleted user [{user_id}]")
 
-    logger.warning(f"{empty_user_counter} users without profile")
+    logger.info(f"{empty_user_counter} users without profile")
