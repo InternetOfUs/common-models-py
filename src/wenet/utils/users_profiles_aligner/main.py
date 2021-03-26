@@ -5,25 +5,25 @@ import logging
 import os
 
 from wenet.common.interface.hub import HubInterface
-from wenet.common.interface.profile_manager import ProfileManagerConnector
+from wenet.common.interface.profile_manager import ProfileManagerInterface
 
 
-logger = logging.getLogger("wenet.utils.user_profile_aligner")
+logger = logging.getLogger("wenet.utils.users_profiles_aligner")
 
 
 if __name__ == "__main__":
 
-    arg_parser = argparse.ArgumentParser(description="Users-Profiles aligner")
+    arg_parser = argparse.ArgumentParser(description="Users-Profiles aligner - deletes users without a profile and profiles without a user")
     arg_parser.add_argument("-i", "--instance", type=str, default=os.getenv("INSTANCE", "https://wenet.u-hopper.com/dev"), help="The target WeNet instance")
-    arg_parser.add_argument("--check", action='store_true', help="Flag to only check")
-    arg_parser.add_argument("-a", "--apikey", type=str, default=os.getenv("APIKEY"), help="The apikey for accessing the services")
+    arg_parser.add_argument("--check", action='store_true', help="Flag to set for only checking users and profiles without deleting anything")
+    arg_parser.add_argument("-a", "--apikey", type=str, default=os.getenv("APIKEY"), help="The apikey for accessing the WeNet services")
     args = arg_parser.parse_args()
 
     hub_host = args.instance + "/hub/frontend"
     profile_manager_host = args.instance + "/profile_manager"
 
     hub_interface = HubInterface(hub_host)
-    profile_manager_connector = ProfileManagerConnector(profile_manager_host, args.apikey)
+    profile_manager_connector = ProfileManagerInterface(profile_manager_host, args.apikey)
 
     profile_user_ids = profile_manager_connector.get_profile_user_ids()
     user_ids = hub_interface.get_user_ids()

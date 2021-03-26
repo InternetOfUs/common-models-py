@@ -32,7 +32,7 @@ class HubInterface:
             raise Exception(f"request has return a code {result.status_code} with content {result.content}")
 
     # def delete_user(self, user_id: str) -> None:
-    #     result = requests.get(self.base_url + "/data/user/" + user_id)
+    #     result = requests.delete(self.base_url + "/data/user/" + user_id)  # TODO this endpoint should be implemented
     #
     #     if result.status_code == 200:
     #         return

@@ -12,17 +12,17 @@ from wenet.common.model.user.user_profile import WeNetUserProfile, WeNetUserProf
 logger = logging.getLogger("wenet.common.interface.profile_manager")
 
 
-class ProfileManagerConnector:
+class ProfileManagerInterface:
 
-    def __init__(self, host: str, apikey: str) -> None:
-        self._host = host
+    def __init__(self, base_url: str, apikey: str) -> None:
+        self._base_url = base_url
         self._apikey = apikey
 
     def _create_apikey_header(self) -> dict:
         return {"x-wenet-component-apikey": self._apikey}
 
     def get_user_profile(self, user_id: str) -> WeNetUserProfile:
-        result = requests.get(self._host + "/profiles/" + user_id, headers=self._create_apikey_header())
+        result = requests.get(self._base_url + "/profiles/" + user_id, headers=self._create_apikey_header())
 
         if result.status_code == 200:
             return WeNetUserProfile.from_repr(json.loads(result.content))
@@ -30,9 +30,9 @@ class ProfileManagerConnector:
             raise Exception(f"request has return a code {result.status_code} with content {result.content}")
 
     def delete_user_profile(self, user_id: str) -> None:
-        result = requests.get(self._host + "/profiles/" + user_id, headers=self._create_apikey_header())
+        result = requests.delete(self._base_url + "/profiles/" + user_id, headers=self._create_apikey_header())
 
-        if result.status_code == 204:
+        if result.status_code == 204:  # TODO check if the code it is correct
             return
         else:
             raise Exception(f"request has return a code {result.status_code} with content {result.content}")
@@ -42,7 +42,7 @@ class ProfileManagerConnector:
         has_got_all_profiles = False
         offset = 0
         while not has_got_all_profiles:
-            result = requests.get(self._host + "/profiles", headers=self._create_apikey_header(), params={"offset": offset})
+            result = requests.get(self._base_url + "/profiles", headers=self._create_apikey_header(), params={"offset": offset})
 
             if result.status_code == 200:
                 profiles_page = WeNetUserProfilesPage.from_repr(json.loads(result.content))
@@ -61,7 +61,7 @@ class ProfileManagerConnector:
         has_got_all_user_ids = False
         offset = 0
         while not has_got_all_user_ids:
-            result = requests.get(self._host + "/userIdentifiers", headers=self._create_apikey_header(), params={"offset": offset})
+            result = requests.get(self._base_url + "/userIdentifiers", headers=self._create_apikey_header(), params={"offset": offset})
 
             if result.status_code == 200:
                 user_ids_page = UserIdentifiersPage.from_repr(json.loads(result.content))
