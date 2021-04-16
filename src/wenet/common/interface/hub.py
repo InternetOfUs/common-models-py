@@ -1,40 +1,48 @@
 from __future__ import absolute_import, annotations
 
-import json
 import logging
 from typing import List
 
-import requests
+from wenet.common.interface.base import BaseInterface
+from wenet.common.interface.client import RestClient
+from wenet.common.model.app.app_dto import HubApp
 
 
 logger = logging.getLogger("wenet.common.interface.hub")
 
 
-class HubInterface:
+class HubInterface(BaseInterface):
 
-    def __init__(self, base_url: str) -> None:
-        self.base_url = base_url
+    def __init__(self, client: RestClient, instance: str = BaseInterface.PRODUCTION_INSTANCE) -> None:
+        base_url = instance + "/hub/frontend"
+        super().__init__(client, base_url)
 
     def get_user_ids_for_app(self, app_id: str) -> List[str]:
-        response = requests.get(f"{self.base_url}/data/app/{app_id}/user")
-        return response.json()
+        response = self._client.get(f"{self._base_url}/data/app/{app_id}/user")
 
-    def get_app_details(self, app_id: str) -> dict:
-        response = requests.get(f"{self.base_url}/data/app/{app_id}")
-        return response.json()
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Request has return a code {response.status_code} with content {response.text}")
+
+    def get_app_details(self, app_id: str) -> HubApp:
+        response = self._client.get(f"{self._base_url}/data/app/{app_id}")
+
+        if response.status_code == 200:
+            return HubApp.from_repr(response.json())
+        else:
+            raise Exception(f"Request has return a code {response.status_code} with content {response.text}")
 
     def get_user_ids(self) -> List[str]:
-        result = requests.get(self.base_url + "/data/user")
+        response = self._client.get(f"{self._base_url}/data/user")
 
-        if result.status_code == 200:
-            return json.loads(result.content)
+        if response.status_code == 200:
+            return response.json()
         else:
-            raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+            raise Exception(f"Request has return a code {response.status_code} with content {response.text}")
 
     # def delete_user(self, user_id: str) -> None:
-    #     result = requests.delete(self.base_url + "/data/user/" + user_id)  # TODO this endpoint should be implemented
+    #     response = self._client.delete(f"{self._base_url}/data/user/{user_id}")  # TODO this endpoint should be implemented
     #
-    #     if result.status_code == 200:
-    #         return
-    #     else:
-    #         raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+    #     if response.status_code not in [200, 204]:
+    #         raise Exception(f"Request has return a code {response.status_code} with content {response.text}")

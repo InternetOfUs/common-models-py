@@ -8,6 +8,7 @@ from datetime import datetime
 
 import requests
 
+from wenet.common.interface.client import NoAuthenticationClient
 from wenet.common.interface.hub import HubInterface
 from wenet.common.model.message.message import TextualMessage
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     input_parser.add_argument("-u", "--user_id", type=str, help="The user to send the message to")
 
     args = arg_parser.parse_args()
-    hub_interface = HubInterface(f"{args.instance}/hub/frontend")
+    hub_interface = HubInterface(NoAuthenticationClient(), args.instance)
     app_details = hub_interface.get_app_details(args.app_id)
 
     if args.subParser == "text":
@@ -59,12 +60,12 @@ if __name__ == "__main__":
         if args.user_id:
             # message for specific user
             logger.debug(f"Publishing text [{args.text}] for user [{args.user_id}]")
-            message_for_user(args.app_id, args.user_id, args.text, app_details["messageCallbackUrl"], title=args.title)
+            message_for_user(args.app_id, args.user_id, args.text, app_details.message_callback_url, title=args.title)
         else:
             user_ids = hub_interface.get_user_ids_for_app(args.app_id)
             for user_id in user_ids:
                 logger.debug(f"Publishing text [{args.text}] for user [{user_id}]")
-                message_for_user(args.app_id, user_id, args.text, app_details["messageCallbackUrl"], title=args.title)
+                message_for_user(args.app_id, user_id, args.text, app_details.message_callback_url, title=args.title)
 
     elif args.subParser == "file":
         name, extension = os.path.splitext(args.path)
@@ -89,12 +90,12 @@ if __name__ == "__main__":
                     if args.user_id:
                         # message for specific user
                         logger.debug(f"Publishing text [{row[1]}] for user [{args.user_id}]")
-                        message_for_user(args.app_id, args.user_id, row[1], app_details["messageCallbackUrl"], title=args.title)
+                        message_for_user(args.app_id, args.user_id, row[1], app_details.message_callback_url, title=args.title)
                     else:
                         user_ids = hub_interface.get_user_ids_for_app(args.app_id)
                         for user_id in user_ids:
                             logger.debug(f"Publishing text [{row[1]}] for user [{user_id}]")
-                            message_for_user(args.app_id, user_id, row[1], app_details["messageCallbackUrl"], title=args.title)
+                            message_for_user(args.app_id, user_id, row[1], app_details.message_callback_url, title=args.title)
 
     else:
         logger.warning(f"You should choose one of the following working modes [text, file], instead you choose [{args.subParser}]")

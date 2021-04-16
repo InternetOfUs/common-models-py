@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 
+from wenet.common.interface.client import NoAuthenticationClient, ApikeyClient
 from wenet.common.interface.hub import HubInterface
 from wenet.common.interface.profile_manager import ProfileManagerInterface
 
@@ -19,11 +20,8 @@ if __name__ == "__main__":
     arg_parser.add_argument("-a", "--apikey", type=str, default=os.getenv("APIKEY"), help="The apikey for accessing the WeNet services")
     args = arg_parser.parse_args()
 
-    hub_host = args.instance + "/hub/frontend"
-    profile_manager_host = args.instance + "/profile_manager"
-
-    hub_interface = HubInterface(hub_host)
-    profile_manager_connector = ProfileManagerInterface(profile_manager_host, args.apikey)
+    hub_interface = HubInterface(NoAuthenticationClient(), args.instance)
+    profile_manager_connector = ProfileManagerInterface(ApikeyClient(args.apikey), args.instance)
 
     profile_user_ids = profile_manager_connector.get_profile_user_ids()
     user_ids = hub_interface.get_user_ids()
