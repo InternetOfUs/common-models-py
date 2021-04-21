@@ -1,8 +1,9 @@
 from __future__ import absolute_import, annotations
 
 import logging
+import os
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Union
 
 import requests
 from requests import Response
@@ -21,7 +22,7 @@ class RestClient(ABC):
         pass
 
     @abstractmethod
-    def post(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def post(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         pass
 
     @abstractmethod
@@ -29,7 +30,7 @@ class RestClient(ABC):
         pass
 
     @abstractmethod
-    def put(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def put(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         pass
 
     @abstractmethod
@@ -42,13 +43,13 @@ class NoAuthenticationClient(RestClient):
     def get_authentication(self) -> dict:
         pass
 
-    def post(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def post(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         return requests.post(url, json=body, headers=headers)
 
     def get(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
         return requests.get(url, params=query_params, headers=headers)
 
-    def put(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def put(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         return requests.put(url, json=body, headers=headers)
 
     def delete(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
@@ -57,15 +58,17 @@ class NoAuthenticationClient(RestClient):
 
 class ApikeyClient(RestClient):
 
+    COMPONENT_AUTHORIZATION_APIKEY_HEADER = os.getenv("COMPONENT_AUTHORIZATION_APIKEY_HEADER", "x-wenet-component-apikey")
+
     def __init__(self, apikey: str) -> None:
         self._apikey = apikey
 
     def get_authentication(self) -> dict:
         return {
-            "x-wenet-component-apikey": self._apikey
+            self.COMPONENT_AUTHORIZATION_APIKEY_HEADER: self._apikey
         }
 
-    def post(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def post(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         if headers is None:
             headers = {}
 
@@ -81,7 +84,7 @@ class ApikeyClient(RestClient):
 
         return requests.get(url, params=query_params, headers=headers)
 
-    def put(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def put(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         if headers is None:
             headers = {}
 
@@ -194,13 +197,32 @@ class Oauth2Client(RestClient):
                 key=self._resource_id
             )
         else:
-            raise Exception(f"Unable to retrieve the token, server respond with: {response} {response.json}")
+            raise Exception(f"Unable to retrieve the token, server respond with: [{response.status_code}], [{response.text}]")
 
     @staticmethod
     def get_authentication(token: str) -> dict:
         return {
             "authorization": f"bearer {token}"
         }
+
+    def post(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
+        if headers is None:
+            headers = {}
+
+        def post_request(client: Optional, retry: bool):
+            logger.debug(f"Performing post request with token {client.token} {client.refresh_token}")
+            headers.update(client.get_authentication(client.token))
+            response = requests.post(url, json=body, headers=headers)
+            if response.status_code in [400, 401, 403]:
+                if retry:
+                    client.refresh_access_token()
+                    return post_request(client, False)
+                else:
+                    return response
+            else:
+                return response
+
+        return post_request(self, True)
 
     def get(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
 
@@ -222,32 +244,15 @@ class Oauth2Client(RestClient):
 
         return get_request(self, True)
 
-    def post(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
-        if headers is None:
-            headers = {}
-
-        def post_request(client: Optional, retry: bool):
-            headers.update(client.get_authentication(client.token))
-            response = requests.post(url, json=body, headers=headers)
-            if response.status_code in [400, 401, 403]:
-                if retry:
-                    client.refresh_access_token()
-                    return post_request(client, False)
-                else:
-                    return response
-            else:
-                return response
-
-        return post_request(self, True)
-
-    def put(self, url: str, body: dict, headers: Optional[dict] = None) -> Response:
+    def put(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         if headers is None:
             headers = {}
 
         def put_request(client: Optional, retry: bool):
+            logger.debug(f"Performing put request with token {client.token} {client.refresh_token}")
             headers.update(client.get(client.token))
             response = requests.put(url, json=body, headers=headers)
-            if response.status_code == 401:
+            if response.status_code in [400, 401, 403]:
                 if retry:
                     self.refresh_access_token()
                     return put_request(client, False)

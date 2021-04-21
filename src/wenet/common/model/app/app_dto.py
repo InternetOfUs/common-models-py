@@ -7,18 +7,23 @@ from typing import Optional
 
 class AppStatus(Enum):
 
-    WHAT_IS_2 = 2  # TODO check, what is this 2?
-    ACTIVE = 1
-    DEVELOPMENT = 0
+    STATUS_NOT_ACTIVE = 0
+    STATUS_ACTIVE = 1
+    STATUS_DELETED = 2
 
 
 class App:
 
-    def __init__(self, creation_ts: Optional[Number], last_update_ts: Optional[Number], app_id: str, status: AppStatus, message_callback_url: Optional[str], metadata: Optional[dict]):
+    def __init__(self, creation_ts: Optional[Number], last_update_ts: Optional[Number], app_id: str, status: AppStatus,
+                 name: str, owner_id: int, image_url: Optional[str], message_callback_url: Optional[str],
+                 metadata: Optional[dict]) -> None:
         self.creation_ts = creation_ts
         self.last_update_ts = last_update_ts
         self.app_id = app_id
         self.status = status
+        self.name = name
+        self.owner_id = owner_id
+        self.image_url = image_url
         self.message_callback_url = message_callback_url
         self.metadata = metadata
 
@@ -28,24 +33,34 @@ class App:
         if self.creation_ts is not None:
             if not isinstance(self.creation_ts, Number):
                 raise TypeError("creationTs should be a number")
+
         if self.last_update_ts is not None:
             if not isinstance(self.last_update_ts, Number):
                 raise TypeError("lastUpdateTs should be a number")
 
         if not isinstance(self.app_id, str):
-            raise TypeError("App id should be a string")
+            raise TypeError("id should be a string")
+
+        if not isinstance(self.name, str):
+            raise TypeError("name should be a string")
+
+        if not isinstance(self.owner_id, int):
+            raise TypeError("ownerId should be an integer")
 
         if not isinstance(self.metadata, dict):
             raise TypeError("metadata should be a dictionary")
 
     def to_repr(self) -> dict:
         return {
+            "id": self.app_id,
+            "name": self.name,
+            "status": self.status.value,
+            "ownerId": self.owner_id,
+            "image_url": self.image_url,
             "createdAt": self.creation_ts,
             "updatedAt": self.last_update_ts,
-            "id": self.app_id,
-            "status": self.status.value,
-            "messageCallbackUrl": self.message_callback_url,
-            "metadata": self.metadata
+            "metadata": self.metadata,
+            "messageCallbackUrl": self.message_callback_url
         }
 
     @staticmethod
@@ -55,102 +70,32 @@ class App:
             last_update_ts=raw_data.get("updatedAt", None),
             app_id=raw_data["id"],
             status=AppStatus(raw_data["status"]),
-            message_callback_url=raw_data.get("messageCallbackUrl", None),
-            metadata=raw_data["metadata"]
-        )
-
-    def __eq__(self, o):
-        if not isinstance(o, App):
-            return False
-        return self.app_id == o.app_id and self.status == o.status  \
-            and self.message_callback_url == o.message_callback_url and self.metadata == o.metadata
-
-    def __repr__(self):
-        return str(self.to_repr())
-
-    def __str__(self):
-        return self.__repr__()
-
-
-class HubApp:
-
-    def __init__(self, creation_ts: Optional[Number], last_update_ts: Optional[Number], app_id: str, status: AppStatus,
-                 name: str, owner_id: str, image_url: Optional[str], message_callback_url: Optional[str], metadata: Optional[dict]):
-        self.creation_ts = creation_ts
-        self.last_update_ts = last_update_ts
-        self.app_id = app_id
-        self.status = status
-        self.name = name
-        self.owner_id = owner_id
-        self.image_url = image_url  # TODO check, not documented in openAPI
-        self.message_callback_url = message_callback_url
-        self.metadata = metadata
-
-        if not self.metadata:
-            self.metadata = {}
-
-        if self.creation_ts is not None:
-            if not isinstance(self.creation_ts, Number):
-                raise TypeError("creationTs should be a number")
-        if self.last_update_ts is not None:
-            if not isinstance(self.last_update_ts, Number):
-                raise TypeError("lastUpdateTs should be a number")
-
-        if not isinstance(self.app_id, str):
-            raise TypeError("App id should be a string")
-
-        if not isinstance(self.name, str):
-            raise TypeError("Name should be a string")
-
-        if not isinstance(self.owner_id, str):
-            self.owner_id = str(self.owner_id)
-
-        if not isinstance(self.metadata, dict):
-            raise TypeError("metadata should be a dictionary")
-
-    def to_repr(self) -> dict:
-        return {
-            "createdAt": self.creation_ts,
-            "updatedAt": self.last_update_ts,
-            "id": self.app_id,
-            "status": self.status.value,
-            "name": self.name,
-            "ownerId": self.owner_id,
-            "image_url": self.image_url,
-            "messageCallbackUrl": self.message_callback_url,
-            "metadata": self.metadata
-        }
-
-    @staticmethod
-    def from_repr(raw_data: dict) -> HubApp:
-        return HubApp(
-            creation_ts=raw_data.get("createdAt", None),
-            last_update_ts=raw_data.get("updatedAt", None),
-            app_id=raw_data["id"],
-            status=AppStatus(raw_data["status"]),
             name=raw_data["name"],
             owner_id=raw_data["ownerId"],
-            image_url=raw_data["image_url"],
+            image_url=raw_data.get("image_url", None),
             message_callback_url=raw_data.get("messageCallbackUrl", None),
-            metadata=raw_data["metadata"]
+            metadata=raw_data.get("metadata", None)
         )
 
-    def __eq__(self, o):
+    def __eq__(self, o) -> bool:
         if not isinstance(o, App):
             return False
-        return self.app_id == o.app_id and self.status == o.status  \
+        return self.app_id == o.app_id and self.status == o.status and self.name == o.name \
+            and self.owner_id == o.owner_id and self.image_url == o.image_url \
+            and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts \
             and self.message_callback_url == o.message_callback_url and self.metadata == o.metadata
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.to_repr())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
 
 class AppDTO:
 
-    def __init__(self, creation_ts: Optional[Number], last_update_ts: Optional[Number], app_id: str, message_callback_url: Optional[str], metadata: Optional[dict]):
+    def __init__(self, creation_ts: Optional[Number], last_update_ts: Optional[Number], app_id: str,
+                 message_callback_url: Optional[str], metadata: Optional[dict]) -> None:
         self.creation_ts = creation_ts
         self.last_update_ts = last_update_ts
         self.app_id = app_id
@@ -163,12 +108,13 @@ class AppDTO:
         if self.creation_ts is not None:
             if not isinstance(self.creation_ts, Number):
                 raise TypeError("creationTs should be a number")
+
         if self.last_update_ts is not None:
             if not isinstance(self.last_update_ts, Number):
                 raise TypeError("lastUpdateTs should be a number")
 
         if not isinstance(self.app_id, str):
-            raise TypeError("App id should be a string")
+            raise TypeError("appId should be a string")
 
         if not isinstance(self.metadata, dict):
             raise TypeError("metadata should be a dictionary")
@@ -202,16 +148,16 @@ class AppDTO:
             metadata=app.metadata
         )
 
-    def __eq__(self, o):
+    def __eq__(self, o) -> bool:
         if not isinstance(o, AppDTO):
             return False
-        return self.app_id == o.app_id \
+        return self.app_id == o.app_id and self.creation_ts == o.creation_ts and self.last_update_ts == o.last_update_ts \
             and self.message_callback_url == o.message_callback_url and self.metadata == o.metadata
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.to_repr())
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
 
@@ -233,3 +179,14 @@ class AppDeveloper:
             app_id=raw_data["appId"],
             user_id=raw_data["userId"]
         )
+
+    def __eq__(self, o) -> bool:
+        if not isinstance(o, AppDeveloper):
+            return False
+        return self.app_id == o.app_id and self.user_id == o.user_id
+
+    def __repr__(self) -> str:
+        return str(self.to_repr())
+
+    def __str__(self) -> str:
+        return self.__repr__()
