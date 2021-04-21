@@ -452,8 +452,10 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             planned_activities=None,
             relevant_locations=None,
             relationships=None,
-            social_practices=None,
-            personal_behaviours=None
+            personal_behaviours=None,
+            materials=None,
+            competences=None,
+            meanings=None
         )
 
 
