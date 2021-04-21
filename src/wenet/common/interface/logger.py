@@ -5,7 +5,7 @@ import os
 from typing import List, Optional
 
 from wenet.common.interface.component import ComponentInterface
-from wenet.common.interface.client import RestClient
+from wenet.common.interface.client import RestClient, ApikeyClient
 from wenet.common.model.logging_messages.messages import BaseMessage
 
 
@@ -17,7 +17,11 @@ class LoggerInterface(ComponentInterface):
     COMPONENT_PATH = os.getenv("LOGGER_PATH", "/logger")
 
     def __init__(self, client: RestClient, instance: str = ComponentInterface.PRODUCTION_INSTANCE, base_headers: Optional[dict] = None):
-        base_url = instance + self.COMPONENT_PATH
+        if isinstance(client, ApikeyClient):
+            base_url = instance + self.COMPONENT_PATH
+        else:
+            raise ValueError("Not a valid client for the incentive server interface")
+
         super().__init__(client, base_url, base_headers)
 
     def post_messages(self, messages: List[BaseMessage], headers: Optional[dict] = None) -> List[str]:

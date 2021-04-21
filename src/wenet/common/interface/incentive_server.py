@@ -5,7 +5,7 @@ import os
 from typing import Optional
 
 from wenet.common.interface.component import ComponentInterface
-from wenet.common.interface.client import RestClient
+from wenet.common.interface.client import RestClient, ApikeyClient
 
 
 logger = logging.getLogger("wenet.common.interface.incentive_server")
@@ -16,7 +16,11 @@ class IncentiveServerInterface(ComponentInterface):
     COMPONENT_PATH = os.getenv("INCENTIVE_SERVER_PATH", "/incentive_server")
 
     def __init__(self, client: RestClient, instance: str = ComponentInterface.PRODUCTION_INSTANCE, base_headers: Optional[dict] = None):
-        base_url = instance + self.COMPONENT_PATH
+        if isinstance(client, ApikeyClient):
+            base_url = instance + self.COMPONENT_PATH
+        else:
+            raise ValueError("Not a valid client for the incentive server interface")
+
         super().__init__(client, base_url, base_headers)
 
     def get_cohorts(self, headers: Optional[dict] = None) -> dict:
