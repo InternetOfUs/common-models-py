@@ -6,7 +6,8 @@ from typing import List, Optional
 
 from wenet.common.interface.client import RestClient, ApikeyClient, Oauth2Client
 from wenet.common.interface.component import ComponentInterface
-from wenet.common.interface.exceptions import TaskNotFound, TaskCreationError, TaskTransactionCreationError
+from wenet.common.interface.exceptions import TaskNotFound, TaskCreationError, TaskTransactionCreationError, \
+    AuthenticationException
 from wenet.common.model.logging_messages.messages import BaseMessage
 from wenet.common.model.task.task import Task, TaskPage
 from wenet.common.model.task.transaction import TaskTransaction
@@ -32,7 +33,7 @@ class ServiceApiInterface(ComponentInterface):
         elif isinstance(client, Oauth2Client):
             base_url = instance + self.COMPONENT_PATH_EXTERNAL_USAGE
         else:
-            raise ValueError("Not a valid client for the service api interface")
+            raise AuthenticationException("service api")
 
         super().__init__(client, base_url, base_headers)
 
@@ -48,8 +49,8 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return WeNetUserWithAccounts.from_repr(response.json())
-        else:
-            return None
+        logger.warning(f"Unable to retrieve the user accounts, service api respond with: [{response.status_code}], [{response.text}]")
+        return None
 
     def create_task(self, task: Task, headers: Optional[dict] = None) -> None:
         if headers is not None:

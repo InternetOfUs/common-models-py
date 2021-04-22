@@ -1,3 +1,10 @@
+class AuthenticationException(TypeError):
+
+    def __init__(self, interface: str) -> None:
+        super().__init__(f"Not a valid client for the [{interface}] interface")
+        self.message = f"Not a valid client for the [{interface}] interface"
+
+
 class TaskNotFound(ValueError):
 
     def __init__(self, task_id: str) -> None:

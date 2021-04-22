@@ -7,6 +7,7 @@ from typing import List, Optional
 
 from wenet.common.interface.component import ComponentInterface
 from wenet.common.interface.client import RestClient, ApikeyClient
+from wenet.common.interface.exceptions import AuthenticationException
 from wenet.common.model.task.task import TaskPage, Task
 from wenet.common.model.task.transaction import TaskTransaction, TaskTransactionPage
 
@@ -18,11 +19,11 @@ class TaskManagerInterface(ComponentInterface):
 
     COMPONENT_PATH = os.getenv("TASK_MANAGER_PATH", "/task_manager")
 
-    def __init__(self, client: RestClient, instance: str = ComponentInterface.PRODUCTION_INSTANCE, base_headers: Optional[dict] = None):
+    def __init__(self, client: RestClient, instance: str = ComponentInterface.PRODUCTION_INSTANCE, base_headers: Optional[dict] = None) -> None:
         if isinstance(client, ApikeyClient):
             base_url = instance + self.COMPONENT_PATH
         else:
-            raise ValueError("Not a valid client for the incentive server interface")
+            raise AuthenticationException("task manager")
 
         super().__init__(client, base_url, base_headers)
 
@@ -145,7 +146,7 @@ class TaskManagerInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def create_task(self, task: Task, headers: Optional[dict] = None) -> Task:
+    def create_task(self, task: Task, headers: Optional[dict] = None) -> None:
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -155,12 +156,10 @@ class TaskManagerInterface(ComponentInterface):
         task_repr.pop("id", None)
         response = self._client.post(f"{self._base_url}/tasks", body=task_repr, headers=headers)
 
-        if response.status_code in [200, 201, 202]:
-            return Task.from_repr(response.json())
-        else:
+        if response.status_code not in [200, 201, 202]:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_task(self, task: Task, headers: Optional[dict] = None) -> Task:
+    def update_task(self, task: Task, headers: Optional[dict] = None) -> None:
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -168,12 +167,10 @@ class TaskManagerInterface(ComponentInterface):
 
         response = self._client.put(f"{self._base_url}/tasks/{task.task_id}", body=task.prepare_task(), headers=headers)
 
-        if response.status_code in [200, 201, 202]:
-            return Task.from_repr(response.json())
-        else:
+        if response.status_code not in [200, 201, 202]:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def post_task_transaction(self, task_transaction: TaskTransaction, headers: Optional[dict] = None):
+    def create_task_transaction(self, task_transaction: TaskTransaction, headers: Optional[dict] = None) -> None:
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -181,7 +178,5 @@ class TaskManagerInterface(ComponentInterface):
 
         response = self._client.post(f"{self._base_url}/tasks/transactions", body=task_transaction.to_repr(), headers=headers)
 
-        if response.status_code in [200, 201, 202]:
-            return
-        else:
+        if response.status_code not in [200, 201, 202]:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")

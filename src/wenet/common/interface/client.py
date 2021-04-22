@@ -225,7 +225,6 @@ class Oauth2Client(RestClient):
         return post_request(self, True)
 
     def get(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
-
         if headers is None:
             headers = {}
 
@@ -264,7 +263,6 @@ class Oauth2Client(RestClient):
         return put_request(self, True)
 
     def delete(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
-
         if headers is None:
             headers = {}
 

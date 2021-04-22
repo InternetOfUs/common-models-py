@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from wenet.common.interface.component import ComponentInterface
 from wenet.common.interface.client import RestClient, ApikeyClient, NoAuthenticationClient
+from wenet.common.interface.exceptions import AuthenticationException
 from wenet.common.model.app.app_dto import App
 
 
@@ -20,7 +21,7 @@ class HubInterface(ComponentInterface):
         if isinstance(client, ApikeyClient) or isinstance(client, NoAuthenticationClient):
             base_url = instance + self.COMPONENT_PATH
         else:
-            raise ValueError("Not a valid client for the hub interface")
+            raise AuthenticationException("hub")
 
         super().__init__(client, base_url, base_headers)
 

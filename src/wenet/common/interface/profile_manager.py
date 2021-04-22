@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from wenet.common.interface.component import ComponentInterface
 from wenet.common.interface.client import RestClient, ApikeyClient
+from wenet.common.interface.exceptions import AuthenticationException
 from wenet.common.model.user.user_profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
 
 
@@ -20,7 +21,7 @@ class ProfileManagerInterface(ComponentInterface):
         if isinstance(client, ApikeyClient):
             base_url = instance + self.COMPONENT_PATH
         else:
-            raise ValueError("Not a valid client for the incentive server interface")
+            raise AuthenticationException("profile manager")
 
         super().__init__(client, base_url, base_headers)
 
@@ -49,9 +50,7 @@ class ProfileManagerInterface(ComponentInterface):
 
         response = self._client.put(f"{self._base_url}/profiles/{profile.profile_id}", body=profile_repr, headers=headers)
 
-        if response.status_code in [200, 202]:
-            return
-        else:
+        if response.status_code not in [200, 202]:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def create_empty_user_profile(self, user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
