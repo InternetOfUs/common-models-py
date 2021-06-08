@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  vars:
+    slack_token: "{{ lookup('env', 'SLACK_TOKEN') }}"
+    build_environment: "{{ lookup('env', 'BUILD_ENVIRONMENT') }}"
+    release_tag: "{{ lookup('env', 'RELEASE_TAG') }}"
+    project_id: "{{ lookup('env', 'CI_PROJECT_ID') }}"
+    project_title: "{{ lookup('env', 'CI_PROJECT_TITLE') }}"
+    project_url: "{{ lookup('env', 'CI_PROJECT_URL') }}"
+    project_path: "{{ lookup('env', 'CI_PROJECT_PATH') }}"
+    commit_message: "{{ lookup('env', 'CI_COMMIT_MESSAGE') }}"
+    commit_ref: "{{ lookup('env', 'CI_COMMIT_REF_NAME') }}"
+    deploy_triggered: "{{ lookup('env', 'DEPLOY_TRIGGERED') }} | default('no', True) }}"
+    with_deploy: "{{ lookup('env', 'WITH_DEPLOY') }} | default('yes', True) }}"
+
+    commit_attachments:
+      - color: "#2eb887"
+        text: |-
+          <{{ project_url }} | {{ project_path }}>
+          - Ref: `{{ commit_ref }}` :point_right: {{ commit_message }}
+          - Environment: `{{ build_environment }}`
+          - Image version: `{{ release_tag }}`
+    deploy_requested_attachments:
+      - color: "#cb007d"
+        text: "The deployment on the associated `develop` branch has been triggered :robot_face:"
+    deploy_manual_attachments:
+      - color: "#0099ff"
+        text:  "If needed, the deployment must be manually run :wave:"
+    deploy_attachment: "{{ [] if with_deploy == 'no' else deploy_requested_attachments if deploy_triggered == 'yes' else deploy_manual_attachments }}"
+    attachments: "{{ commit_attachments + deploy_attachment }}"
+
+  tasks:
+    - name: Notify pipeline success
+      slack:
+        token: "{{ slack_token }}"
+        msg: "Pipeline succeeded :rocket:"
+        attachments: "{{ attachments }}"
