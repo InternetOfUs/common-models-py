@@ -2,3 +2,11 @@
 venv3
 *.pyc
 .DS_Store
+
+# Template
+/roles
+*.svg
+
+# Package
+/build
+/dist

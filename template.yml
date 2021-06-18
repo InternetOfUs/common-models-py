@@ -1,0 +1,32 @@
+---
+
+- name: Setup Python project.
+  hosts: 127.0.0.1
+  connection: local
+  vars:
+    project_type: python
+    project_path: .
+    project_features:
+      - test
+      - docker
+      - ci_cd
+    project_python_test_folder: test
+    project_python_submodules: []
+    ci_environments:
+      production:
+        stages:
+          - name: build
+          - name: test
+          - name: package
+      staging:
+        stages:
+          - name: build
+            manual: true
+          - name: test
+      issue:
+        stages:
+          - name: build
+            manual: true
+          - name: test
+  roles:
+    - uh.project_template

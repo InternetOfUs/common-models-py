@@ -2,8 +2,6 @@ from __future__ import absolute_import, annotations
 
 from typing import List
 
-from wenet.common.model.user.user_profile import CoreWeNetUserProfile
-
 
 class TokenDetails:
 

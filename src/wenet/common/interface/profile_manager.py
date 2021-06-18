@@ -1,53 +1,101 @@
 from __future__ import absolute_import, annotations
 
-import json
 import logging
-from typing import List
+import os
+from typing import List, Optional
 
-import requests
-
+from wenet.common.interface.component import ComponentInterface
+from wenet.common.interface.client import RestClient, ApikeyClient
+from wenet.common.interface.exceptions import AuthenticationException
 from wenet.common.model.user.user_profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
 
 
 logger = logging.getLogger("wenet.common.interface.profile_manager")
 
 
-class ProfileManagerInterface:
+class ProfileManagerInterface(ComponentInterface):
 
-    def __init__(self, base_url: str, apikey: str) -> None:
-        self._base_url = base_url
-        self._apikey = apikey
+    COMPONENT_PATH = os.getenv("PROFILE_MANAGER_PATH", "/profile_manager")
 
-    def _create_apikey_header(self) -> dict:
-        return {"x-wenet-component-apikey": self._apikey}
-
-    def get_user_profile(self, user_id: str) -> WeNetUserProfile:
-        result = requests.get(self._base_url + "/profiles/" + user_id, headers=self._create_apikey_header())
-
-        if result.status_code == 200:
-            return WeNetUserProfile.from_repr(json.loads(result.content))
+    def __init__(self, client: RestClient, instance: str = ComponentInterface.PRODUCTION_INSTANCE, base_headers: Optional[dict] = None) -> None:
+        if isinstance(client, ApikeyClient):
+            base_url = instance + self.COMPONENT_PATH
         else:
-            raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+            raise AuthenticationException("profile manager")
 
-    def delete_user_profile(self, user_id: str) -> None:
-        result = requests.delete(self._base_url + "/profiles/" + user_id, headers=self._create_apikey_header())
+        super().__init__(client, base_url, base_headers)
 
-        if result.status_code == 204:
-            return
+    def get_user_profile(self, user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
+        if headers is not None:
+            headers.update(self._base_headers)
         else:
-            raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+            headers = self._base_headers
 
-    def get_profiles(self) -> List[WeNetUserProfile]:
+        response = self._client.get(f"{self._base_url}/profiles/{user_id}", headers=headers)
+
+        if response.status_code in [200, 202]:
+            return WeNetUserProfile.from_repr(response.json())
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_profile(self, profile: WeNetUserProfile, headers: Optional[dict] = None) -> None:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        profile_repr = profile.to_repr()
+        profile_repr.pop("_creationTs", None)
+        profile_repr.pop("_lastUpdateTs", None)
+
+        response = self._client.put(f"{self._base_url}/profiles/{profile.profile_id}", body=profile_repr, headers=headers)
+
+        if response.status_code not in [200, 202]:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def create_empty_user_profile(self, user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        profile_repr = {
+            "id": user_id
+        }
+
+        response = self._client.put(f"{self._base_url}/profiles", body=profile_repr, headers=headers)
+        if response.status_code in [200, 201, 202]:
+            return WeNetUserProfile.empty(user_id)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def delete_user_profile(self, user_id: str, headers: Optional[dict] = None) -> None:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.delete(f"{self._base_url}/profiles/{user_id}", headers=headers)
+
+        if response.status_code not in [200, 204]:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_profiles(self, headers: Optional[dict] = None) -> List[WeNetUserProfile]:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
         profiles = []
         has_got_all_profiles = False
         offset = 0
         while not has_got_all_profiles:
-            result = requests.get(self._base_url + "/profiles", headers=self._create_apikey_header(), params={"offset": offset})
+            response = self._client.get(f"{self._base_url}/profiles", query_params={"offset": offset}, headers=headers)
 
-            if result.status_code == 200:
-                profiles_page = WeNetUserProfilesPage.from_repr(json.loads(result.content))
+            if response.status_code in [200, 202]:
+                profiles_page = WeNetUserProfilesPage.from_repr(response.json())
             else:
-                raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
             profiles.extend(profiles_page.profiles)
             offset = len(profiles)
@@ -56,17 +104,22 @@ class ProfileManagerInterface:
 
         return profiles
 
-    def get_profile_user_ids(self) -> List[str]:
+    def get_profile_user_ids(self, headers: Optional[dict] = None) -> List[str]:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
         user_ids = []
         has_got_all_user_ids = False
         offset = 0
         while not has_got_all_user_ids:
-            result = requests.get(self._base_url + "/userIdentifiers", headers=self._create_apikey_header(), params={"offset": offset})
+            response = self._client.get(f"{self._base_url}/userIdentifiers", query_params={"offset": offset}, headers=headers)
 
-            if result.status_code == 200:
-                user_ids_page = UserIdentifiersPage.from_repr(json.loads(result.content))
+            if response.status_code in [200, 202]:
+                user_ids_page = UserIdentifiersPage.from_repr(response.json())
             else:
-                raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
             user_ids.extend(user_ids_page.user_ids)
             offset = len(user_ids)

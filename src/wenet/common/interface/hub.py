@@ -1,40 +1,89 @@
 from __future__ import absolute_import, annotations
 
-import json
 import logging
-from typing import List
+import os
+from typing import List, Optional
 
-import requests
+from wenet.common.interface.component import ComponentInterface
+from wenet.common.interface.client import RestClient, ApikeyClient, NoAuthenticationClient
+from wenet.common.interface.exceptions import AuthenticationException
+from wenet.common.model.app.app_dto import App
 
 
 logger = logging.getLogger("wenet.common.interface.hub")
 
 
-class HubInterface:
+class HubInterface(ComponentInterface):
 
-    def __init__(self, base_url: str) -> None:
-        self.base_url = base_url
+    COMPONENT_PATH = os.getenv("HUB_PATH", "/hub/frontend")
 
-    def get_user_ids_for_app(self, app_id: str) -> List[str]:
-        response = requests.get(f"{self.base_url}/data/app/{app_id}/user")
-        return response.json()
-
-    def get_app_details(self, app_id: str) -> dict:
-        response = requests.get(f"{self.base_url}/data/app/{app_id}")
-        return response.json()
-
-    def get_user_ids(self) -> List[str]:
-        result = requests.get(self.base_url + "/data/user")
-
-        if result.status_code == 200:
-            return json.loads(result.content)
+    def __init__(self, client: RestClient, instance: str = ComponentInterface.PRODUCTION_INSTANCE, base_headers: Optional[dict] = None) -> None:
+        if isinstance(client, ApikeyClient) or isinstance(client, NoAuthenticationClient):
+            base_url = instance + self.COMPONENT_PATH
         else:
-            raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+            raise AuthenticationException("hub")
 
-    # def delete_user(self, user_id: str) -> None:
-    #     result = requests.delete(self.base_url + "/data/user/" + user_id)  # TODO this endpoint should be implemented
-    #
-    #     if result.status_code == 200:
-    #         return
+        super().__init__(client, base_url, base_headers)
+
+    def get_user_ids_for_app(self, app_id: str, headers: Optional[dict] = None) -> List[str]:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}/data/app/{app_id}/user", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_app_details(self, app_id: str, headers: Optional[dict] = None) -> App:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}/data/app/{app_id}", headers=headers)
+
+        if response.status_code == 200:
+            return App.from_repr(response.json())
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_app_developers(self, app_id: str, headers: Optional[dict] = None) -> List[str]:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}/data/app/{app_id}/developer", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_ids(self, headers: Optional[dict] = None) -> List[str]:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}/data/user", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    # def delete_user(self, user_id: str, headers: Optional[dict] = None) -> None:
+    #     if headers is not None:
+    #         headers.update(self._base_headers)
     #     else:
-    #         raise Exception(f"request has return a code {result.status_code} with content {result.content}")
+    #         headers = self._base_headers
+    #
+    #     response = self._client.delete(f"{self._base_url}/data/user/{user_id}", headers=headers)  # TODO this endpoint should be implemented
+    #
+    #     if response.status_code not in [200, 204]:
+    #         raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
