@@ -144,7 +144,7 @@ class ServiceApiInterface(ComponentInterface):
 
         response = self._client.post(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}", {}, headers=headers)
 
-        if response.status_code != 200:
+        if response.status_code not in [200, 201]:
             raise CreationError(response.status_code, response.json())
 
     def update_user_profile(self, wenet_user_id: str, profile: CoreWeNetUserProfile, headers: Optional[dict] = None) -> WeNetUserProfile:
