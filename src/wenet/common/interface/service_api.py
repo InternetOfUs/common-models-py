@@ -2,6 +2,7 @@ from __future__ import absolute_import, annotations
 
 import logging
 import os
+from datetime import datetime
 from typing import List, Optional
 
 from wenet.common.interface.client import RestClient, ApikeyClient, Oauth2Client
@@ -189,29 +190,172 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_tasks(self, app_id: str, requester_id: Optional[str] = None, has_close_ts: Optional[bool] = None,
-                  limit: Optional[int] = None, offset: Optional[int] = None, headers: Optional[dict] = None) -> List[Task]:
+    def get_tasks(self,
+                  app_id: Optional[str] = None,
+                  requester_id: Optional[str] = None,
+                  task_type_id: Optional[str] = None,
+                  goal_name: Optional[str] = None,
+                  goal_description: Optional[str] = None,
+                  start_from: Optional[datetime] = None,
+                  start_to: Optional[datetime] = None,
+                  end_from: Optional[datetime] = None,
+                  end_to: Optional[datetime] = None,
+                  has_close_ts: Optional[dict] = None,
+                  deadline_from: Optional[datetime] = None,
+                  deadline_to: Optional[datetime] = None,
+                  offset: int = 0,
+                  limit: Optional[int] = 100,
+                  headers: Optional[dict] = None
+                  ) -> List[Task]:
+        """
+        Get the tasks specifying parameters
+
+        Args:
+            app_id: an application identifier to be equals on the tasks to return
+            requester_id: an user identifier to be equals on the tasks to return
+            task_type_id: a task type identifier to be equals on the tasks to return
+            goal_name: a goal name to be equals on the tasks to return
+            goal_description: a goal description to be equals on the tasks to return
+            start_from: the minimum start date time of the task
+            start_to: the maximum start date time of the task
+            end_from: the minimum end date time of the task
+            end_to: the maximum end date time of the task
+            has_close_ts: get the closed or open tasks
+            deadline_from: the minimum deadline date time of the task
+            deadline_to: the maximum deadline date time of the task
+            offset: The index of the first task to return. Default value is set to 0
+            limit: the number maximum of tasks to return. Default value is set to 100. If set to None it will return all the tasks
+            headers: additional headers
+
+        Returns:
+            The list of tasks
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
+        if limit is not None:
+            task_page = self.get_task_page(
+                app_id=app_id,
+                requester_id=requester_id,
+                task_type_id=task_type_id,
+                goal_name=goal_name,
+                goal_description=goal_description,
+                start_from=start_from,
+                start_to=start_to,
+                end_from=end_from,
+                end_to=end_to,
+                has_close_ts=has_close_ts,
+                deadline_from=deadline_from,
+                deadline_to=deadline_to,
+                offset=offset,
+                limit=limit,
+                headers=headers
+            )
+            return task_page.tasks
+        else:
+            tasks = []
+            limit = 100
+            has_got_all_tasks = False
+            while not has_got_all_tasks:
+                task_page = self.get_task_page(
+                    app_id=app_id,
+                    requester_id=requester_id,
+                    task_type_id=task_type_id,
+                    goal_name=goal_name,
+                    goal_description=goal_description,
+                    start_from=start_from,
+                    start_to=start_to,
+                    end_from=end_from,
+                    end_to=end_to,
+                    has_close_ts=has_close_ts,
+                    deadline_from=deadline_from,
+                    deadline_to=deadline_to,
+                    offset=offset,
+                    limit=limit,
+                    headers=headers
+                )
+                tasks.extend(task_page.tasks)
+                offset += len(task_page.tasks)
+                if len(task_page.tasks) < limit:
+                    has_got_all_tasks = True
+
+            return tasks
+
+    def get_task_page(self,
+                      app_id: Optional[str] = None,
+                      requester_id: Optional[str] = None,
+                      task_type_id: Optional[str] = None,
+                      goal_name: Optional[str] = None,
+                      goal_description: Optional[str] = None,
+                      start_from: Optional[datetime] = None,
+                      start_to: Optional[datetime] = None,
+                      end_from: Optional[datetime] = None,
+                      end_to: Optional[datetime] = None,
+                      has_close_ts: Optional[dict] = None,
+                      deadline_from: Optional[datetime] = None,
+                      deadline_to: Optional[datetime] = None,
+                      offset: int = 0,
+                      limit: Optional[int] = 100,
+                      headers: Optional[dict] = None
+                      ) -> TaskPage:
+        """
+        Get a page of tasks specifying parameters
+
+        Args:
+            app_id: an application identifier to be equals on the tasks to return
+            requester_id: an user identifier to be equals on the tasks to return
+            task_type_id: a task type identifier to be equals on the tasks to return
+            goal_name: a goal name to be equals on the tasks to return
+            goal_description: a goal description to be equals on the tasks to return
+            start_from: the minimum start date time of the task
+            start_to: the maximum start date time of the task
+            end_from: the minimum end date time of the task
+            end_to: the maximum end date time of the task
+            has_close_ts: get the closed or open tasks
+            deadline_from: the minimum deadline date time of the task
+            deadline_to: the maximum deadline date time of the task
+            offset: The index of the first task to return. Default value is set to 0
+            limit: the number maximum of tasks to return. Default value is set to 100. If set to None it will return all the tasks
+            headers: additional headers
+
+        Returns:
+            A page of tasks
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        params = {
-            "appId": app_id
+        query_params_temp = {
+            "appId": app_id,
+            "requesterId": requester_id,
+            "taskTypeId": task_type_id,
+            "goalName": goal_name,
+            "goalDescription": goal_description,
+            "startFrom": int(start_from.timestamp()) if start_from is not None else None,
+            "startTo": int(start_to.timestamp()) if start_to is not None else None,
+            "endFrom": int(end_from.timestamp()) if end_from is not None else None,
+            "endTo": int(end_to.timestamp()) if end_to is not None else None,
+            "hasCloseTs": has_close_ts,
+            "deadlineFrom": int(deadline_from.timestamp()) if deadline_from is not None else None,
+            "deadlineTo": int(deadline_to.timestamp()) if deadline_to is not None else None,
+            "offset": offset,
+            "limit": limit
         }
-        if requester_id:
-            params["requesterId"] = requester_id
-        if has_close_ts is not None:
-            params["hasCloseTs"] = has_close_ts
-        if limit is not None:
-            params["limit"] = limit
-        if offset is not None:
-            params["offset"] = offset
 
-        response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s", query_params=params, headers=headers)
+        query_params = {}
+
+        for key in query_params_temp:
+            if query_params_temp[key] is not None:
+                query_params[key] = query_params_temp[key]
+
+        response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s", query_params=query_params, headers=headers)
 
         if response.status_code == 200:
-            return [Task.from_repr(task) for task in response.json()["tasks"]]
+            return TaskPage.from_repr(response.json())
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 

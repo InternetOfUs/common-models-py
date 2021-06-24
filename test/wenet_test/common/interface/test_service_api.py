@@ -147,10 +147,10 @@ class TestServiceApiInterface(TestCase):
             self.service_api.update_user_profile("user_id", CoreWeNetUserProfile.empty("user_id"))
 
     def test_get_opened_tasks_of_user(self):
-        response = MockResponse(TaskPage(0, 0, [Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))]).to_repr())
+        response = MockResponse(TaskPage(0, 1, [Task("task_id", None, None, "", "user_id", "app_id", None, TaskGoal("", ""))]).to_repr())
         response.status_code = 200
         self.service_api._client.get = Mock(return_value=response)
-        self.assertEqual([Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))], self.service_api.get_opened_tasks_of_user("user_id", "app_id"))
+        self.assertEqual([Task("task_id", None, None, "", "user_id", "app_id", None, TaskGoal("", ""))], self.service_api.get_opened_tasks_of_user("user_id", "app_id"))
 
         response.status_code = 404
         with self.assertRaises(NotFound):
@@ -161,17 +161,27 @@ class TestServiceApiInterface(TestCase):
             self.service_api.get_opened_tasks_of_user("user_id", "app_id")
 
     def test_get_tasks(self):
-        response = MockResponse(TaskPage(0, 0, [Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))]).to_repr())
+        response = MockResponse(TaskPage(0, 1, [Task("task_id", None, None, "", "", "app_id", None, TaskGoal("", ""))]).to_repr())
         response.status_code = 200
         self.service_api._client.get = Mock(return_value=response)
-        self.assertEqual([Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))], self.service_api.get_tasks("app_id"))
+        self.assertEqual([Task("task_id", None, None, "", "", "app_id", None, TaskGoal("", ""))], self.service_api.get_tasks("app_id"))
 
         response.status_code = 500
         with self.assertRaises(Exception):
             self.service_api.get_tasks("app_id")
 
+    def test_get_task_page(self):
+        response = MockResponse(TaskPage(0, 1, [Task("task_id", None, None, "", "", "app_id", None, TaskGoal("", ""))]).to_repr())
+        response.status_code = 200
+        self.service_api._client.get = Mock(return_value=response)
+        self.assertEqual(TaskPage(0, 1, [Task("task_id", None, None, "", "", "app_id", None, TaskGoal("", ""))]), self.service_api.get_task_page("app_id"))
+
+        response.status_code = 500
+        with self.assertRaises(Exception):
+            self.service_api.get_task_page("app_id")
+
     def test_get_all_tasks_of_application(self):
-        response = MockResponse(TaskPage(0, 0, [Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))]).to_repr())
+        response = MockResponse(TaskPage(0, 1, [Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))]).to_repr())
         response.status_code = 200
         self.service_api._client.get = Mock(return_value=response)
         self.assertEqual([Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))], self.service_api.get_all_tasks_of_application("app_id"))
@@ -194,4 +204,3 @@ class TestServiceApiInterface(TestCase):
         response.status_code = 400
         with self.assertRaises(CreationError):
             self.service_api.log_message(message)
-

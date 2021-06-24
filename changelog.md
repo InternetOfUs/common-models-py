@@ -1,5 +1,12 @@
 # Wenet common models - Changelog
 
+## NEXT
+
+- Added script for analyzing users and profiles and spot misalignments
+- Added clients for authentication in the interfaces
+- Uniformed interfaces and added missing ones
+- Aligned task manager and service api interfaces with the current documentation
+
 ## Version 1.1.0
 
 - Added script for sending prompt message to users
