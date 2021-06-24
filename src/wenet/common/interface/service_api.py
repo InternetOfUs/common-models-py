@@ -228,7 +228,7 @@ class ServiceApiInterface(ComponentInterface):
             headers: additional headers
 
         Returns:
-            the list of tasks
+            The list of tasks
 
         Raises:
             Exception: if response from the component returns an unexpected code
@@ -298,6 +298,32 @@ class ServiceApiInterface(ComponentInterface):
                       limit: Optional[int] = 100,
                       headers: Optional[dict] = None
                       ) -> TaskPage:
+        """
+        Get a page of tasks specifying parameters
+
+        Args:
+            app_id: an application identifier to be equals on the tasks to return
+            requester_id: an user identifier to be equals on the tasks to return
+            task_type_id: a task type identifier to be equals on the tasks to return
+            goal_name: a goal name to be equals on the tasks to return
+            goal_description: a goal description to be equals on the tasks to return
+            start_from: the minimum start date time of the task
+            start_to: the maximum start date time of the task
+            end_from: the minimum end date time of the task
+            end_to: the maximum end date time of the task
+            has_close_ts: get the closed or open tasks
+            deadline_from: the minimum deadline date time of the task
+            deadline_to: the maximum deadline date time of the task
+            offset: The index of the first task to return. Default value is set to 0
+            limit: the number maximum of tasks to return. Default value is set to 100. If set to None it will return all the tasks
+            headers: additional headers
+
+        Returns:
+            A page of tasks
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:

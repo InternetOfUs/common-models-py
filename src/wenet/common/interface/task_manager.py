@@ -67,7 +67,7 @@ class TaskManagerInterface(ComponentInterface):
             headers: additional headers
 
         Returns:
-            the list of tasks
+            The list of tasks
 
         Raises:
             Exception: if response from the component returns an unexpected code
@@ -180,7 +180,7 @@ class TaskManagerInterface(ComponentInterface):
             headers: additional headers
 
         Returns:
-            the list of transactions
+            The list of transactions
 
         Raises:
             Exception: if response from the component returns an unexpected code
@@ -254,6 +254,19 @@ class TaskManagerInterface(ComponentInterface):
             return transactions
 
     def get_task(self, task_id: str, headers: Optional[dict] = None) -> Task:
+        """
+        Get a task with an specific identifier
+
+        Args:
+            task_id: the identifier of the task to get
+            headers: additional headers
+
+        Returns:
+            The task
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -284,6 +297,33 @@ class TaskManagerInterface(ComponentInterface):
                       limit: int = 100,
                       headers: Optional[dict] = None
                       ) -> TaskPage:
+        """
+        Get a page of tasks specifying query parameters
+
+        Args:
+            app_id: an application identifier to be equals on the tasks to return
+            requester_id: an user identifier to be equals on the tasks to return
+            task_type_id: a task type identifier to be equals on the tasks to return
+            goal_name: a goal name to be equals on the tasks to return
+            goal_description: a goal description to be equals on the tasks to return
+            creation_from: the minimum creation date time of the tasks to return
+            creation_to: the maximum creation date time of the tasks to return
+            update_from: the minimum update date time of the tasks to return
+            update_to: the maximum update date time of the tasks to return
+            has_close_ts: get the closed or open tasks
+            closed_from: the minimum close date time of the task
+            closed_to: the maximum close date time of the task
+            order: the order in witch the tasks have to be returned. For each field it has be separated by a ',' and each field can start with '+' (or without it) to order on ascending order, or with the prefix '-' to do on descendant order
+            offset: The index of the first task to return. Default value is set to 0
+            limit: the number maximum of tasks to return. Default value is set to 100
+            headers: additional headers
+
+        Returns:
+            A page of tasks
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -347,6 +387,42 @@ class TaskManagerInterface(ComponentInterface):
                              limit: int = 100,
                              headers: Optional[dict] = None
                              ) -> TaskTransactionPage:
+        """
+        Get a page of transactions specifying query parameters
+
+        Args:
+            app_id: an application identifier to be equals on the tasks to return
+            requester_id: an user identifier to be equals on the tasks to return
+            task_type_id: a task type identifier to be equals on the tasks to return
+            goal_name: a goal name to be equals on the tasks to return
+            goal_description: a goal description to be equals on the tasks to return
+            goal_keywords: a set of keywords to be defined on the task where are the transactions to return
+            task_creation_from: the minimum creation date time of the task where are the transaction to return
+            task_creation_to: the maximum creation date time of the task where are the transaction to return
+            task_update_from: the minimum update date time of the task where are the transaction to return
+            task_update_to: the maximum update date time of the task where are the transaction to return
+            has_close_ts: get the closed or open tasks
+            closed_from: the minimum close date time of the task
+            closed_to: the maximum close date time of the task
+            task_id: a task identifier to be equals on the task where are the transactions to return
+            transaction_id: an identifier to be equals on the transactions to return
+            transaction_label: a label to be equals on the transactions to return
+            actioneer_id: an user identifier that has done the transactions to return
+            creation_from: the minimum creation date time of the transactions to return
+            creation_to: the maximum creation date time of the transactions to return
+            update_from: the minimum update date time of the transactions to return
+            update_to: the maximum update date time of the transactions to return
+            order: the order in witch the tasks have to be returned. For each field it has be separated by a ',' and each field can start with '+' (or without it) to order on ascending order, or with the prefix '-' to do on descendant order
+            offset: The index of the first task to return. Default value is set to 0
+            limit: the number maximum of tasks to return. Default value is set to 100
+            headers: additional headers
+
+        Returns:
+            A page of transactions
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -393,6 +469,16 @@ class TaskManagerInterface(ComponentInterface):
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def create_task(self, task: Task, headers: Optional[dict] = None) -> None:
+        """
+        Create a new task
+
+        Args:
+            task: the new task to create
+            headers: additional headers
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -406,6 +492,16 @@ class TaskManagerInterface(ComponentInterface):
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def update_task(self, task: Task, headers: Optional[dict] = None) -> None:
+        """
+        Update a task
+
+        Args:
+            task: the updated task
+            headers: additional headers
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -417,6 +513,16 @@ class TaskManagerInterface(ComponentInterface):
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def create_task_transaction(self, task_transaction: TaskTransaction, headers: Optional[dict] = None) -> None:
+        """
+        Create a task transaction
+
+        Args:
+            task_transaction: the new task transaction to create
+            headers: additional headers
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
