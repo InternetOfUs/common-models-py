@@ -72,7 +72,8 @@ uhopper_pip_libraries = [
     "uhopper-alert",
     "uhopper-language",
     "uhopper-chatbot",
-    "uhopper-rule-engine"
+    "uhopper-rule-engine",
+    "wenet-common"
 ]
 
 if os.path.isfile(f"{dir_path}/../requirements.txt"):
