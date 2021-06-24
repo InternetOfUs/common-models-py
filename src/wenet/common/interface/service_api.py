@@ -209,6 +209,7 @@ class ServiceApiInterface(ComponentInterface):
                   ) -> List[Task]:
         """
         Get the tasks specifying parameters
+
         Args:
             app_id: an application identifier to be equals on the tasks to return
             requester_id: an user identifier to be equals on the tasks to return
@@ -228,61 +229,57 @@ class ServiceApiInterface(ComponentInterface):
 
         Returns:
             the list of tasks
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
         """
-        if headers is not None:
-            headers.update(self._base_headers)
-        else:
-            headers = self._base_headers
-
-        query_params_temp = {
-            "appId": app_id,
-            "requesterId": requester_id,
-            "taskTypeId": task_type_id,
-            "goalName": goal_name,
-            "goalDescription": goal_description,
-            "startFrom": int(start_from.timestamp()) if start_from is not None else None,
-            "startTo": int(start_to.timestamp()) if start_to is not None else None,
-            "endFrom": int(end_from.timestamp()) if end_from is not None else None,
-            "endTo": int(end_to.timestamp()) if end_to is not None else None,
-            "hasCloseTs": has_close_ts,
-            "deadlineFrom": int(deadline_from.timestamp()) if deadline_from is not None else None,
-            "deadlineTo": int(deadline_to.timestamp()) if deadline_to is not None else None,
-            "offset": offset,
-            "limit": limit
-        }
-
-        query_params = {}
-
-        for key in query_params_temp:
-            if query_params_temp[key] is not None:
-                query_params[key] = query_params_temp[key]
-
         if limit is not None:
-            response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s", query_params=query_params, headers=headers)
+            task_page = self.get_task_page(
+                app_id=app_id,
+                requester_id=requester_id,
+                task_type_id=task_type_id,
+                goal_name=goal_name,
+                goal_description=goal_description,
+                start_from=start_from,
+                start_to=start_to,
+                end_from=end_from,
+                end_to=end_to,
+                has_close_ts=has_close_ts,
+                deadline_from=deadline_from,
+                deadline_to=deadline_to,
+                offset=offset,
+                limit=limit,
+                headers=headers
+            )
+            return task_page.tasks
+        else:
+            tasks = []
+            limit = 100
+            has_got_all_tasks = False
+            while not has_got_all_tasks:
+                task_page = self.get_task_page(
+                    app_id=app_id,
+                    requester_id=requester_id,
+                    task_type_id=task_type_id,
+                    goal_name=goal_name,
+                    goal_description=goal_description,
+                    start_from=start_from,
+                    start_to=start_to,
+                    end_from=end_from,
+                    end_to=end_to,
+                    has_close_ts=has_close_ts,
+                    deadline_from=deadline_from,
+                    deadline_to=deadline_to,
+                    offset=offset,
+                    limit=limit,
+                    headers=headers
+                )
+                tasks.extend(task_page.tasks)
+                offset += len(task_page.tasks)
+                if len(task_page.tasks) < limit:
+                    has_got_all_tasks = True
 
-            if response.status_code == 200:
-                task_page = TaskPage.from_repr(response.json())
-                return task_page.tasks
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
-
-        tasks = []
-        query_params["limit"] = 100
-        has_got_all_tasks = False
-        while not has_got_all_tasks:
-            response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s", query_params=query_params, headers=headers)
-
-            if response.status_code == 200:
-                task_page = TaskPage.from_repr(response.json())
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
-
-            tasks.extend(task_page.tasks)
-            query_params["offset"] += len(task_page.tasks)
-            if len(task_page.tasks) < query_params["limit"]:
-                has_got_all_tasks = True
-
-        return tasks
+            return tasks
 
     def get_task_page(self,
                       app_id: Optional[str] = None,

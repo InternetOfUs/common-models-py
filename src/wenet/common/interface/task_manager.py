@@ -47,6 +47,7 @@ class TaskManagerInterface(ComponentInterface):
                   ) -> List[Task]:
         """
         Get the tasks specifying query parameters
+
         Args:
             app_id: an application identifier to be equals on the tasks to return
             requester_id: an user identifier to be equals on the tasks to return
@@ -67,62 +68,59 @@ class TaskManagerInterface(ComponentInterface):
 
         Returns:
             the list of tasks
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
         """
-        if headers is not None:
-            headers.update(self._base_headers)
-        else:
-            headers = self._base_headers
-
-        query_params_temp = {
-            "appId": app_id,
-            "requesterId": requester_id,
-            "taskTypeId": task_type_id,
-            "goalName": goal_name,
-            "goalDescription": goal_description,
-            "creationFrom": int(creation_from.timestamp()) if creation_from is not None else None,
-            "creationTo": int(creation_to.timestamp()) if creation_to is not None else None,
-            "updateFrom": int(update_from.timestamp()) if update_from is not None else None,
-            "updateTo": int(update_to.timestamp()) if update_to is not None else None,
-            "hasCloseTs": has_close_ts,
-            "closeFrom": int(closed_from.timestamp()) if closed_from is not None else None,
-            "closeTo": int(closed_to.timestamp()) if closed_to is not None else None,
-            "order": order,
-            "offset": offset,
-            "limit": limit
-        }
-
-        query_params = {}
-
-        for key in query_params_temp:
-            if query_params_temp[key] is not None:
-                query_params[key] = query_params_temp[key]
-
         if limit is not None:
-            response = self._client.get(f"{self._base_url}/tasks", query_params=query_params, headers=headers)
+            task_page = self.get_task_page(
+                app_id=app_id,
+                requester_id=requester_id,
+                task_type_id=task_type_id,
+                goal_name=goal_name,
+                goal_description=goal_description,
+                creation_from=creation_from,
+                creation_to=creation_to,
+                update_from=update_from,
+                update_to=update_to,
+                has_close_ts=has_close_ts,
+                closed_from=closed_from,
+                closed_to=closed_to,
+                order=order,
+                offset=offset,
+                limit=limit,
+                headers=headers
+            )
+            return task_page.tasks
+        else:
+            tasks = []
+            limit = 100
+            has_got_all_tasks = False
+            while not has_got_all_tasks:
+                task_page = self.get_task_page(
+                    app_id=app_id,
+                    requester_id=requester_id,
+                    task_type_id=task_type_id,
+                    goal_name=goal_name,
+                    goal_description=goal_description,
+                    creation_from=creation_from,
+                    creation_to=creation_to,
+                    update_from=update_from,
+                    update_to=update_to,
+                    has_close_ts=has_close_ts,
+                    closed_from=closed_from,
+                    closed_to=closed_to,
+                    order=order,
+                    offset=offset,
+                    limit=limit,
+                    headers=headers
+                )
+                tasks.extend(task_page.tasks)
+                offset += len(task_page.tasks)
+                if len(task_page.tasks) < limit:
+                    has_got_all_tasks = True
 
-            if response.status_code == 200:
-                task_page = TaskPage.from_repr(response.json())
-                return task_page.tasks
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
-
-        tasks = []
-        query_params["limit"] = 100
-        has_got_all_tasks = False
-        while not has_got_all_tasks:
-            response = self._client.get(f"{self._base_url}/tasks", query_params=query_params, headers=headers)
-
-            if response.status_code == 200:
-                task_page = TaskPage.from_repr(response.json())
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
-
-            tasks.extend(task_page.tasks)
-            query_params["offset"] += len(task_page.tasks)
-            if len(task_page.tasks) < query_params["limit"]:
-                has_got_all_tasks = True
-
-        return tasks
+            return tasks
 
     def get_transactions(self,
                          app_id: str,
@@ -153,6 +151,7 @@ class TaskManagerInterface(ComponentInterface):
                          ) -> List[TaskTransaction]:
         """
         Get the transactions specifying query parameters
+
         Args:
             app_id: an application identifier to be equals on the tasks to return
             requester_id: an user identifier to be equals on the tasks to return
@@ -182,71 +181,77 @@ class TaskManagerInterface(ComponentInterface):
 
         Returns:
             the list of transactions
+
+        Raises:
+            Exception: if response from the component returns an unexpected code
         """
-        if headers is not None:
-            headers.update(self._base_headers)
-        else:
-            headers = self._base_headers
-
-        query_params_temp = {
-            "appId": app_id,
-            "requesterId": requester_id,
-            "taskTypeId": task_type_id,
-            "goalName": goal_name,
-            "goalDescription": goal_description,
-            "goalKeywords": goal_keywords,
-            "taskCreationFrom": int(task_creation_from.timestamp()) if task_creation_from is not None else None,
-            "taskCreationTo": int(task_creation_to.timestamp()) if task_creation_to is not None else None,
-            "taskUpdateFrom": int(task_update_from.timestamp()) if task_update_from is not None else None,
-            "taskUpdateTo": int(task_update_to.timestamp()) if task_update_to is not None else None,
-            "hasCloseTs": has_close_ts,
-            "closeFrom": int(closed_from.timestamp()) if closed_from is not None else None,
-            "closeTo": int(closed_to.timestamp()) if closed_to is not None else None,
-            "taskId": task_id,
-            "id": transaction_id,
-            "label": transaction_label,
-            "actioneerId": actioneer_id,
-            "creationFrom": int(creation_from.timestamp()) if creation_from is not None else None,
-            "creationTo": int(creation_to.timestamp()) if creation_to is not None else None,
-            "updateFrom": int(update_from.timestamp()) if update_from is not None else None,
-            "updateTo": int(update_to.timestamp()) if update_to is not None else None,
-            "order": order,
-            "offset": offset,
-            "limit": limit
-        }
-
-        query_params = {}
-
-        for key in query_params_temp:
-            if query_params_temp[key] is not None:
-                query_params[key] = query_params_temp[key]
-
         if limit is not None:
-            response = self._client.get(f"{self._base_url}/taskTransactions", query_params=query_params, headers=headers)
+            transaction_page = self.get_transaction_page(
+                app_id=app_id,
+                requester_id=requester_id,
+                task_type_id=task_type_id,
+                goal_name=goal_name,
+                goal_description=goal_description,
+                goal_keywords=goal_keywords,
+                task_creation_from=task_creation_from,
+                task_creation_to=task_creation_to,
+                task_update_from=task_update_from,
+                task_update_to=task_update_to,
+                has_close_ts=has_close_ts,
+                closed_from=closed_from,
+                closed_to=closed_to,
+                task_id=task_id,
+                transaction_id=transaction_id,
+                transaction_label=transaction_label,
+                actioneer_id=actioneer_id,
+                creation_from=creation_from,
+                creation_to=creation_to,
+                update_from=update_from,
+                update_to=update_to,
+                order=order,
+                offset=offset,
+                limit=limit,
+                headers=headers
+            )
+            return transaction_page.transactions
+        else:
+            transactions = []
+            has_got_all_transactions = False
+            limit = 100
+            while not has_got_all_transactions:
+                transaction_page = self.get_transaction_page(
+                    app_id=app_id,
+                    requester_id=requester_id,
+                    task_type_id=task_type_id,
+                    goal_name=goal_name,
+                    goal_description=goal_description,
+                    goal_keywords=goal_keywords,
+                    task_creation_from=task_creation_from,
+                    task_creation_to=task_creation_to,
+                    task_update_from=task_update_from,
+                    task_update_to=task_update_to,
+                    has_close_ts=has_close_ts,
+                    closed_from=closed_from,
+                    closed_to=closed_to,
+                    task_id=task_id,
+                    transaction_id=transaction_id,
+                    transaction_label=transaction_label,
+                    actioneer_id=actioneer_id,
+                    creation_from=creation_from,
+                    creation_to=creation_to,
+                    update_from=update_from,
+                    update_to=update_to,
+                    order=order,
+                    offset=offset,
+                    limit=limit,
+                    headers=headers
+                )
+                transactions.extend(transaction_page.transactions)
+                offset += len(transaction_page.transactions)
+                if len(transaction_page.transactions) < limit:
+                    has_got_all_transactions = True
 
-            if response.status_code == 200:
-                transaction_page = TaskTransactionPage.from_repr(response.json())
-                return transaction_page.transactions
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
-
-        transactions = []
-        has_got_all_transactions = False
-        query_params["limit"] = 100
-        while not has_got_all_transactions:
-            response = self._client.get(f"{self._base_url}/taskTransactions", query_params=query_params, headers=headers)
-
-            if response.status_code == 200:
-                transaction_page = TaskTransactionPage.from_repr(response.json())
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
-
-            transactions.extend(transaction_page.transactions)
-            query_params["offset"] += len(transaction_page.transactions)
-            if len(transaction_page.transactions) < query_params["limit"]:
-                has_got_all_transactions = True
-
-        return transactions
+            return transactions
 
     def get_task(self, task_id: str, headers: Optional[dict] = None) -> Task:
         if headers is not None:
