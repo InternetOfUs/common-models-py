@@ -4,9 +4,9 @@ import argparse
 import logging
 import os
 
-from wenet.common.interface.client import NoAuthenticationClient, ApikeyClient
-from wenet.common.interface.hub import HubInterface
-from wenet.common.interface.profile_manager import ProfileManagerInterface
+from wenet.interface.client import NoAuthenticationClient, ApikeyClient
+from wenet.interface.hub import HubInterface
+from wenet.interface.profile_manager import ProfileManagerInterface
 
 
 logger = logging.getLogger("wenet.utils.users_profiles_aligner")
