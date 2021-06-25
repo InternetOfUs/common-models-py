@@ -58,6 +58,13 @@ class NoAuthenticationClient(RestClient):
 class ApikeyClient(RestClient):
 
     def __init__(self, apikey: str, component_authorization_apikey_header: str = "x-wenet-component-apikey") -> None:
+        """
+        Create a new apikey client
+
+        Args:
+            apikey: the apikey to authenticate the requests
+            component_authorization_apikey_header: the component authorization header for the apikey
+        """
         self._apikey = apikey
         self._component_authorization_apikey_header = component_authorization_apikey_header
 
@@ -118,6 +125,16 @@ class Oauth2Client(RestClient):
             return Oauth2Client.ClientCredentials(raw_data["accessToken"], raw_data["refreshToken"])
 
     def __init__(self, management_url: str, cache: RedisCache, resource_id: str, client_id: str, client_secret: str):
+        """
+        Create a new oauth2 client
+
+        Args:
+            management_url: the management URL
+            cache: a redis cache
+            resource_id: the identifier of the rosource
+            client_id: the identifier of the client
+            client_secret: the client secret
+        """
         self.management_url = management_url
         self._cache = cache
         self._resource_id = resource_id
@@ -142,6 +159,21 @@ class Oauth2Client(RestClient):
     @staticmethod
     def initialize_with_code(management_url: str, cache: RedisCache, resource_id: str, client_id: str,
                              client_secret: str, code: str, redirect_url: str) -> Oauth2Client:
+        """
+        Initialize a new oauth2 client with code
+
+        Args:
+            management_url: the management URL
+            cache: a redis cache
+            resource_id: the identifier of the rosource
+            client_id: the identifier of the client
+            client_secret: the client secret
+            code: the oauth2 code of the client
+            redirect_url: the redirect URL
+
+        Returns:
+            an oauth2 client
+        """
         client = Oauth2Client(management_url, cache, resource_id, client_id, client_secret)
         client._initialize(code, redirect_url)
         return client

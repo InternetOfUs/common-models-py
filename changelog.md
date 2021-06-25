@@ -6,6 +6,7 @@
 - Added clients for authentication in the interfaces
 - Uniformed interfaces and added missing ones
 - Aligned task manager and service api interfaces with the current documentation
+- Refactored project structure
 
 ## Version 1.1.0
 

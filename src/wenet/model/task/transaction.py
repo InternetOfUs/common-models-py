@@ -7,12 +7,12 @@ from wenet.model.callback_message.message import Message
 
 class TaskTransaction:
 
-    def __init__(self, id: Optional[str], task_id: str, label: str, creation_ts: int, last_update_ts: int,
+    def __init__(self, transaction_id: Optional[str], task_id: str, label: str, creation_ts: int, last_update_ts: int,
                  actioneer_id: str, attributes: Optional[dict], messages: Optional[List[Message]] = None):
         self.task_id = task_id
         self.label = label
         self.attributes = attributes
-        self.id = id
+        self.id = transaction_id
         self.creation_ts = creation_ts
         self.last_update_ts = last_update_ts
         self.actioneer_id = actioneer_id

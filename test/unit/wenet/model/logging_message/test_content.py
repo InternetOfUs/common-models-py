@@ -53,12 +53,8 @@ class TestCard(TestCase):
 class TestCarouselContent(TestCase):
     def test_repr(self):
         cards = [
-            Card("title", "image url", "subtitle", {"action": "value"})
-                .with_button("button", "payload")
-                .with_button("button", "payload"),
-            Card("title", "image url", "subtitle", {"action": "value"})
-                .with_button("button", "payload")
-                .with_button("button", "payload"),
+            Card("title", "image url", "subtitle", {"action": "value"}).with_button("button", "payload").with_button("button", "payload"),
+            Card("title", "image url", "subtitle", {"action": "value"}).with_button("button", "payload").with_button("button", "payload"),
         ]
         content = CarouselContent(cards)
         self.assertEqual(content, BaseContent.from_repr(content.to_repr()))
