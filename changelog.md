@@ -2,8 +2,9 @@
 
 ## Version 2.*
 
-## 2.0.0
+### 2.0.0
 
+* Re-organised project structure
 * Re-organised all existing component interfaces: they are now based on the same base structure.
 * Interfaces now support token-based and OAuth2 authentication strategies.
 * Added new interfaces for allowing the communication with components in the platform. In particular, the Incentive Server, the Logging component and the Task Manager.
