@@ -7,13 +7,13 @@ from test.unit.wenet.interface.mock.client import MockOauth2Client
 from test.unit.wenet.interface.mock.response import MockResponse
 from wenet.interface.exceptions import NotFound, CreationError, AuthenticationException
 from wenet.interface.service_api import ServiceApiInterface
-from wenet.model.app.app_dto import AppDTO
-from wenet.model.logging_messages.contents import ActionRequest
-from wenet.model.logging_messages.messages import RequestMessage
+from wenet.model.app import AppDTO
+from wenet.model.logging_message.content import ActionRequest
+from wenet.model.logging_message.message import RequestMessage
 from wenet.model.task.task import Task, TaskGoal, TaskPage
 from wenet.model.task.transaction import TaskTransaction
-from wenet.model.user.token_details import TokenDetails
-from wenet.model.user.user_profile import WeNetUserProfile, CoreWeNetUserProfile
+from wenet.model.user.token import TokenDetails
+from wenet.model.user.profile import WeNetUserProfile, CoreWeNetUserProfile
 
 
 class TestServiceApiInterface(TestCase):

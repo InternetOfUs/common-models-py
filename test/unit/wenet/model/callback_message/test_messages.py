@@ -1,8 +1,10 @@
+from __future__ import absolute_import, annotations
+
 import random
 from unittest import TestCase
 from uuid import uuid4
 
-from wenet.model.message.message import Message, TextualMessage, TaskProposalNotification, \
+from wenet.model.callback_message.message import Message, TextualMessage, TaskProposalNotification, \
     TaskVolunteerNotification, TaskSelectionNotification, TaskConcludedNotification, IncentiveMessage, IncentiveBadge, \
     QuestionToAnswerMessage, AnsweredQuestionMessage, AnsweredPickedMessage
 

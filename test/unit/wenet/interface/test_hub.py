@@ -7,7 +7,7 @@ from test.unit.wenet.interface.mock.client import MockApikeyClient
 from test.unit.wenet.interface.mock.response import MockResponse
 from wenet.interface.exceptions import AuthenticationException, NotFound
 from wenet.interface.hub import HubInterface
-from wenet.model.app.app_dto import App
+from wenet.model.app import App
 
 
 class TestHubInterface(TestCase):

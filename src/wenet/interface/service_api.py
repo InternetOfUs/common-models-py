@@ -7,12 +7,12 @@ from typing import List, Optional
 from wenet.interface.client import RestClient, Oauth2Client
 from wenet.interface.component import ComponentInterface
 from wenet.interface.exceptions import NotFound, CreationError, AuthenticationException
-from wenet.model.app.app_dto import AppDTO
-from wenet.model.logging_messages.messages import BaseMessage
+from wenet.model.app import AppDTO
+from wenet.model.logging_message.message import BaseMessage
 from wenet.model.task.task import Task, TaskPage
 from wenet.model.task.transaction import TaskTransaction
-from wenet.model.user.token_details import TokenDetails
-from wenet.model.user.user_profile import WeNetUserProfile, CoreWeNetUserProfile
+from wenet.model.user.token import TokenDetails
+from wenet.model.user.profile import WeNetUserProfile, CoreWeNetUserProfile
 
 
 logger = logging.getLogger("wenet.interface.service_api")

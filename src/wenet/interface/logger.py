@@ -6,7 +6,7 @@ from typing import List, Optional
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
 from wenet.interface.exceptions import AuthenticationException, CreationError
-from wenet.model.logging_messages.messages import BaseMessage
+from wenet.model.logging_message.message import BaseMessage
 
 
 logger = logging.getLogger("wenet.interface.logger")

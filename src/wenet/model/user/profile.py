@@ -6,7 +6,7 @@ from typing import List, Optional, Dict
 
 from wenet.model.scope import AbstractScopeMappings, Scope
 from wenet.model.user.common import Gender, Date
-from wenet.model.norm.norm import Norm
+from wenet.model.norm import Norm
 from babel.core import Locale
 
 

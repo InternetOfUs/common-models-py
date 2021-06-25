@@ -1,7 +1,9 @@
+from __future__ import absolute_import, annotations
+
 from unittest import TestCase
 
-from wenet.model.logging_messages.contents import TextualContent
-from wenet.model.logging_messages.messages import RequestMessage, ResponseMessage, BaseMessage, \
+from wenet.model.logging_message.content import TextualContent
+from wenet.model.logging_message.message import RequestMessage, ResponseMessage, BaseMessage, \
     NotificationMessage
 
 

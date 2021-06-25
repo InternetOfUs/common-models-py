@@ -1,10 +1,12 @@
+from __future__ import absolute_import, annotations
+
 import random
 from unittest import TestCase
 from uuid import uuid4
 
-from wenet.model.message.builder import MessageBuilder, EventBuilder
-from wenet.model.message.event import Event, WeNetAuthenticationEvent
-from wenet.model.message.message import TextualMessage, TaskProposalNotification, TaskVolunteerNotification, \
+from wenet.model.callback_message.builder import MessageBuilder, EventBuilder
+from wenet.model.callback_message.event import Event, WeNetAuthenticationEvent
+from wenet.model.callback_message.message import TextualMessage, TaskProposalNotification, TaskVolunteerNotification, \
     TaskConcludedNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, QuestionToAnswerMessage, \
     AnsweredQuestionMessage
 

@@ -4,7 +4,7 @@ import abc
 from datetime import datetime
 from typing import Optional
 
-from wenet.model.logging_messages.contents import BaseContent
+from wenet.model.logging_message.content import BaseContent
 
 
 class BaseMessage(abc.ABC):

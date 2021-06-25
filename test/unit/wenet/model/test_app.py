@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.model.app.app_dto import AppDTO
+from wenet.model.app import AppDTO
 
 
 class TestAppDTO(TestCase):

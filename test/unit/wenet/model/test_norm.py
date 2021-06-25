@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.model.norm.norm import Norm, NormOperator
+from wenet.model.norm import Norm, NormOperator
 
 
 class TestNorm(TestCase):

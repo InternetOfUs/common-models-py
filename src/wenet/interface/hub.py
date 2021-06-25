@@ -6,7 +6,7 @@ from typing import List, Optional
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
 from wenet.interface.exceptions import AuthenticationException, NotFound
-from wenet.model.app.app_dto import App
+from wenet.model.app import App
 
 
 logger = logging.getLogger("wenet.interface.hub")

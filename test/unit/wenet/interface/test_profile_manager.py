@@ -7,7 +7,7 @@ from test.unit.wenet.interface.mock.client import MockApikeyClient
 from test.unit.wenet.interface.mock.response import MockResponse
 from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
 from wenet.interface.profile_manager import ProfileManagerInterface
-from wenet.model.user.user_profile import WeNetUserProfile, UserIdentifiersPage, WeNetUserProfilesPage
+from wenet.model.user.profile import WeNetUserProfile, UserIdentifiersPage, WeNetUserProfilesPage
 
 
 class TestProfileManagerInterface(TestCase):

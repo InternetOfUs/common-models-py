@@ -1,6 +1,8 @@
+from __future__ import absolute_import, annotations
+
 from unittest import TestCase
 
-from wenet.model.logging_messages.contents import TextualContent, BaseContent, ActionContent, AttachmentContent, \
+from wenet.model.logging_message.content import TextualContent, BaseContent, ActionContent, AttachmentContent, \
     LocationContent, Card, CarouselContent, ActionRequest
 
 

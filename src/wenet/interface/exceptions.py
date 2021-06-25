@@ -1,3 +1,6 @@
+from __future__ import absolute_import, annotations
+
+
 class AuthenticationException(ValueError):
 
     def __init__(self, interface: str, http_status_code: int, server_response: str) -> None:

@@ -4,7 +4,7 @@ from enum import Enum
 from numbers import Number
 from typing import Optional, List
 
-from wenet.model.norm.norm import Norm
+from wenet.model.norm import Norm
 from wenet.model.task.transaction import TaskTransaction
 
 

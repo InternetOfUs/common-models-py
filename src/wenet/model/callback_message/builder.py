@@ -1,7 +1,7 @@
 from __future__ import absolute_import, annotations
 
-from wenet.model.message.event import Event, WeNetAuthenticationEvent
-from wenet.model.message.message import TextualMessage, Message, TaskConcludedNotification, \
+from wenet.model.callback_message.event import Event, WeNetAuthenticationEvent
+from wenet.model.callback_message.message import TextualMessage, Message, TaskConcludedNotification, \
     TaskVolunteerNotification, TaskProposalNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, \
     QuestionToAnswerMessage, AnsweredQuestionMessage
 

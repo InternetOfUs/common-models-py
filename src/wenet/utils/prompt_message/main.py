@@ -10,7 +10,7 @@ import requests
 
 from wenet.interface.client import NoAuthenticationClient
 from wenet.interface.hub import HubInterface
-from wenet.model.message.message import TextualMessage
+from wenet.model.callback_message.message import TextualMessage
 
 
 logger = logging.getLogger("wenet.utils.prompt_message")

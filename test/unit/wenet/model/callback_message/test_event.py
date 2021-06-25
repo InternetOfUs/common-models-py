@@ -1,6 +1,8 @@
+from __future__ import absolute_import, annotations
+
 from unittest import TestCase
 
-from wenet.model.message.event import WeNetAuthenticationEvent, Event
+from wenet.model.callback_message.event import WeNetAuthenticationEvent, Event
 
 
 class TestWeNetAuthenticationEvent(TestCase):

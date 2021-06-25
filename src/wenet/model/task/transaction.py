@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from typing import Optional, List
 
-from wenet.model.message.message import Message
+from wenet.model.callback_message.message import Message
 
 
 class TaskTransaction:

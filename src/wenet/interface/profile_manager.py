@@ -6,7 +6,7 @@ from typing import List, Optional
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
 from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
-from wenet.model.user.user_profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
+from wenet.model.user.profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
 
 
 logger = logging.getLogger("wenet.interface.profile_manager")

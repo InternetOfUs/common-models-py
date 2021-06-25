@@ -30,6 +30,17 @@ class WeNet:
 
     @staticmethod
     def build(client: RestClient, platform_url: str = "https://internetofus.u-hopper.com/prod", extra_headers: Optional[dict] = None) -> WeNet:
+        """
+        Build a WeNet collector with all the platform interfaces
+
+        Args:
+            client: the client for authenticate requests: ApikeyClient for an internal usage, Oauth2Client for an external usage.
+            platform_url: the URL of the platform
+            extra_headers: extra heather to add to all the requests
+
+        Returns:
+            a WeNet collector with all the platform interfaces
+        """
         return WeNet(
             service_api=ServiceApiInterface(client, platform_url=platform_url, extra_headers=extra_headers),
             profile_manager=ProfileManagerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
