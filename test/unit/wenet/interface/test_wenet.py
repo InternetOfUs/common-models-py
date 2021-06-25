@@ -16,11 +16,11 @@ from wenet.interface.task_manager import TaskManagerInterface
 class TestServiceCollector(TestCase):
 
     def test_build(self):
-        collector = MockWeNet.build(MockApikeyClient())
-        self.assertIsInstance(collector, WeNet)
-        self.assertIsInstance(collector.service_api, ServiceApiInterface)
-        self.assertIsInstance(collector.profile_manager, ProfileManagerInterface)
-        self.assertIsInstance(collector.incentive_server, IncentiveServerInterface)
-        self.assertIsInstance(collector.task_manager, TaskManagerInterface)
-        self.assertIsInstance(collector.logger, LoggerInterface)
-        self.assertIsInstance(collector.hub, HubInterface)
+        wenet = MockWeNet.build(MockApikeyClient())
+        self.assertIsInstance(wenet, WeNet)
+        self.assertIsInstance(wenet.service_api, ServiceApiInterface)
+        self.assertIsInstance(wenet.profile_manager, ProfileManagerInterface)
+        self.assertIsInstance(wenet.incentive_server, IncentiveServerInterface)
+        self.assertIsInstance(wenet.task_manager, TaskManagerInterface)
+        self.assertIsInstance(wenet.logger, LoggerInterface)
+        self.assertIsInstance(wenet.hub, HubInterface)

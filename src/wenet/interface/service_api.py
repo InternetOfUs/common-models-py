@@ -43,8 +43,8 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return TokenDetails.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -58,10 +58,10 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return AppDTO.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("App", app_id)
+            raise NotFound("App", app_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -75,10 +75,10 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("App", app_id)
+            raise NotFound("App", app_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -93,10 +93,10 @@ class ServiceApiInterface(ComponentInterface):
         response = self._client.post(f"{self._base_url}{self.TASK_ENDPOINT}", body=task_repr, headers=headers)
 
         if response.status_code not in [200, 201]:
-            if response.status_code == 401:
-                raise AuthenticationException("service api")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("service api", response.status_code, response.text)
             else:
-                raise CreationError(response.status_code, response.json())
+                raise CreationError(response.status_code, response.text)
 
     def get_task(self, task_id: str, headers: Optional[dict] = None) -> Task:
         if headers is not None:
@@ -108,10 +108,10 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return Task.from_repr(response.json(), task_id)
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("Task", task_id)
+            raise NotFound("Task", task_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -124,10 +124,10 @@ class ServiceApiInterface(ComponentInterface):
         response = self._client.post(f"{self._base_url}{self.TASK_ENDPOINT}/transaction", body=transaction.to_repr(), headers=headers)
 
         if response.status_code not in [200, 201]:
-            if response.status_code == 401:
-                raise AuthenticationException("service api")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("service api", response.status_code, response.text)
             else:
-                raise CreationError(response.status_code, response.json())
+                raise CreationError(response.status_code, response.text)
 
     def get_user_profile(self, wenet_user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
@@ -139,10 +139,10 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return WeNetUserProfile.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("User", wenet_user_id)
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -155,10 +155,10 @@ class ServiceApiInterface(ComponentInterface):
         response = self._client.post(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}", {}, headers=headers)
 
         if response.status_code not in [200, 201]:
-            if response.status_code == 401:
-                raise AuthenticationException("service api")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("service api", response.status_code, response.text)
             else:
-                raise CreationError(response.status_code, response.json())
+                raise CreationError(response.status_code, response.text)
 
     def update_user_profile(self, wenet_user_id: str, profile: CoreWeNetUserProfile, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
@@ -170,10 +170,10 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return WeNetUserProfile.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("User", wenet_user_id)
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -199,10 +199,10 @@ class ServiceApiInterface(ComponentInterface):
                 task_page = TaskPage.from_repr(response.json())
                 tasks.extend(task_page.tasks)
             return tasks
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("User", wenet_user_id)
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -352,8 +352,8 @@ class ServiceApiInterface(ComponentInterface):
 
         if response.status_code == 200:
             return TaskPage.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -379,10 +379,10 @@ class ServiceApiInterface(ComponentInterface):
                 task_page = TaskPage.from_repr(response.json())
                 tasks.extend(task_page.tasks)
             return tasks
-        elif response.status_code == 401:
-            raise AuthenticationException("service api")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
         elif response.status_code == 404:
-            raise NotFound("App", app_id)
+            raise NotFound("App", app_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -395,7 +395,7 @@ class ServiceApiInterface(ComponentInterface):
         response = self._client.post(f"{self._base_url}{self.LOG_ENDPOINT}", body=message.to_repr(), headers=headers)
 
         if response.status_code not in [200, 201]:
-            if response.status_code == 401:
-                raise AuthenticationException("service api")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("service api", response.status_code, response.text)
             else:
-                raise CreationError(response.status_code, response.json())
+                raise CreationError(response.status_code, response.text)

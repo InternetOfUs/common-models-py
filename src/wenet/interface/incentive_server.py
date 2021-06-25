@@ -26,7 +26,7 @@ class IncentiveServerInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 401:
-            raise AuthenticationException("incentive server")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("incentive server", response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")

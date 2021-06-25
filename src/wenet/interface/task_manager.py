@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
-from wenet.interface.exceptions import AuthenticationException
+from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
 from wenet.model.task.task import TaskPage, Task
 from wenet.model.task.transaction import TaskTransaction, TaskTransactionPage
 
@@ -21,7 +21,7 @@ class TaskManagerInterface(ComponentInterface):
         super().__init__(client, base_url, extra_headers)
 
     def get_all_tasks(self,
-                      app_id: str,
+                      app_id: Optional[str] = None,
                       requester_id: Optional[str] = None,
                       task_type_id: Optional[str] = None,
                       goal_name: Optional[str] = None,
@@ -94,7 +94,7 @@ class TaskManagerInterface(ComponentInterface):
         return tasks
 
     def get_all_transactions(self,
-                             app_id: str,
+                             app_id: Optional[str] = None,
                              requester_id: Optional[str] = None,
                              task_type_id: Optional[str] = None,
                              goal_name: Optional[str] = None,
@@ -217,13 +217,15 @@ class TaskManagerInterface(ComponentInterface):
 
         if response.status_code == 200:
             return Task.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("task manager")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("task manager", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("Task", task_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def get_task_page(self,
-                      app_id: str,
+                      app_id: Optional[str] = None,
                       requester_id: Optional[str] = None,
                       task_type_id: Optional[str] = None,
                       goal_name: Optional[str] = None,
@@ -301,13 +303,13 @@ class TaskManagerInterface(ComponentInterface):
 
         if response.status_code == 200:
             return TaskPage.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("task manager")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("task manager", response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def get_transaction_page(self,
-                             app_id: str,
+                             app_id: Optional[str] = None,
                              requester_id: Optional[str] = None,
                              task_type_id: Optional[str] = None,
                              goal_name: Optional[str] = None,
@@ -412,8 +414,8 @@ class TaskManagerInterface(ComponentInterface):
 
         if response.status_code == 200:
             return TaskTransactionPage.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("task manager")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("task manager", response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -439,10 +441,10 @@ class TaskManagerInterface(ComponentInterface):
         response = self._client.post(f"{self._base_url}/tasks", body=task_repr, headers=headers)
 
         if response.status_code not in [200, 201, 202]:
-            if response.status_code == 401:
-                raise AuthenticationException("task manager")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("task manager", response.status_code, response.text)
             else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+                raise CreationError(response.status_code, response.text)
 
     def update_task(self, task: Task, headers: Optional[dict] = None) -> None:
         """
@@ -464,8 +466,10 @@ class TaskManagerInterface(ComponentInterface):
         response = self._client.put(f"{self._base_url}/tasks/{task.task_id}", body=task.prepare_task(), headers=headers)
 
         if response.status_code not in [200, 201, 202]:
-            if response.status_code == 401:
-                raise AuthenticationException("task manager")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("task manager", response.status_code, response.text)
+            elif response.status_code == 404:
+                raise NotFound("Task", task.task_id, response.status_code, response.text)
             else:
                 raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -489,7 +493,7 @@ class TaskManagerInterface(ComponentInterface):
         response = self._client.post(f"{self._base_url}/tasks/transactions", body=task_transaction.to_repr(), headers=headers)
 
         if response.status_code not in [200, 201, 202]:
-            if response.status_code == 401:
-                raise AuthenticationException("task manager")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("task manager", response.status_code, response.text)
             else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+                raise CreationError(response.status_code, response.text)
