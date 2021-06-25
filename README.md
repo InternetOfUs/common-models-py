@@ -11,7 +11,7 @@ The library defines models that describe:
 - tasks and transactions
 - norms
 - messages from the WeNet platform to the applications
-- app DTOs
+- app
 - messages for logging
 
 ## Component interfaces
@@ -27,12 +27,42 @@ The library also provides interfaces for simplifying the communication with the 
 
 Such interfaces are configured to communicate by default with the WeNet production instance.
 
+To create a Wenet collector using an apikey as authorization you can use:
+
 ```python
 from wenet.interface.client import ApikeyClient
 from wenet.interface.wenet import WeNet
 
-interface = WeNet.build(ApikeyClient("your_apikey"))
+
+client = ApikeyClient("your_apikey")
+
+wenet = WeNet.build(client)
+
+# Using the wenet collector you can have access to all the interfaces methods, for example you can get all the tasks doing:
+wenet.service_api.get_all_tasks()
 ```
 
-If you are an internal developer, you can pass to in an `ApikeyClient` and use all the interfaces.
-If you are an external developer, you have to pass to it an `Oauth2Client` in order to authenticate your requests and can only use the service api interface.
+To create a Wenet collector using an OAuth2 as authorization you can use:
+
+```python
+from redis import Redis
+from wenet.interface.client import Oauth2Client
+from wenet.interface.wenet import WeNet
+from wenet.storage.cache import RedisCache
+
+
+client = Oauth2Client.initialize_with_code(
+    "https://internetofus.u-hopper.com/prod/api/oauth2/token",
+    RedisCache(Redis()),
+    "resource_id",
+    "client_id",
+    "client_secret",
+    "code",
+    "redirect_url"
+)
+
+wenet = WeNet.build(client)
+
+# Using the wenet collector you can have access to all the service apis methods, for example you can get all the tasks doing:
+wenet.service_api.get_all_tasks()
+```
