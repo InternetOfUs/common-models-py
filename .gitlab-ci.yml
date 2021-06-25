@@ -175,11 +175,11 @@ test:staging:
 
 
 #
-# Stages for issue.
+# Stages for mr.
 #
 
 
-build:issue:
+build:mr:
   stage: build
   script:
     - *apk-before-script
@@ -193,23 +193,19 @@ build:issue:
   when: manual
   allow_failure: false
   only:
-    - /^feature.*$/i
-    - /^hotfix.*$/i
-    - /^milestone.*$/i
+    - merge_requests
 
 
-test:issue:
+test:mr:
   stage: test
   script:
     - *apk-before-script
     - docker load -i docker_image.tar.gz
     - ./docker-support/runner.sh -t latest
   dependencies:
-    - build:issue
+    - build:mr
   only:
-    - /^feature.*$/i
-    - /^hotfix.*$/i
-    - /^milestone.*$/i
+    - merge_requests
 
 
 # 
