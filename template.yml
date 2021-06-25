@@ -23,7 +23,7 @@
           - name: build
             manual: true
           - name: test
-      issue:
+      mr:
         stages:
           - name: build
             manual: true
