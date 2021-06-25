@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
-from wenet.interface.exceptions import AuthenticationException
+from wenet.interface.exceptions import AuthenticationException, NotFound
 from wenet.model.app.app_dto import App
 
 
@@ -28,8 +28,10 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 401:
-            raise AuthenticationException("hub")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("hub", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("App", app_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -43,8 +45,10 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return App.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("hub")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("hub", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("App", app_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -58,8 +62,10 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 401:
-            raise AuthenticationException("hub")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("hub", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("App", app_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -73,8 +79,8 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code == 401:
-            raise AuthenticationException("hub")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("hub", response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -87,7 +93,9 @@ class HubInterface(ComponentInterface):
     #     response = self._client.delete(f"{self._base_url}/data/user/{user_id}", headers=headers)  # TODO this endpoint should be implemented
     #
     #     if response.status_code not in [200, 204]:
-    #         if response.status_code == 401:
-    #             raise AuthenticationException("hub")
+    #         if response.status_code in [401, 403]:
+    #             raise AuthenticationException("hub", response.status_code, response.text)
+    #         elif response.status_code == 404:
+    #             raise NotFound("User", user_id, response.status_code, response.text)
     #         else:
     #             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")

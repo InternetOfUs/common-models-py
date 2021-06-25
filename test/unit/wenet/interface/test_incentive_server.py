@@ -30,10 +30,16 @@ class TestIncentiveServerInterface(TestCase):
         self.incentive_server_interface._client.get = Mock(return_value=response)
         self.assertEqual(response.json(), self.incentive_server_interface.get_cohorts())
 
+    def test_get_cohorts_exception(self):
+        response = MockResponse(None)
         response.status_code = 400
+        self.incentive_server_interface._client.get = Mock(return_value=response)
         with self.assertRaises(Exception):
             self.incentive_server_interface.get_cohorts()
 
+    def test_get_cohorts_unauthorized(self):
+        response = MockResponse(None)
         response.status_code = 401
+        self.incentive_server_interface._client.get = Mock(return_value=response)
         with self.assertRaises(AuthenticationException):
             self.incentive_server_interface.get_cohorts()

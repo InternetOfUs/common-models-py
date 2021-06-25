@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
-from wenet.interface.exceptions import AuthenticationException
+from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
 from wenet.model.user.user_profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
 
 
@@ -28,8 +28,10 @@ class ProfileManagerInterface(ComponentInterface):
 
         if response.status_code in [200, 202]:
             return WeNetUserProfile.from_repr(response.json())
-        elif response.status_code == 401:
-            raise AuthenticationException("profile manager")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("profile manager", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", user_id, response.status_code, response.text)
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -46,8 +48,8 @@ class ProfileManagerInterface(ComponentInterface):
         response = self._client.put(f"{self._base_url}/profiles/{profile.profile_id}", body=profile_repr, headers=headers)
 
         if response.status_code not in [200, 202]:
-            if response.status_code == 401:
-                raise AuthenticationException("profile manager")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("profile manager", response.status_code, response.text)
             else:
                 raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -64,10 +66,10 @@ class ProfileManagerInterface(ComponentInterface):
         response = self._client.put(f"{self._base_url}/profiles", body=profile_repr, headers=headers)
         if response.status_code in [200, 201, 202]:
             return WeNetUserProfile.empty(user_id)
-        elif response.status_code == 401:
-            raise AuthenticationException("profile manager")
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("profile manager", response.status_code, response.text)
         else:
-            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+            raise CreationError(response.status_code, response.text)
 
     def delete_user_profile(self, user_id: str, headers: Optional[dict] = None) -> None:
         if headers is not None:
@@ -78,8 +80,10 @@ class ProfileManagerInterface(ComponentInterface):
         response = self._client.delete(f"{self._base_url}/profiles/{user_id}", headers=headers)
 
         if response.status_code not in [200, 204]:
-            if response.status_code == 401:
-                raise AuthenticationException("profile manager")
+            if response.status_code in [401, 403]:
+                raise AuthenticationException("profile manager", response.status_code, response.text)
+            elif response.status_code == 404:
+                raise NotFound("User", user_id, response.status_code, response.text)
             else:
                 raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -97,8 +101,8 @@ class ProfileManagerInterface(ComponentInterface):
 
             if response.status_code in [200, 202]:
                 profiles_page = WeNetUserProfilesPage.from_repr(response.json())
-            elif response.status_code == 401:
-                raise AuthenticationException("profile manager")
+            elif response.status_code in [401, 403]:
+                raise AuthenticationException("profile manager", response.status_code, response.text)
             else:
                 raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
@@ -123,8 +127,8 @@ class ProfileManagerInterface(ComponentInterface):
 
             if response.status_code in [200, 202]:
                 user_ids_page = UserIdentifiersPage.from_repr(response.json())
-            elif response.status_code == 401:
-                raise AuthenticationException("profile manager")
+            elif response.status_code in [401, 403]:
+                raise AuthenticationException("profile manager", response.status_code, response.text)
             else:
                 raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
