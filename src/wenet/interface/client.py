@@ -124,7 +124,7 @@ class Oauth2Client(RestClient):
         def from_repr(raw_data: dict) -> Oauth2Client.ClientCredentials:
             return Oauth2Client.ClientCredentials(raw_data["accessToken"], raw_data["refreshToken"])
 
-    def __init__(self, client_id: str, client_secret: str, resource_id: str, cache: BaseCache,
+    def __init__(self, client_id: str, client_secret: str, resource_id: str, cache: Optional[BaseCache] = None,
                  token_endpoint_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token"):
         """
         Create a new oauth2 client
@@ -133,7 +133,7 @@ class Oauth2Client(RestClient):
             client_id: the identifier of the client
             client_secret: the client secret
             resource_id: the identifier of the resource
-            cache: a cache
+            cache: a cache to be used for storing client credentials, if not specified dedicated in memory cache is going to be used
             token_endpoint_url: the oauth2 token endpoint URL of the platform
         """
         self.token_endpoint_url = token_endpoint_url

@@ -39,6 +39,24 @@ class BaseCache(ABC):
         return str(uuid.uuid4())
 
 
+class InMemoryCache(BaseCache):
+
+    def __init__(self) -> None:
+        self._cache = {}
+        super().__init__()
+
+    def cache(self, data: dict, key: Optional[str] = None, **kwargs) -> str:
+        if key is None:
+            key = self._generate_id()
+
+        self._cache[key] = data
+
+        return key
+
+    def get(self, key: str) -> Optional[dict]:
+        return self._cache.get(key, None)
+
+
 class RedisCache(BaseCache):
     """
     Cache allows to store data in Redis.
