@@ -12,4 +12,4 @@ class MockApikeyClient(ApikeyClient):
 class MockOauth2Client(Oauth2Client):
 
     def __init__(self):
-        super().__init__(None, None, None, None, management_url=None)
+        super().__init__(None, None, None, None, token_endpoint_url=None)

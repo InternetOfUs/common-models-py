@@ -4,42 +4,26 @@ import json
 import logging
 import os
 import uuid
+from abc import ABC
 from json import JSONDecodeError
 from typing import Optional
 
 import redis
 
-logger = logging.getLogger("uhopper.redis-cache")
-
-#
-# Cache allows to store data in Redis.
-# Cached data will only be available for a limited and specified amount of time.
-#
+logger = logging.getLogger("wenet.storage.cache")
 
 
-class RedisCache:
+class BaseCache(ABC):
 
-    def __init__(self, r: redis.Redis) -> None:
-        self._r = r
-
-    def cache(self, data: dict, ttl: Optional[int] = None, key: Optional[str] = None) -> str:
+    def cache(self, data: dict, key: Optional[str] = None, **kwargs) -> str:
         """
         Cache data in dictionary format.
 
         :param dict data: the data to cache
-        :param ttl: the time to live of the data entry (expressed in seconds)
         :param key: the key to save the data
         :return: the identifier associated to the data entry
         """
-        if key is None:
-            key = str(uuid.uuid4())
-
-        logger.debug(f"Caching data for key [{key}] and ttl [{ttl}]")
-        if ttl is not None:
-            self._r.set(key, json.dumps(data), ex=ttl)
-        else:
-            self._r.set(key, json.dumps(data))
-        return key
+        pass
 
     def get(self, key: str) -> Optional[dict]:
         """
@@ -48,6 +32,41 @@ class RedisCache:
         :param str key: the data key
         :return: the requested data, if it exists
         """
+        pass
+
+
+class RedisCache(BaseCache):
+    """
+    Cache allows to store data in Redis.
+    Cached data will only be available for a limited and specified amount of time.
+    """
+
+    def __init__(self, r: redis.Redis) -> None:
+        self._r = r
+
+    def cache(self, data: dict, key: Optional[str] = None, **kwargs) -> str:
+        """
+        Cache data in dictionary format.
+
+        Among the kwargs:
+
+        * ttl: the time to live of the data entry (expressed in seconds)
+
+        :param dict data: the data to cache
+        :param key: the key to save the data
+        :return: the identifier associated to the data entry
+        """
+        if key is None:
+            key = str(uuid.uuid4())
+
+        logger.debug(f"Caching data for key [{key}] and ttl [{kwargs.get('ttl')}]")
+        if kwargs.get("ttl") is not None:
+            self._r.set(key, json.dumps(data), ex=kwargs.get("ttl"))
+        else:
+            self._r.set(key, json.dumps(data))
+        return key
+
+    def get(self, key: str) -> Optional[dict]:
         logger.debug(f"Getting cached data for key [{key}]")
         result = self._r.get(key)
         if result is not None:

@@ -8,7 +8,7 @@ import requests
 from requests import Response
 
 from wenet.interface.exceptions import RefreshTokenExpiredError
-from wenet.storage.cache import RedisCache
+from wenet.storage.cache import BaseCache
 
 
 logger = logging.getLogger("wenet.interface.client")
@@ -124,18 +124,19 @@ class Oauth2Client(RestClient):
         def from_repr(raw_data: dict) -> Oauth2Client.ClientCredentials:
             return Oauth2Client.ClientCredentials(raw_data["accessToken"], raw_data["refreshToken"])
 
-    def __init__(self, cache: RedisCache, resource_id: str, client_id: str, client_secret: str, management_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token"):
+    def __init__(self, client_id: str, client_secret: str, resource_id: str, cache: BaseCache,
+                 token_endpoint_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token"):
         """
         Create a new oauth2 client
 
         Args:
-            cache: a redis cache
-            resource_id: the identifier of the rosource
             client_id: the identifier of the client
             client_secret: the client secret
-            management_url: the oauth2 management URL of the platform
+            resource_id: the identifier of the resource
+            cache: a cache
+            token_endpoint_url: the oauth2 token endpoint URL of the platform
         """
-        self.management_url = management_url
+        self.token_endpoint_url = token_endpoint_url
         self._cache = cache
         self._resource_id = resource_id
         self._client_id = client_id
@@ -146,7 +147,7 @@ class Oauth2Client(RestClient):
         raw_credentials = self._cache.get(self._resource_id)
         if raw_credentials is not None:
             return Oauth2Client.ClientCredentials.from_repr(raw_credentials)
-        raise Exception(f"Credential for resource [{self._resource_id}] does not exist")
+        raise Exception(f"Credentials for resource [{self._resource_id}] does not exist")
 
     @property
     def token(self) -> str:
@@ -157,24 +158,24 @@ class Oauth2Client(RestClient):
         return self._client_credential.refresh_token
 
     @staticmethod
-    def initialize_with_code(cache: RedisCache, resource_id: str, client_id: str, client_secret: str, code: str, redirect_url: str,
-                             management_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token") -> Oauth2Client:
+    def initialize_with_code(client_id: str, client_secret: str, code: str, redirect_url: str, resource_id: str, cache: BaseCache,
+                             token_endpoint_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token") -> Oauth2Client:
         """
         Initialize a new oauth2 client with code
 
         Args:
-            cache: a redis cache
-            resource_id: the identifier of the rosource
             client_id: the identifier of the client
             client_secret: the client secret
             code: the oauth2 code of the client
             redirect_url: the redirect URL
-            management_url: the oauth2 management URL of the platform
+            resource_id: the identifier of the resource
+            cache: a cache
+            token_endpoint_url: the oauth2 token endpoint URL of the platform
 
         Returns:
             an oauth2 client
         """
-        client = Oauth2Client(cache, resource_id, client_id, client_secret, management_url=management_url)
+        client = Oauth2Client(client_id, client_secret, resource_id, cache, token_endpoint_url=token_endpoint_url)
         client._initialize(code, redirect_url)
         return client
 
@@ -187,7 +188,7 @@ class Oauth2Client(RestClient):
             "refresh_token": self.refresh_token
         }
 
-        response = requests.post(self.management_url, json=body)
+        response = requests.post(self.token_endpoint_url, json=body)
         logger.debug(f"Refresh token endpoint returned a code [{response.status_code}]")
         logger.debug(f"Refresh token endpoint returned: {response.text}")
         if response.status_code == 200:
@@ -196,10 +197,7 @@ class Oauth2Client(RestClient):
             token = body["access_token"]
 
             credentials = Oauth2Client.ClientCredentials(token, refresh_token)
-            self._cache.cache(
-                data=credentials.to_repr(),
-                key=self._resource_id
-            )
+            self._cache.cache(data=credentials.to_repr(), key=self._resource_id)
             logger.info(f"Refreshed oauth2 token for resource [{self._resource_id}]")
         else:
             logger.error(f"Unable to refresh the token for client ID [{self._client_id}]")
@@ -214,7 +212,7 @@ class Oauth2Client(RestClient):
             "code": code
         }
 
-        response = requests.post(self.management_url, json=body)
+        response = requests.post(self.token_endpoint_url, json=body)
         if response.status_code == 200:
             body = response.json()
             refresh_token = body["refresh_token"]
@@ -222,10 +220,7 @@ class Oauth2Client(RestClient):
 
             client_credentials = Oauth2Client.ClientCredentials(token, refresh_token)
 
-            self._cache.cache(
-                data=client_credentials.to_repr(),
-                key=self._resource_id
-            )
+            self._cache.cache(data=client_credentials.to_repr(), key=self._resource_id)
         else:
             raise Exception(f"Unable to retrieve the token, server respond with: [{response.status_code}], [{response.text}]")
 
