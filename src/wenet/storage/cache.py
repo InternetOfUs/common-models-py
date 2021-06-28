@@ -34,6 +34,10 @@ class BaseCache(ABC):
         """
         pass
 
+    @staticmethod
+    def _generate_id():
+        return str(uuid.uuid4())
+
 
 class RedisCache(BaseCache):
     """
@@ -57,27 +61,34 @@ class RedisCache(BaseCache):
         :return: the identifier associated to the data entry
         """
         if key is None:
-            key = str(uuid.uuid4())
+            key = self._generate_id()
 
-        logger.debug(f"Caching data for key [{key}] and ttl [{kwargs.get('ttl')}]")
-        if kwargs.get("ttl") is not None:
-            self._r.set(key, json.dumps(data), ex=kwargs.get("ttl"))
-        else:
-            self._r.set(key, json.dumps(data))
+        self._set(key, json.dumps(data), kwargs.get("ttl", None))
         return key
+
+    def _set(self, key: str, value: str, ttl: Optional[int]) -> None:
+        logger.debug(f"Caching data for key [{key}] and ttl [{ttl}]")
+        if ttl:
+            self._r.set(key, value, ex=ttl)
+        else:
+            self._r.set(key, value)
 
     def get(self, key: str) -> Optional[dict]:
         logger.debug(f"Getting cached data for key [{key}]")
-        result = self._r.get(key)
+        result = self._get(key)
         if result is not None:
             try:
                 result = json.loads(result)
             except JSONDecodeError as e:
                 logger.exception(f"Could not parse cached data for key [{key}]", exc_info=e)
+                raise e
         else:
             logger.debug(f"No data for key [{key}]")
 
         return result
+
+    def _get(self, key) -> str:
+        return self._r.get(key)
 
     @staticmethod
     def _build_redis_from_env() -> redis.Redis:
