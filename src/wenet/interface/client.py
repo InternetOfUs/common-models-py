@@ -124,16 +124,16 @@ class Oauth2Client(RestClient):
         def from_repr(raw_data: dict) -> Oauth2Client.ClientCredentials:
             return Oauth2Client.ClientCredentials(raw_data["accessToken"], raw_data["refreshToken"])
 
-    def __init__(self, management_url: str, cache: RedisCache, resource_id: str, client_id: str, client_secret: str):
+    def __init__(self, cache: RedisCache, resource_id: str, client_id: str, client_secret: str, management_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token"):
         """
         Create a new oauth2 client
 
         Args:
-            management_url: the management URL
             cache: a redis cache
             resource_id: the identifier of the rosource
             client_id: the identifier of the client
             client_secret: the client secret
+            management_url: the oauth2 management URL of the platform
         """
         self.management_url = management_url
         self._cache = cache
@@ -157,24 +157,24 @@ class Oauth2Client(RestClient):
         return self._client_credential.refresh_token
 
     @staticmethod
-    def initialize_with_code(management_url: str, cache: RedisCache, resource_id: str, client_id: str,
-                             client_secret: str, code: str, redirect_url: str) -> Oauth2Client:
+    def initialize_with_code(cache: RedisCache, resource_id: str, client_id: str, client_secret: str, code: str, redirect_url: str,
+                             management_url: str = "https://internetofus.u-hopper.com/prod/api/oauth2/token") -> Oauth2Client:
         """
         Initialize a new oauth2 client with code
 
         Args:
-            management_url: the management URL
             cache: a redis cache
             resource_id: the identifier of the rosource
             client_id: the identifier of the client
             client_secret: the client secret
             code: the oauth2 code of the client
             redirect_url: the redirect URL
+            management_url: the oauth2 management URL of the platform
 
         Returns:
             an oauth2 client
         """
-        client = Oauth2Client(management_url, cache, resource_id, client_id, client_secret)
+        client = Oauth2Client(cache, resource_id, client_id, client_secret, management_url=management_url)
         client._initialize(code, redirect_url)
         return client
 
