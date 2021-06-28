@@ -8,8 +8,7 @@ import requests
 from requests import Response
 
 from wenet.interface.exceptions import RefreshTokenExpiredError
-from wenet.storage.cache import BaseCache
-
+from wenet.storage.cache import BaseCache, InMemoryCache
 
 logger = logging.getLogger("wenet.interface.client")
 
@@ -137,7 +136,7 @@ class Oauth2Client(RestClient):
             token_endpoint_url: the oauth2 token endpoint URL of the platform
         """
         self.token_endpoint_url = token_endpoint_url
-        self._cache = cache
+        self._cache = cache if cache and isinstance(cache, BaseCache) else InMemoryCache()
         self._resource_id = resource_id
         self._client_id = client_id
         self._client_secret = client_secret
@@ -147,7 +146,7 @@ class Oauth2Client(RestClient):
         raw_credentials = self._cache.get(self._resource_id)
         if raw_credentials is not None:
             return Oauth2Client.ClientCredentials.from_repr(raw_credentials)
-        raise Exception(f"Credentials for resource [{self._resource_id}] does not exist")
+        raise Exception(f"Credentials for resource [{self._resource_id}] do not exist")
 
     @property
     def token(self) -> str:
