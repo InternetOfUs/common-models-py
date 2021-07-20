@@ -2,6 +2,10 @@
 
 ## Version 2.*
 
+### NEXT
+
+* Included optional time filters for getting the users of an app in the hub interface
+
 ### 2.0.0
 
 * Re-organised project structure
