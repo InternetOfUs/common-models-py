@@ -25,16 +25,11 @@ class HubInterface(ComponentInterface):
         else:
             headers = self._base_headers
 
-        query_params_temp = {
-            "fromTs": int(from_datetime.timestamp()) if from_datetime is not None else None,
-            "toTs": int(to_datetime.timestamp()) if to_datetime is not None else None
-        }
-
         query_params = {}
-
-        for key in query_params_temp:
-            if query_params_temp[key] is not None:
-                query_params[key] = query_params_temp[key]
+        if from_datetime is not None:
+            query_params["fromTs"] = int(from_datetime.timestamp())
+        if to_datetime is not None:
+            query_params["toTs"] = int(to_datetime.timestamp())
 
         response = self._client.get(f"{self._base_url}/data/app/{app_id}/user", query_params=query_params, headers=headers)
 
