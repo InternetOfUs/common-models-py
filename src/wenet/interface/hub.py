@@ -1,6 +1,7 @@
 from __future__ import absolute_import, annotations
 
 import logging
+from datetime import datetime
 from typing import List, Optional
 
 from wenet.interface.component import ComponentInterface
@@ -18,13 +19,19 @@ class HubInterface(ComponentInterface):
         base_url = platform_url + component_path
         super().__init__(client, base_url, extra_headers)
 
-    def get_user_ids_for_app(self, app_id: str, headers: Optional[dict] = None) -> List[str]:
+    def get_user_ids_for_app(self, app_id: str, from_datetime: Optional[datetime] = None, to_datetime: Optional[datetime] = None, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.get(f"{self._base_url}/data/app/{app_id}/user", headers=headers)
+        query_params = {}
+        if from_datetime is not None:
+            query_params["fromTs"] = int(from_datetime.timestamp())
+        if to_datetime is not None:
+            query_params["toTs"] = int(to_datetime.timestamp())
+
+        response = self._client.get(f"{self._base_url}/data/app/{app_id}/user", query_params=query_params, headers=headers)
 
         if response.status_code == 200:
             return response.json()
