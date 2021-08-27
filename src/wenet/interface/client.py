@@ -273,7 +273,7 @@ class Oauth2Client(RestClient):
 
         def put_request(client: Optional, retry: bool):
             logger.debug(f"Performing put request with token {client.token} {client.refresh_token}")
-            headers.update(client.get(client.token))
+            headers.update(client.get_authentication(client.token))
             response = requests.put(url, json=body, headers=headers)
             if response.status_code in [400, 401, 403]:
                 if retry:
