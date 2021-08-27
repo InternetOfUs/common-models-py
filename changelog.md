@@ -5,6 +5,7 @@
 ### NEXT
 
 * Included optional time filters for getting the users of an app in the hub interface
+* Fixed put request of the outh2 client
 
 ### 2.0.0
 
