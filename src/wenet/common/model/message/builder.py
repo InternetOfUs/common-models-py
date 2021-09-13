@@ -30,7 +30,7 @@ class MessageBuilder:
             message = TaskSelectionNotification.from_repr(raw_message)
         elif message_label == IncentiveMessage.LABEL:
             message = IncentiveMessage.from_repr(raw_message)
-        elif message_label == IncentiveBadge.LABEL:
+        elif message_label == IncentiveBadge.LABEL or message_label == "INCENTIVE":
             message = IncentiveBadge.from_repr(raw_message)
         elif message_label == QuestionToAnswerMessage.LABEL:
             message = QuestionToAnswerMessage.from_repr(raw_message)
