@@ -26,8 +26,8 @@
           - name: test
       mr:
         stages:
-          - name: build
-            manual: true
           - name: test
+          - name: test
+            type: coverage
   roles:
     - uh.project_template

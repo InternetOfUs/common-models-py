@@ -233,24 +233,6 @@ unit:staging:
 #
 
 
-docker image:mr:
-  stage: build
-  script:
-    - *apk-before-script
-    - *docker-script
-
-    - ./docker-support/runner.sh -bs latest
-  artifacts:
-    paths:
-      - docker_image.tar.gz
-    expire_in: 1 day
-  when: manual
-  allow_failure: false
-  needs: []
-  only:
-    - merge_requests
-
-
 unit:mr:
   stage: test
   image: public.registry.u-hopper.com/python:3.8
@@ -270,6 +252,37 @@ unit:mr:
     paths:
       - .cache/pip
       - venv/
+  needs: []
+  only:
+    - merge_requests
+
+
+coverage:mr:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: true
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install coverage pytest-cov
+    - cp -r test src/
+    - cp docker-support/run_test_coverage.sh src/
+    - cp docker-support/.coveragerc src/
+    - cd src
+    - PYTHONPATH=. ./run_test_coverage.sh test .
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  artifacts:
+    when: always
+    reports:
+      junit: src/report.xml
   needs: []
   only:
     - merge_requests
