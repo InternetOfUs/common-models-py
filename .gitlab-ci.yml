@@ -100,22 +100,6 @@ stages:
 #
 
 
-docker image:production:
-  stage: build
-  script:
-    - *apk-before-script
-    - *docker-script
-
-    - ./docker-support/runner.sh -bs $CI_COMMIT_TAG
-  artifacts:
-    paths:
-      - docker_image.tar.gz
-    expire_in: 1 day
-  needs: []
-  only:
-    - tags
-
-
 unit:production:
   stage: test
   image: public.registry.u-hopper.com/python:3.8
@@ -140,6 +124,37 @@ unit:production:
     - tags
 
 
+coverage:production:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: true
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install coverage pytest-cov
+    - cp -r test src/
+    - cp docker-support/run_test_coverage.sh src/
+    - cp docker-support/.coveragerc src/
+    - cd src
+    - PYTHONPATH=. ./run_test_coverage.sh test .
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  artifacts:
+    when: always
+    reports:
+      junit: src/report.xml
+  needs: []
+  only:
+    - tags
+
+
 package:pip-library:
   image: public.registry.u-hopper.com/python:3.8
   stage: package
@@ -158,19 +173,32 @@ package:pip-library:
 #
 
 
-docker image:staging:
-  stage: build
+coverage:staging:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: true
   script:
-    - *apk-before-script
-    - *docker-script
-
-    - ./docker-support/runner.sh -bs latest
-  artifacts:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install coverage pytest-cov
+    - cp -r test src/
+    - cp docker-support/run_test_coverage.sh src/
+    - cp docker-support/.coveragerc src/
+    - cd src
+    - PYTHONPATH=. ./run_test_coverage.sh test .
+  cache:
     paths:
-      - docker_image.tar.gz
-    expire_in: 1 day
-  when: manual
-  allow_failure: false
+      - .cache/pip
+      - venv/
+  artifacts:
+    when: always
+    reports:
+      junit: src/report.xml
   needs: []
   only:
     - develop

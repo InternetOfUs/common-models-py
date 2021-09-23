@@ -15,13 +15,14 @@
     ci_environments:
       production:
         stages:
-          - name: build
           - name: test
+          - name: test
+            type: coverage
           - name: package
       staging:
         stages:
-          - name: build
-            manual: true
+          - name: test
+            type: coverage
           - name: test
       mr:
         stages:
