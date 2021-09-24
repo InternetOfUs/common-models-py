@@ -7,6 +7,7 @@
 * Included optional time filters for getting the users of an app in the hub interface
 * Fixed put request of the outh2 client
 * Fixed return value of the update and create methods of the TaskManagerInterface
+* Fixed service APIs methods for getting all tasks of an application and for an user
 
 ### 2.0.0
 
