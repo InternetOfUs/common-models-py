@@ -30,7 +30,7 @@ cp -R ${PROJECT_DIR}/test/* ${SCRIPT_DIR}/test
 # Building image
 GIT_REF=`git rev-parse --short HEAD`
 if [[ -z "${PIP_CONF_DOCKER}" ]]; then
-    PIP_CONF_DOCKER="~/.config/pip/pip.conf"
+    export PIP_CONF_DOCKER=`cat ~/.config/pip/pip.conf`
 fi
 docker build --build-arg GIT_REF=${GIT_REF} --build-arg PIP_CONF_DOCKER --cache-from ${REGISTRY}/${IMAGE_NAME} -t ${IMAGE_NAME} ${SCRIPT_DIR}
 if [[ $? == 0 ]]; then
