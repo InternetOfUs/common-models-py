@@ -194,7 +194,7 @@ class ServiceApiInterface(ComponentInterface):
             while len(tasks) < task_page.total:
                 offset = len(tasks)
                 response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s",
-                                            query_params={"appId": app_id, "requesterId": wenet_user_id, "offset": offset},
+                                            query_params={"appId": app_id, "requesterId": wenet_user_id, "hasCloseTs": False, "offset": offset},
                                             headers=headers)
                 task_page = TaskPage.from_repr(response.json())
                 tasks.extend(task_page.tasks)
@@ -216,7 +216,7 @@ class ServiceApiInterface(ComponentInterface):
                       start_to: Optional[datetime] = None,
                       end_from: Optional[datetime] = None,
                       end_to: Optional[datetime] = None,
-                      has_close_ts: Optional[dict] = None,
+                      has_close_ts: Optional[bool] = None,
                       deadline_from: Optional[datetime] = None,
                       deadline_to: Optional[datetime] = None,
                       offset: int = 0,
@@ -286,7 +286,7 @@ class ServiceApiInterface(ComponentInterface):
                       start_to: Optional[datetime] = None,
                       end_from: Optional[datetime] = None,
                       end_to: Optional[datetime] = None,
-                      has_close_ts: Optional[dict] = None,
+                      has_close_ts: Optional[bool] = None,
                       deadline_from: Optional[datetime] = None,
                       deadline_to: Optional[datetime] = None,
                       offset: int = 0,
@@ -374,7 +374,7 @@ class ServiceApiInterface(ComponentInterface):
             while len(tasks) < task_page.total:
                 offset = len(tasks)
                 response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s",
-                                            query_params={"appId": app_id, "offset": offset},
+                                            query_params={"appId": app_id, "hasCloseTs": False, "offset": offset},
                                             headers=headers)
                 task_page = TaskPage.from_repr(response.json())
                 tasks.extend(task_page.tasks)
