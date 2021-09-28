@@ -8,6 +8,7 @@
 * Fixed put request of the outh2 client
 * Fixed return value of the update and create methods of the TaskManagerInterface
 * Fixed service APIs methods for getting all tasks of an application and for an user
+* Adjusted incentive badge and messages parser in order to align to unrequested breaking changes applied in the badge message content
 
 ### 2.0.0
 
