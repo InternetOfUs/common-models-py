@@ -281,8 +281,8 @@ class IncentiveMessage(Message):
         return IncentiveMessage(
             raw["appId"],
             raw["receiverId"],
-            raw["attributes"]["issuer"],
-            raw["attributes"]["content"],
+            raw["attributes"]["issuer"] if "issuer" in raw["attributes"] else raw["attributes"]["Issuer"],
+            raw["attributes"]["content"] if "content" in raw["attributes"] else raw["attributes"]["Message"]["content"],
             raw["attributes"]
         )
 
