@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  vars:
+    pipeline_trigger: "{{ lookup('env','CI_DEPLOY_TOKEN') }}"
+    git_ref: "{{ lookup('env','GIT_REF') }}"
+    deployment_repo_id: "{{ lookup('env','DEPLOYMENT_REPO_ID') }}"
+  tasks:
+    - name: Triggering deployment pipeline
+      shell: "curl -X POST --fail -F token={{ pipeline_trigger }} -F ref={{ git_ref }} https://lab.u-hopper.com/api/v4/projects/{{ deployment_repo_id }}/trigger/pipeline"

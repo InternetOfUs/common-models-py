@@ -1,0 +1,289 @@
+---
+image: docker:20.10.2
+
+services:
+  - docker:20.10.2-dind
+
+#
+# Pipeline cache is based on CI_COMMIT_REF_SLUG.
+#
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+
+#
+# Docker variables for allowing image build.
+#
+variables:
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: "tcp://docker:2375"
+  GIT_SUBMODULE_STRATEGY: recursive
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+#
+# Workflow defining rules for running the pipeline.
+# In the following cases the pipeline is not run when:
+#  - the associated commit includes the work-in-progress tag `-wip`
+#  - the associated commit message includes the pattern `Merge tag`: the commit resulting when
+#    a release branch is closed and merged into `develop`
+#
+workflow:
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /-wip/
+      when: never
+    - if: $CI_COMMIT_MESSAGE =~ /Merge tag/
+      when: never
+    - when: always
+
+#
+# Static script to be reused by the enabled stages.
+#
+
+.apk-before-script: &apk-before-script
+  # Install required apk packages.
+  - apk add --update bash wget ca-certificates openssl git tar openssh-client curl python3 py3-pip
+
+# Script for docker based stages.
+.docker-script: &docker-script
+  - docker login registry.u-hopper.com -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
+
+# Scripts for installing Ansible and the associated roles directly from the Lab.
+.ansible-script: &ansible-script
+  # Install and run ssh-agent if not already installed, it is required by Docker.
+  # (change apt-get to yum if you use an RPM-based image)
+  - 'which ssh-agent || apk add openssh-client'
+  - eval $(ssh-agent -s)
+
+  # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+  # We're using tr to fix line endings which makes ed25519 keys work
+  # without extra base64 encoding.
+  # https://gitlab.com/gitlab-examples/ssh-private-key/issues/1#note_48526556
+
+  # Configure .ssh folder
+  - mkdir -p ~/.ssh
+  - ssh-keyscan -p 4422 lab.u-hopper.com >> gitlabKey
+  - ssh-keygen -lf gitlabKey
+  - cat gitlabKey  >> ~/.ssh/known_hosts
+  - chmod 700 ~/.ssh
+
+  - apk add --update ansible ansible-lint
+
+# Scripts for allowing the build of php/yii2 projects
+# that require composer for installing dependencies.
+.php-script: &php-script
+  - apk add --update php7 php7-phar php7-json php7-iconv php7-openssl
+  - curl --show-error --silent https://getcomposer.org/installer | php
+
+# Script for allowing the connection to a remote server for completing a deployment.
+.remote-server-connection: &remote-server-connection
+  # Configure .ssh folder
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+
+  # The USER_DEPLOY_SSH_KEY contains the private key granting access to the deployment server
+  - echo "$USER_DEPLOY_SSH_KEY" > ~/.ssh/id_rsa
+  - chmod 400  ~/.ssh/id_rsa
+  - export ANSIBLE_HOST_KEY_CHECKING=False
+
+
+#
+# Stages to run.
+#
+
+stages:
+  - build
+  - test
+  - package
+
+
+#
+# Stages for production.
+#
+
+
+unit:production:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - cp -r test src/
+    - cp docker-support/run_tests.sh src/
+    - cd src
+    - ./run_tests.sh
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  needs: []
+  only:
+    - tags
+
+
+coverage:production:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: true
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install coverage pytest-cov
+    - cp -r test src/
+    - cp docker-support/run_test_coverage.sh src/
+    - cp docker-support/.coveragerc src/
+    - cd src
+    - PYTHONPATH=. ./run_test_coverage.sh test .
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  artifacts:
+    when: always
+    reports:
+      junit: src/report.xml
+  needs: []
+  only:
+    - tags
+
+
+package:pip-library:
+  image: public.registry.u-hopper.com/python:3.8
+  stage: package
+  needs: 
+    - unit:production
+  script:
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://lab.u-hopper.com/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+  only:
+    - tags
+
+
+#
+# Stages for staging.
+#
+
+
+coverage:staging:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: true
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install coverage pytest-cov
+    - cp -r test src/
+    - cp docker-support/run_test_coverage.sh src/
+    - cp docker-support/.coveragerc src/
+    - cd src
+    - PYTHONPATH=. ./run_test_coverage.sh test .
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  artifacts:
+    when: always
+    reports:
+      junit: src/report.xml
+  needs: []
+  only:
+    - develop
+
+
+unit:staging:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - cp -r test src/
+    - cp docker-support/run_tests.sh src/
+    - cd src
+    - ./run_tests.sh
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  needs: []
+  only:
+    - develop
+
+
+#
+# Stages for mr.
+#
+
+
+unit:mr:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - cp -r test src/
+    - cp docker-support/run_tests.sh src/
+    - cd src
+    - ./run_tests.sh
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  needs: []
+  only:
+    - merge_requests
+
+
+coverage:mr:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: true
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install coverage pytest-cov
+    - cp -r test src/
+    - cp docker-support/run_test_coverage.sh src/
+    - cp docker-support/.coveragerc src/
+    - cd src
+    - PYTHONPATH=. ./run_test_coverage.sh test .
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  artifacts:
+    when: always
+    reports:
+      junit: src/report.xml
+  needs: []
+  only:
+    - merge_requests
+
