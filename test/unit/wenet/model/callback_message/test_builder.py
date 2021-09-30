@@ -91,6 +91,32 @@ class TestMessageBuilder(TestCase):
         self.assertEqual(issuer, message.issuer)
         self.assertEqual(content, message.content)
 
+    def test_new_incentive_message(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        issuer = str(uuid4())
+        content = str(uuid4())
+        start_message = {
+            "appId": app_id,
+            "receiverId": receiver_id,
+            "label": 'INCENTIVE',
+            "attributes": {
+                "AppID": app_id,
+                "UserId": receiver_id,
+                "IncentiveType": "Message",
+                "Issuer": issuer,
+                "Message": {
+                    "content": content
+                }
+            }
+        }
+        message = MessageBuilder.build(start_message)
+        self.assertIsInstance(message, IncentiveMessage)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertEqual(IncentiveMessage.LABEL, message.label)
+        self.assertEqual(issuer, message.issuer)
+        self.assertEqual(content, message.content)
+
     def test_incentive_badge(self):
         app_id = str(uuid4())
         receiver_id = str(uuid4())
@@ -101,6 +127,41 @@ class TestMessageBuilder(TestCase):
         criteria = str(uuid4())
         start_message = IncentiveBadge(app_id, receiver_id, issuer, badge_class, image_url, criteria, badge_message, {})
         message = MessageBuilder.build(start_message.to_repr())
+        self.assertIsInstance(message, IncentiveBadge)
+        self.assertEqual(receiver_id, message.receiver_id)
+        self.assertEqual(IncentiveBadge.LABEL, message.label)
+        self.assertEqual(issuer, message.issuer)
+        self.assertEqual(image_url, message.image_url)
+        self.assertEqual(badge_class, message.badge_class)
+        self.assertEqual(badge_message, message.message)
+        self.assertEqual(criteria, message.criteria)
+
+    def test_new_incentive_badge(self):
+        app_id = str(uuid4())
+        receiver_id = str(uuid4())
+        issuer = str(uuid4())
+        image_url = str(uuid4())
+        badge_class = str(uuid4())
+        badge_message = str(uuid4())
+        criteria = str(uuid4())
+        start_message = {
+            "appId": app_id,
+            "receiverId": receiver_id,
+            "label": 'INCENTIVE',
+            "attributes": {
+                "AppID": app_id,
+                "UserId": receiver_id,
+                "IncentiveType": "Badge",
+                "Issuer": issuer,
+                "Badge": {
+                    "BadgeClass": badge_class,
+                    "ImgUrl": image_url,
+                    "Criteria": criteria,
+                    "Message": badge_message
+                }
+            }
+        }
+        message = MessageBuilder.build(start_message)
         self.assertIsInstance(message, IncentiveBadge)
         self.assertEqual(receiver_id, message.receiver_id)
         self.assertEqual(IncentiveBadge.LABEL, message.label)

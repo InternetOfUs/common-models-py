@@ -3,7 +3,7 @@ from __future__ import absolute_import, annotations
 from wenet.model.callback_message.event import Event, WeNetAuthenticationEvent
 from wenet.model.callback_message.message import TextualMessage, Message, TaskConcludedNotification, \
     TaskVolunteerNotification, TaskProposalNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, \
-    QuestionToAnswerMessage, AnsweredQuestionMessage
+    QuestionToAnswerMessage, AnsweredQuestionMessage, AnsweredPickedMessage
 
 
 class MessageBuilder:
@@ -34,18 +34,17 @@ class MessageBuilder:
             message = IncentiveBadge.from_repr(raw_message)
         elif message_label == "INCENTIVE":
             if "IncentiveType" in raw_message["attributes"] and raw_message["attributes"]["IncentiveType"] == "Message":
-                message = IncentiveBadge.from_repr(raw_message)
-            elif "IncentiveType" in raw_message["attributes"] and raw_message["attributes"]["IncentiveType"] == "Badge":
                 message = IncentiveMessage.from_repr(raw_message)
+            elif "IncentiveType" in raw_message["attributes"] and raw_message["attributes"]["IncentiveType"] == "Badge":
+                message = IncentiveBadge.from_repr(raw_message)
             else:
-                try:
-                    message = IncentiveMessage.from_repr(raw_message)
-                except Exception:
-                    message = IncentiveBadge.from_repr(raw_message)
+                message = Message.from_repr(raw_message)
         elif message_label == QuestionToAnswerMessage.LABEL:
             message = QuestionToAnswerMessage.from_repr(raw_message)
         elif message_label == AnsweredQuestionMessage.LABEL:
             message = AnsweredQuestionMessage.from_repr(raw_message)
+        elif message_label == AnsweredPickedMessage.LABEL:
+            return AnsweredPickedMessage.from_repr(raw_message)
         else:
             message = Message.from_repr(raw_message)
         return message

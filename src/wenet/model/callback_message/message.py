@@ -47,6 +47,18 @@ class Message:
             return IncentiveMessage.from_repr(raw)
         elif message_type == IncentiveBadge.LABEL:
             return IncentiveBadge.from_repr(raw)
+        elif message_type == "INCENTIVE":
+            if "IncentiveType" in raw["attributes"] and raw["attributes"]["IncentiveType"] == "Message":
+                return IncentiveMessage.from_repr(raw)
+            elif "IncentiveType" in raw["attributes"] and raw["attributes"]["IncentiveType"] == "Badge":
+                return IncentiveBadge.from_repr(raw)
+            else:
+                return Message(
+                    raw["appId"],
+                    raw["receiverId"],
+                    raw["label"],
+                    raw["attributes"]
+                )
         elif message_type == QuestionToAnswerMessage.LABEL:
             return QuestionToAnswerMessage.from_repr(raw)
         elif message_type == AnsweredQuestionMessage.LABEL:
