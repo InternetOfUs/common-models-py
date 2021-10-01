@@ -98,10 +98,10 @@ class TestServiceApiInterface(TestCase):
 
     def test_create_task(self):
         task = Task(None, None, None, "", "", "", None, TaskGoal("", ""))
-        response = MockResponse(None)
+        response = MockResponse(task.to_repr())
         response.status_code = 201
         self.service_api._client.post = Mock(return_value=response)
-        self.assertIsNone(self.service_api.create_task(task))
+        self.assertEqual(task, self.service_api.create_task(task))
 
     def test_create_task_exception(self):
         task = Task(None, None, None, "", "", "", None, TaskGoal("", ""))

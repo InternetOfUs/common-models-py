@@ -7,7 +7,7 @@ from test.unit.wenet.interface.mock.client import MockApikeyClient
 from test.unit.wenet.interface.mock.response import MockResponse
 from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
 from wenet.interface.profile_manager import ProfileManagerInterface
-from wenet.model.user.profile import WeNetUserProfile, UserIdentifiersPage, WeNetUserProfilesPage
+from wenet.model.user.profile import WeNetUserProfile, UserIdentifiersPage, WeNetUserProfilesPage, PatchWeNetUserProfile
 
 
 class TestProfileManagerInterface(TestCase):
@@ -45,10 +45,10 @@ class TestProfileManagerInterface(TestCase):
 
     def test_update_user_profile(self):
         user_profile = WeNetUserProfile.empty("user_id")
-        response = MockResponse(None)
+        response = MockResponse(user_profile.to_repr())
         response.status_code = 200
         self.profile_manager._client.put = Mock(return_value=response)
-        self.assertIsNone(self.profile_manager.update_user_profile(user_profile))
+        self.assertEqual(user_profile, self.profile_manager.update_user_profile(user_profile))
 
     def test_update_user_profile_exception(self):
         user_profile = WeNetUserProfile.empty("user_id")
@@ -65,6 +65,29 @@ class TestProfileManagerInterface(TestCase):
         self.profile_manager._client.put = Mock(return_value=response)
         with self.assertRaises(AuthenticationException):
             self.profile_manager.update_user_profile(user_profile)
+
+    def test_patch_user_profile(self):
+        user_profile = PatchWeNetUserProfile("user_id")
+        response = MockResponse(WeNetUserProfile.empty("user_id").to_repr())
+        response.status_code = 200
+        self.profile_manager._client.patch = Mock(return_value=response)
+        self.assertEqual(WeNetUserProfile.empty("user_id"), self.profile_manager.patch_user_profile(user_profile))
+
+    def test_patch_user_profile_exception(self):
+        user_profile = PatchWeNetUserProfile("user_id")
+        response = MockResponse(None)
+        response.status_code = 400
+        self.profile_manager._client.patch = Mock(return_value=response)
+        with self.assertRaises(Exception):
+            self.profile_manager.patch_user_profile(user_profile)
+
+    def test_patch_user_profile_unauthorized(self):
+        user_profile = PatchWeNetUserProfile("user_id")
+        response = MockResponse(None)
+        response.status_code = 401
+        self.profile_manager._client.patch = Mock(return_value=response)
+        with self.assertRaises(AuthenticationException):
+            self.profile_manager.patch_user_profile(user_profile)
 
     def test_create_empty_user_profile(self):
         response = MockResponse(None)
