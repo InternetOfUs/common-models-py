@@ -82,7 +82,7 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def create_task(self, task: Task, headers: Optional[dict] = None) -> None:
+    def create_task(self, task: Task, headers: Optional[dict] = None) -> Task:
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -92,11 +92,12 @@ class ServiceApiInterface(ComponentInterface):
         task_repr.pop("id", None)
         response = self._client.post(f"{self._base_url}{self.TASK_ENDPOINT}", body=task_repr, headers=headers)
 
-        if response.status_code not in [200, 201]:
-            if response.status_code in [401, 403]:
-                raise AuthenticationException("service api", response.status_code, response.text)
-            else:
-                raise CreationError(response.status_code, response.text)
+        if response.status_code in [200, 201]:
+            return Task.from_repr(response.json())
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        else:
+            raise CreationError(response.status_code, response.text)
 
     def get_task(self, task_id: str, headers: Optional[dict] = None) -> Task:
         if headers is not None:

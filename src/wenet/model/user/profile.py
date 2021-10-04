@@ -459,6 +459,62 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         )
 
 
+class PatchWeNetUserProfile(WeNetUserProfile):
+
+    def __init__(self,
+                 profile_id: str,
+                 name: Optional[UserName] = None,
+                 date_of_birth: Optional[Date] = None,
+                 gender: Optional[Gender] = None,
+                 email: Optional[str] = None,
+                 phone_number: Optional[str] = None,
+                 locale: Optional[str] = None,
+                 avatar: Optional[str] = None,
+                 nationality: Optional[str] = None,
+                 occupation: Optional[str] = None,
+                 creation_ts: Optional[Number] = None,
+                 last_update_ts: Optional[Number] = None,
+                 norms: Optional[List[Norm]] = None,
+                 planned_activities: Optional[list] = None,
+                 relevant_locations: Optional[list] = None,
+                 relationships: Optional[list] = None,
+                 personal_behaviours: Optional[list] = None,
+                 materials: Optional[list] = None,
+                 competences: Optional[list] = None,
+                 meanings: Optional[list] = None
+                 ):
+
+        super().__init__(
+            name=name,
+            date_of_birth=date_of_birth,
+            gender=gender,
+            email=email,
+            phone_number=phone_number,
+            locale=locale,
+            avatar=avatar,
+            nationality=nationality,
+            occupation=occupation,
+            creation_ts=creation_ts,
+            last_update_ts=last_update_ts,
+            profile_id=profile_id,
+            norms=norms,
+            planned_activities=planned_activities,
+            relevant_locations=relevant_locations,
+            relationships=relationships,
+            personal_behaviours=personal_behaviours,
+            materials=materials,
+            competences=competences,
+            meanings=meanings
+        )
+
+    def to_patch(self) -> dict:
+        """
+        The keys with values set to None will not be present in the representation for the patch method
+        """
+        base_repr = super().to_repr()
+        return {key: base_repr[key] for key in base_repr if base_repr[key] is not None}
+
+
 class UserName:
 
     class ScopeMappings(AbstractScopeMappings):

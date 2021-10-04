@@ -9,6 +9,9 @@
 * Fixed return value of the update and create methods of the TaskManagerInterface
 * Fixed service APIs methods for getting all tasks of an application and for an user
 * Adjusted incentive badge and messages parser in order to align to unrequested breaking changes applied in the badge message content
+* Defined patch method in the clients and added method in the profile manager interface to patch the profile
+* Returned the updated profile in the update user profile method of the profile manager interface
+* Returned the created task in the create task method of the service api interface
 
 ### 2.0.0
 
