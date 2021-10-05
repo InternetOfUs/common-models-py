@@ -12,6 +12,12 @@
 * Defined patch method in the clients and added method in the profile manager interface to patch the profile
 * Returned the updated profile in the update user profile method of the profile manager interface
 * Returned the created task in the create task method of the service api interface
+* Updated the parameters of the get_task_page and get_all_tasks methods in order to match the query params of the task list endpoint of the service APIs:
+  * The deadlineFrom and deadlineTo parameters no longer exists
+  * The startFrom and startFrom will be renamed in creationFrom and creationTo
+  * The endFrom and endTo parameter will be renamed in closeFrom and closeTo
+  * The updateFrom and updateTo parameter are missing
+  * The order parameter is missing
 
 ### 2.0.0
 

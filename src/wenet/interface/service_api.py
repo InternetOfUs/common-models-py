@@ -213,13 +213,14 @@ class ServiceApiInterface(ComponentInterface):
                       task_type_id: Optional[str] = None,
                       goal_name: Optional[str] = None,
                       goal_description: Optional[str] = None,
-                      start_from: Optional[datetime] = None,
-                      start_to: Optional[datetime] = None,
-                      end_from: Optional[datetime] = None,
-                      end_to: Optional[datetime] = None,
+                      creation_from: Optional[datetime] = None,
+                      creation_to: Optional[datetime] = None,
+                      update_from: Optional[datetime] = None,
+                      update_to: Optional[datetime] = None,
                       has_close_ts: Optional[bool] = None,
-                      deadline_from: Optional[datetime] = None,
-                      deadline_to: Optional[datetime] = None,
+                      closed_from: Optional[datetime] = None,
+                      closed_to: Optional[datetime] = None,
+                      order: Optional[str] = None,
                       offset: int = 0,
                       headers: Optional[dict] = None
                       ) -> List[Task]:
@@ -232,13 +233,14 @@ class ServiceApiInterface(ComponentInterface):
             task_type_id: a task type identifier to be equals on the tasks to return
             goal_name: a goal name to be equals on the tasks to return
             goal_description: a goal description to be equals on the tasks to return
-            start_from: the minimum start date time of the task
-            start_to: the maximum start date time of the task
-            end_from: the minimum end date time of the task
-            end_to: the maximum end date time of the task
+            creation_from: the minimum creation date time of the tasks to return
+            creation_to: the maximum creation date time of the tasks to return
+            update_from: the minimum update date time of the tasks to return
+            update_to: the maximum update date time of the tasks to return
             has_close_ts: get the closed or open tasks
-            deadline_from: the minimum deadline date time of the task
-            deadline_to: the maximum deadline date time of the task
+            closed_from: the minimum close date time of the task
+            closed_to: the maximum close date time of the task
+            order: the order in witch the tasks have to be returned. For each field it has be separated by a ',' and each field can start with '+' (or without it) to order on ascending order, or with the prefix '-' to do on descendant order
             offset: The index of the first task to return. Default value is set to 0
             headers: additional headers
 
@@ -259,13 +261,14 @@ class ServiceApiInterface(ComponentInterface):
                 task_type_id=task_type_id,
                 goal_name=goal_name,
                 goal_description=goal_description,
-                start_from=start_from,
-                start_to=start_to,
-                end_from=end_from,
-                end_to=end_to,
+                creation_from=creation_from,
+                creation_to=creation_to,
+                update_from=update_from,
+                update_to=update_to,
                 has_close_ts=has_close_ts,
-                deadline_from=deadline_from,
-                deadline_to=deadline_to,
+                closed_from=closed_from,
+                closed_to=closed_to,
+                order=order,
                 offset=offset,
                 limit=limit,
                 headers=headers
@@ -283,15 +286,16 @@ class ServiceApiInterface(ComponentInterface):
                       task_type_id: Optional[str] = None,
                       goal_name: Optional[str] = None,
                       goal_description: Optional[str] = None,
-                      start_from: Optional[datetime] = None,
-                      start_to: Optional[datetime] = None,
-                      end_from: Optional[datetime] = None,
-                      end_to: Optional[datetime] = None,
+                      creation_from: Optional[datetime] = None,
+                      creation_to: Optional[datetime] = None,
+                      update_from: Optional[datetime] = None,
+                      update_to: Optional[datetime] = None,
                       has_close_ts: Optional[bool] = None,
-                      deadline_from: Optional[datetime] = None,
-                      deadline_to: Optional[datetime] = None,
+                      closed_from: Optional[datetime] = None,
+                      closed_to: Optional[datetime] = None,
+                      order: Optional[str] = None,
                       offset: int = 0,
-                      limit: Optional[int] = 100,
+                      limit: int = 100,
                       headers: Optional[dict] = None
                       ) -> TaskPage:
         """
@@ -303,15 +307,16 @@ class ServiceApiInterface(ComponentInterface):
             task_type_id: a task type identifier to be equals on the tasks to return
             goal_name: a goal name to be equals on the tasks to return
             goal_description: a goal description to be equals on the tasks to return
-            start_from: the minimum start date time of the task
-            start_to: the maximum start date time of the task
-            end_from: the minimum end date time of the task
-            end_to: the maximum end date time of the task
+            creation_from: the minimum creation date time of the tasks to return
+            creation_to: the maximum creation date time of the tasks to return
+            update_from: the minimum update date time of the tasks to return
+            update_to: the maximum update date time of the tasks to return
             has_close_ts: get the closed or open tasks
-            deadline_from: the minimum deadline date time of the task
-            deadline_to: the maximum deadline date time of the task
+            closed_from: the minimum close date time of the task
+            closed_to: the maximum close date time of the task
+            order: the order in witch the tasks have to be returned. For each field it has be separated by a ',' and each field can start with '+' (or without it) to order on ascending order, or with the prefix '-' to do on descendant order
             offset: The index of the first task to return. Default value is set to 0
-            limit: the number maximum of tasks to return. Default value is set to 100. If set to None it will return all the tasks
+            limit: the number maximum of tasks to return. Default value is set to 100
             headers: additional headers
 
         Returns:
@@ -332,13 +337,14 @@ class ServiceApiInterface(ComponentInterface):
             "taskTypeId": task_type_id,
             "goalName": goal_name,
             "goalDescription": goal_description,
-            "startFrom": int(start_from.timestamp()) if start_from is not None else None,
-            "startTo": int(start_to.timestamp()) if start_to is not None else None,
-            "endFrom": int(end_from.timestamp()) if end_from is not None else None,
-            "endTo": int(end_to.timestamp()) if end_to is not None else None,
+            "creationFrom": int(creation_from.timestamp()) if creation_from is not None else None,
+            "creationTo": int(creation_to.timestamp()) if creation_to is not None else None,
+            "updateFrom": int(update_from.timestamp()) if update_from is not None else None,
+            "updateTo": int(update_to.timestamp()) if update_to is not None else None,
             "hasCloseTs": has_close_ts,
-            "deadlineFrom": int(deadline_from.timestamp()) if deadline_from is not None else None,
-            "deadlineTo": int(deadline_to.timestamp()) if deadline_to is not None else None,
+            "closeFrom": int(closed_from.timestamp()) if closed_from is not None else None,
+            "closeTo": int(closed_to.timestamp()) if closed_to is not None else None,
+            "order": order,
             "offset": offset,
             "limit": limit
         }
