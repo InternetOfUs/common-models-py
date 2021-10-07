@@ -18,6 +18,7 @@
   * The endFrom and endTo parameter will be renamed in closeFrom and closeTo
   * The updateFrom and updateTo parameter are missing
   * The order parameter is missing
+* Stop using the older Norm model in Task and WeNetUserProfile models
 
 ### 2.0.0
 
