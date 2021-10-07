@@ -2,7 +2,6 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.model.norm import NormOperator, Norm
 from wenet.model.task.task import Task, TaskGoal, TaskPage
 from wenet.model.task.transaction import TaskTransaction
 
@@ -21,15 +20,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -56,15 +47,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -91,15 +74,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -118,15 +93,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -145,15 +112,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -172,15 +131,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -199,15 +150,7 @@ class TestTask(TestCase):
                 name="goal1",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -226,15 +169,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -254,13 +189,12 @@ class TestTask(TestCase):
                 description="description"
             ),
             norms=[
-                Norm(
-                    norm_id="norm-id1",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
+                {
+                    "description": "Notify to all the participants that the task is closed.",
+                    "whenever": "is_received_do_transaction('close',Reason) and not(is_task_closed()) and get_profile_id(Me) and get_task_requester_id(RequesterId) and =(Me,RequesterId) and get_participants(Participants)",
+                    "thenceforth": "add_message_transaction() and close_task() and send_messages(Participants,'close',Reason)",
+                    "ontology": "get_participants(P) :- get_task_state_attribute(UserIds,'participants',[]), get_profile_id(Me), wenet_remove(P,Me,UserIds)."
+                }
             ],
             attributes={
                 "key": "value"
@@ -280,15 +214,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={},
             close_ts=1577833300,
             transactions=[],
@@ -305,15 +231,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key1": "value"
             },
@@ -332,15 +250,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -360,15 +270,7 @@ class TestTask(TestCase):
                 name="goal",
                 description="description"
             ),
-            norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            norms=[],
             attributes={
                 "key": "value"
             },
@@ -472,15 +374,7 @@ class TestTaskPage(TestCase):
                         name="goal",
                         description="description"
                     ),
-                    norms=[
-                        Norm(
-                            norm_id="norm-id",
-                            attribute="attribute",
-                            operator=NormOperator.EQUALS,
-                            comparison=True,
-                            negation=False
-                        )
-                    ],
+                    norms=[],
                     attributes={
                         "key": "value"
                     },
@@ -499,15 +393,7 @@ class TestTaskPage(TestCase):
                         name="goal",
                         description="description"
                     ),
-                    norms=[
-                        Norm(
-                            norm_id="norm-id",
-                            attribute="attribute",
-                            operator=NormOperator.EQUALS,
-                            comparison=True,
-                            negation=False
-                        )
-                    ],
+                    norms=[],
                     attributes={
                         "key": "value"
                     },

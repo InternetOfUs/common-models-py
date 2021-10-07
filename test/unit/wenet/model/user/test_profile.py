@@ -4,7 +4,6 @@ from unittest import TestCase
 
 from wenet.model.scope import Scope
 from wenet.model.user.common import Date, Gender
-from wenet.model.norm import Norm, NormOperator
 from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
 
 
@@ -115,15 +114,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
@@ -245,15 +237,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
@@ -293,15 +278,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
@@ -354,15 +332,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
