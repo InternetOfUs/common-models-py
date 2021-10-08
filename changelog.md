@@ -19,6 +19,7 @@
   * The updateFrom and updateTo parameter are missing
   * The order parameter is missing
 * Stop using the older Norm model in Task and WeNetUserProfile models
+* Added the methods in the ServiceApiInterface for updating the extended user profile
 
 ### 2.0.0
 

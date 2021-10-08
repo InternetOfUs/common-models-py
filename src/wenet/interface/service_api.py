@@ -212,6 +212,244 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
+    def get_user_materials(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/materials", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_materials(self, wenet_user_id: str, materials: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/materials", materials, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_meanings(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/meanings", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_meanings(self, wenet_user_id: str, meanings: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/meanings", meanings, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_norms(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/norms", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_norms(self, wenet_user_id: str, norms: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/norms", norms, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_personal_behaviors(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/personalBehaviors", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_personal_behaviors(self, wenet_user_id: str, personal_behaviors: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/personalBehaviors", personal_behaviors, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_planned_activities(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/plannedActivities", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_planned_activities(self, wenet_user_id: str, planned_activities: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/plannedActivities", planned_activities, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_relationships(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_relationships(self, wenet_user_id: str, relationships: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", relationships, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def get_user_relevant_locations(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relevantLocations", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_relevant_locations(self, wenet_user_id: str, relevant_locations: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relevantLocations", relevant_locations, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
     def get_opened_tasks_of_user(self, wenet_user_id: str, app_id: str, headers: Optional[dict] = None) -> List[Task]:
         if headers is not None:
             headers.update(self._base_headers)
