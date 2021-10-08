@@ -115,7 +115,14 @@ class TestUserProfile(TestCase):
             creation_ts=1579536160,
             last_update_ts=1579536160,
             profile_id="profile_id",
-            norms=[],
+            norms=[
+                {
+                    "description": "Notify to all the participants that the task is closed.",
+                    "whenever": "is_received_do_transaction('close',Reason) and not(is_task_closed()) and get_profile_id(Me) and get_task_requester_id(RequesterId) and =(Me,RequesterId) and get_participants(Participants)",
+                    "thenceforth": "add_message_transaction() and close_task() and send_messages(Participants,'close',Reason)",
+                    "ontology": "get_participants(P) :- get_task_state_attribute(UserIds,'participants',[]), get_profile_id(Me), wenet_remove(P,Me,UserIds)."
+                }
+            ],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
