@@ -178,6 +178,40 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
+    def get_user_competences(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/competences", headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def update_user_competences(self, wenet_user_id: str, competences: list, headers: Optional[dict] = None) -> list:
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/competences", competences, headers=headers)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("service api", response.status_code, response.text)
+        elif response.status_code == 404:
+            raise NotFound("User", wenet_user_id, response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
     def get_opened_tasks_of_user(self, wenet_user_id: str, app_id: str, headers: Optional[dict] = None) -> List[Task]:
         if headers is not None:
             headers.update(self._base_headers)
