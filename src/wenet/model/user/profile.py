@@ -6,7 +6,6 @@ from typing import List, Optional, Dict
 
 from wenet.model.scope import AbstractScopeMappings, Scope
 from wenet.model.user.common import Gender, Date
-from wenet.model.norm import Norm
 from babel.core import Locale
 
 
@@ -250,7 +249,7 @@ class WeNetUserProfile(CoreWeNetUserProfile):
                  creation_ts: Optional[Number],
                  last_update_ts: Optional[Number],
                  profile_id: Optional[str],
-                 norms: Optional[List[Norm]],
+                 norms: Optional[list],
                  planned_activities: Optional[list],
                  relevant_locations: Optional[list],
                  relationships: Optional[list],
@@ -286,10 +285,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         if norms:
             if not isinstance(norms, list):
                 raise TypeError("Norms should be a list of norms")
-            else:
-                for norm in norms:
-                    if not isinstance(norm, Norm):
-                        raise TypeError("Norms should be a list of norms")
         else:
             self.norms = []
 
@@ -338,7 +333,7 @@ class WeNetUserProfile(CoreWeNetUserProfile):
     def to_repr(self) -> dict:
         base_repr = super().to_repr()
         base_repr.update({
-            "norms": list(x.to_repr() for x in self.norms),
+            "norms": self.norms,
             "plannedActivities": self.planned_activities,
             "relevantLocations": self.relevant_locations,
             "relationships": self.relationships,
@@ -369,7 +364,7 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             creation_ts=raw_data.get("_creationTs", None),
             last_update_ts=raw_data.get("_lastUpdateTs", None),
             profile_id=profile_id,
-            norms=list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
+            norms=raw_data["norms"] if raw_data.get("norms", None) else None,
             planned_activities=raw_data.get("plannedActivities", None),
             relevant_locations=raw_data.get("relevantLocations", None),
             relationships=raw_data.get("relationships", None),
@@ -474,7 +469,7 @@ class PatchWeNetUserProfile(WeNetUserProfile):
                  occupation: Optional[str] = None,
                  creation_ts: Optional[Number] = None,
                  last_update_ts: Optional[Number] = None,
-                 norms: Optional[List[Norm]] = None,
+                 norms: Optional[list] = None,
                  planned_activities: Optional[list] = None,
                  relevant_locations: Optional[list] = None,
                  relationships: Optional[list] = None,
