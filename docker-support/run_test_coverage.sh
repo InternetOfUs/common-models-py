@@ -15,4 +15,5 @@ fi
 echo "Running coverage for for folder [${COV_DIR_PATH}] and tests in [${TEST_DIR_PATH}]."
 
 pytest --cov=${COV_DIR_PATH} --cov-config=.coveragerc ${TEST_DIR_PATH} --junitxml=report.xml
+coverage xml
 

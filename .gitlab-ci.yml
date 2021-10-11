@@ -150,6 +150,7 @@ coverage:production:
     when: always
     reports:
       junit: src/report.xml
+      cobertura: src/coverage.xml
   needs: []
   only:
     - tags
@@ -199,6 +200,7 @@ coverage:staging:
     when: always
     reports:
       junit: src/report.xml
+      cobertura: src/coverage.xml
   needs: []
   only:
     - develop
@@ -283,6 +285,7 @@ coverage:mr:
     when: always
     reports:
       junit: src/report.xml
+      cobertura: src/coverage.xml
   needs: []
   only:
     - merge_requests
