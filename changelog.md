@@ -1,8 +1,8 @@
 # Wenet common models - Changelog
 
-## Version 2.*
+## Verion 3.*
 
-### NEXT
+### 3.0.0
 
 * Included optional time filters for getting the users of an app in the hub interface
 * Fixed put request of the outh2 client
@@ -20,6 +20,9 @@
   * The order parameter is missing
 * Stop using the older Norm model in Task and WeNetUserProfile models
 * Added the methods in the ServiceApiInterface for updating the extended user profile
+
+
+## Version 2.*
 
 ### 2.0.0
 
