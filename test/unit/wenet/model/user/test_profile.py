@@ -4,8 +4,8 @@ from unittest import TestCase
 
 from wenet.model.scope import Scope
 from wenet.model.user.common import Date, Gender
-from wenet.model.norm import Norm, NormOperator
-from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
+from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage, \
+    PatchWeNetUserProfile
 
 
 class TestUserName(TestCase):
@@ -115,14 +115,14 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
+            profile_id="profile_id",
+            norms=[
+                {
+                    "description": "Notify to all the participants that the task is closed.",
+                    "whenever": "is_received_do_transaction('close',Reason) and not(is_task_closed()) and get_profile_id(Me) and get_task_requester_id(RequesterId) and =(Me,RequesterId) and get_participants(Participants)",
+                    "thenceforth": "add_message_transaction() and close_task() and send_messages(Participants,'close',Reason)",
+                    "ontology": "get_participants(P) :- get_task_state_attribute(UserIds,'participants',[]), get_profile_id(Me), wenet_remove(P,Me,UserIds)."
+                }
             ],
             planned_activities=[],
             relevant_locations=[],
@@ -245,15 +245,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
@@ -293,15 +286,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
@@ -354,15 +340,8 @@ class TestUserProfile(TestCase):
             occupation="occupation",
             creation_ts=1579536160,
             last_update_ts=1579536160,
-            profile_id="profile_id", norms=[
-                Norm(
-                    norm_id="norm-id",
-                    attribute="attribute",
-                    operator=NormOperator.EQUALS,
-                    comparison=True,
-                    negation=False
-                )
-            ],
+            profile_id="profile_id",
+            norms=[],
             planned_activities=[],
             relevant_locations=[],
             relationships=[],
@@ -390,6 +369,28 @@ class TestUserProfile(TestCase):
         self.assertIsNone(from_repr.locale)
         self.assertIsNone(from_repr.nationality)
         self.assertIsNone(from_repr.date_of_birth)
+
+
+class TestPatchWeNetUserProfile(TestCase):
+
+    def test_patch(self):
+        user_profile = PatchWeNetUserProfile(profile_id="profile_id", competences=[
+            {
+                "name": "language_Italian_C1",
+                "ontology": "esco",
+                "level": 0.8
+            }
+        ])
+        user_profile_patch = user_profile.to_patch()
+        self.assertIn("id", user_profile_patch)
+        self.assertIn("competences", user_profile_patch)
+        self.assertNotIn("norms", user_profile_patch)
+        self.assertNotIn("plannedActivities", user_profile_patch)
+        self.assertNotIn("relevantLocations", user_profile_patch)
+        self.assertNotIn("relationships", user_profile_patch)
+        self.assertNotIn("personalBehaviors", user_profile_patch)
+        self.assertNotIn("materials", user_profile_patch)
+        self.assertNotIn("meanings", user_profile_patch)
 
 
 class TestWeNetUserProfilesPage(TestCase):

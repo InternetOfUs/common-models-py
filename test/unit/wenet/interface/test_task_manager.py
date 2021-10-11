@@ -126,10 +126,13 @@ class TestTaskManagerInterface(TestCase):
 
     def test_create_task(self):
         task = Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))
-        response = MockResponse(None)
+        response = MockResponse(task.to_repr())
         response.status_code = 200
         self.task_manager._client.post = Mock(return_value=response)
-        self.assertIsNone(self.task_manager.create_task(task))
+
+        result = self.task_manager.create_task(task)
+        self.assertIsInstance(result, Task)
+        self.assertEqual(task, result)
 
     def test_create_task_exception(self):
         task = Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))
@@ -149,10 +152,12 @@ class TestTaskManagerInterface(TestCase):
 
     def test_update_task(self):
         task = Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))
-        response = MockResponse(None)
+        response = MockResponse(task.to_repr())
         response.status_code = 200
         self.task_manager._client.put = Mock(return_value=response)
-        self.assertIsNone(self.task_manager.update_task(task))
+        result = self.task_manager.update_task(task)
+        self.assertIsInstance(result, Task)
+        self.assertEqual(task, result)
 
     def test_update_task_exception(self):
         task = Task("task_id", None, None, "", "", "", None, TaskGoal("", ""))

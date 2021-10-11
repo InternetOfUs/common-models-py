@@ -419,7 +419,7 @@ class TaskManagerInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def create_task(self, task: Task, headers: Optional[dict] = None) -> None:
+    def create_task(self, task: Task, headers: Optional[dict] = None) -> Task:
         """
         Create a new task
 
@@ -440,13 +440,15 @@ class TaskManagerInterface(ComponentInterface):
         task_repr.pop("id", None)
         response = self._client.post(f"{self._base_url}/tasks", body=task_repr, headers=headers)
 
-        if response.status_code not in [200, 201, 202]:
+        if response.status_code in [200, 201, 202]:
+            return Task.from_repr(response.json())
+        else:
             if response.status_code in [401, 403]:
                 raise AuthenticationException("task manager", response.status_code, response.text)
             else:
                 raise CreationError(response.status_code, response.text)
 
-    def update_task(self, task: Task, headers: Optional[dict] = None) -> None:
+    def update_task(self, task: Task, headers: Optional[dict] = None) -> Task:
         """
         Update a task
 
@@ -465,7 +467,9 @@ class TaskManagerInterface(ComponentInterface):
 
         response = self._client.put(f"{self._base_url}/tasks/{task.task_id}", body=task.prepare_task(), headers=headers)
 
-        if response.status_code not in [200, 201, 202]:
+        if response.status_code in [200, 201, 202]:
+            return Task.from_repr(response.json())
+        else:
             if response.status_code in [401, 403]:
                 raise AuthenticationException("task manager", response.status_code, response.text)
             elif response.status_code == 404:

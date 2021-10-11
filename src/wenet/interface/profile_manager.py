@@ -6,7 +6,7 @@ from typing import List, Optional
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
 from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
-from wenet.model.user.profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
+from wenet.model.user.profile import WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage, PatchWeNetUserProfile
 
 
 logger = logging.getLogger("wenet.interface.profile_manager")
@@ -35,7 +35,7 @@ class ProfileManagerInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_profile(self, profile: WeNetUserProfile, headers: Optional[dict] = None) -> None:
+    def update_user_profile(self, profile: WeNetUserProfile, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -47,11 +47,30 @@ class ProfileManagerInterface(ComponentInterface):
 
         response = self._client.put(f"{self._base_url}/profiles/{profile.profile_id}", body=profile_repr, headers=headers)
 
-        if response.status_code not in [200, 202]:
-            if response.status_code in [401, 403]:
-                raise AuthenticationException("profile manager", response.status_code, response.text)
-            else:
-                raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+        if response.status_code in [200, 202]:
+            return WeNetUserProfile.from_repr(response.json())
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("profile manager", response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+
+    def patch_user_profile(self, profile_patch: PatchWeNetUserProfile, headers: Optional[dict] = None) -> WeNetUserProfile:
+        """
+        Only the fields with value different from None in the profile_patch will be patched
+        """
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.patch(f"{self._base_url}/profiles/{profile_patch.profile_id}", body=profile_patch.to_patch(), headers=headers)
+
+        if response.status_code in [200, 202]:
+            return WeNetUserProfile.from_repr(response.json())
+        elif response.status_code in [401, 403]:
+            raise AuthenticationException("profile manager", response.status_code, response.text)
+        else:
+            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
     def create_empty_user_profile(self, user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:

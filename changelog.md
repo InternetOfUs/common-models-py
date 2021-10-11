@@ -1,5 +1,27 @@
 # Wenet common models - Changelog
 
+## Verion 3.*
+
+### 3.0.0
+
+* Included optional time filters for getting the users of an app in the hub interface
+* Fixed put request of the outh2 client
+* Fixed return value of the update and create methods of the TaskManagerInterface
+* Fixed service APIs methods for getting all tasks of an application and for an user
+* Adjusted incentive badge and messages parser in order to align to unrequested breaking changes applied in the badge message content
+* Defined patch method in the clients and added method in the profile manager interface to patch the profile
+* Returned the updated profile in the update user profile method of the profile manager interface
+* Returned the created task in the create task method of the service api interface
+* Updated the parameters of the get_task_page and get_all_tasks methods in order to match the query params of the task list endpoint of the service APIs:
+  * The deadlineFrom and deadlineTo parameters no longer exists
+  * The startFrom and startFrom will be renamed in creationFrom and creationTo
+  * The endFrom and endTo parameter will be renamed in closeFrom and closeTo
+  * The updateFrom and updateTo parameter are missing
+  * The order parameter is missing
+* Stop using the older Norm model in Task and WeNetUserProfile models
+* Added the methods in the ServiceApiInterface for updating the extended user profile
+
+
 ## Version 2.*
 
 ### 2.0.0

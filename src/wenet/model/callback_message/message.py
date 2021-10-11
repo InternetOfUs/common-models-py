@@ -47,6 +47,18 @@ class Message:
             return IncentiveMessage.from_repr(raw)
         elif message_type == IncentiveBadge.LABEL:
             return IncentiveBadge.from_repr(raw)
+        elif message_type == "INCENTIVE":
+            if "IncentiveType" in raw["attributes"] and raw["attributes"]["IncentiveType"] == "Message":
+                return IncentiveMessage.from_repr(raw)
+            elif "IncentiveType" in raw["attributes"] and raw["attributes"]["IncentiveType"] == "Badge":
+                return IncentiveBadge.from_repr(raw)
+            else:
+                return Message(
+                    raw["appId"],
+                    raw["receiverId"],
+                    raw["label"],
+                    raw["attributes"]
+                )
         elif message_type == QuestionToAnswerMessage.LABEL:
             return QuestionToAnswerMessage.from_repr(raw)
         elif message_type == AnsweredQuestionMessage.LABEL:
@@ -280,8 +292,8 @@ class IncentiveMessage(Message):
         return IncentiveMessage(
             raw["appId"],
             raw["receiverId"],
-            raw["attributes"]["issuer"],
-            raw["attributes"]["content"],
+            raw["attributes"]["issuer"] if "issuer" in raw["attributes"] else raw["attributes"]["Issuer"],
+            raw["attributes"]["content"] if "content" in raw["attributes"] else raw["attributes"]["Message"]["content"],
             raw["attributes"]
         )
 
@@ -328,11 +340,11 @@ class IncentiveBadge(Message):
         return IncentiveBadge(
             raw["appId"],
             raw["receiverId"],
-            raw["attributes"]["issuer"],
-            raw["attributes"]["badgeClass"],
-            raw["attributes"]["imageUrl"],
-            raw["attributes"]["criteria"],
-            raw["attributes"]["message"],
+            raw["attributes"]["issuer"] if "issuer" in raw["attributes"] else raw["attributes"]["Issuer"],
+            raw["attributes"]["badgeClass"] if "badgeClass" in raw["attributes"] else raw["attributes"]["Badge"]["BadgeClass"],
+            raw["attributes"]["imageUrl"] if "imageUrl" in raw["attributes"] else raw["attributes"]["Badge"]["ImgUrl"],
+            raw["attributes"]["criteria"] if "criteria" in raw["attributes"] else raw["attributes"]["Badge"]["Criteria"],
+            raw["attributes"]["message"] if "message" in raw["attributes"] else raw["attributes"]["Badge"]["Message"],
             raw["attributes"]
         )
 

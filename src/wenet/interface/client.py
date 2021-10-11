@@ -32,6 +32,10 @@ class RestClient(ABC):
         pass
 
     @abstractmethod
+    def patch(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
+        pass
+
+    @abstractmethod
     def delete(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
         pass
 
@@ -49,6 +53,9 @@ class NoAuthenticationClient(RestClient):
 
     def put(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
         return requests.put(url, json=body, headers=headers)
+
+    def patch(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
+        return requests.patch(url, json=body, headers=headers)
 
     def delete(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
         return requests.delete(url, params=query_params, headers=headers)
@@ -95,6 +102,14 @@ class ApikeyClient(RestClient):
         headers.update(self.get_authentication())
 
         return requests.put(url, json=body, headers=headers)
+
+    def patch(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
+        if headers is None:
+            headers = {}
+
+        headers.update(self.get_authentication())
+
+        return requests.patch(url, json=body, headers=headers)
 
     def delete(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
         if headers is None:
@@ -273,7 +288,7 @@ class Oauth2Client(RestClient):
 
         def put_request(client: Optional, retry: bool):
             logger.debug(f"Performing put request with token {client.token} {client.refresh_token}")
-            headers.update(client.get(client.token))
+            headers.update(client.get_authentication(client.token))
             response = requests.put(url, json=body, headers=headers)
             if response.status_code in [400, 401, 403]:
                 if retry:
@@ -285,6 +300,25 @@ class Oauth2Client(RestClient):
                 return response
 
         return put_request(self, True)
+
+    def patch(self, url: str, body: Union[dict, list], headers: Optional[dict] = None) -> Response:
+        if headers is None:
+            headers = {}
+
+        def patch_request(client: Optional, retry: bool):
+            logger.debug(f"Performing patch request with token {client.token} {client.refresh_token}")
+            headers.update(client.get_authentication(client.token))
+            response = requests.patch(url, json=body, headers=headers)
+            if response.status_code in [400, 401, 403]:
+                if retry:
+                    self.refresh_access_token()
+                    return patch_request(client, False)
+                else:
+                    return response
+            else:
+                return response
+
+        return patch_request(self, True)
 
     def delete(self, url: str, query_params: Optional[dict] = None, headers: Optional[dict] = None) -> Response:
         if headers is None:

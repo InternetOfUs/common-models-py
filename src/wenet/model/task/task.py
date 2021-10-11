@@ -4,7 +4,6 @@ from enum import Enum
 from numbers import Number
 from typing import Optional, List
 
-from wenet.model.norm import Norm
 from wenet.model.task.transaction import TaskTransaction
 
 
@@ -64,7 +63,7 @@ class Task:
                  app_id: str,
                  community_id: Optional[str],
                  goal: TaskGoal,
-                 norms: Optional[List[Norm]] = None,
+                 norms: Optional[list] = None,
                  attributes: Optional[dict] = None,
                  close_ts: Optional[Number] = None,
                  transactions: Optional[List[TaskTransaction]] = None
@@ -112,10 +111,6 @@ class Task:
         if norms:
             if not isinstance(norms, list):
                 raise ValueError("Norms should be a list of Norm")
-            else:
-                for norm in norms:
-                    if not isinstance(norm, Norm):
-                        raise ValueError("Norms should be a list of Norm")
         else:
             self.norms = []
 
@@ -141,7 +136,7 @@ class Task:
             "requesterId": self.requester_id,
             "appId": self.app_id,
             "goal": self.goal.to_repr(),
-            "norms": list(x.to_repr() for x in self.norms),
+            "norms": self.norms,
             "attributes": self.attributes,
             "closeTs": self.close_ts,
             "communityId": self.community_id,
@@ -163,11 +158,10 @@ class Task:
             raw_data["appId"],
             raw_data.get("communityId", None),
             TaskGoal.from_repr(raw_data["goal"]),
-            list(Norm.from_repr(x) for x in raw_data["norms"]) if raw_data.get("norms", None) else None,
+            raw_data["norms"] if raw_data.get("norms", None) else None,
             raw_data.get("attributes", None),
             raw_data.get("closeTs", None),
-            [TaskTransaction.from_repr(t) for t in raw_data.get("transactions", None)]
-            if raw_data.get("transactions", None) else None
+            [TaskTransaction.from_repr(t) for t in raw_data.get("transactions", None)] if raw_data.get("transactions", None) else None
         )
 
     def prepare_task(self) -> dict:
