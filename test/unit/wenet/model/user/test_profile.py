@@ -4,7 +4,8 @@ from unittest import TestCase
 
 from wenet.model.scope import Scope
 from wenet.model.user.common import Date, Gender
-from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage
+from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage, \
+    PatchWeNetUserProfile
 
 
 class TestUserName(TestCase):
@@ -368,6 +369,28 @@ class TestUserProfile(TestCase):
         self.assertIsNone(from_repr.locale)
         self.assertIsNone(from_repr.nationality)
         self.assertIsNone(from_repr.date_of_birth)
+
+
+class TestPatchWeNetUserProfile(TestCase):
+
+    def test_patch(self):
+        user_profile = PatchWeNetUserProfile(profile_id="profile_id", competences=[
+            {
+                "name": "language_Italian_C1",
+                "ontology": "esco",
+                "level": 0.8
+            }
+        ])
+        user_profile_patch = user_profile.to_patch()
+        self.assertIn("id", user_profile_patch)
+        self.assertIn("competences", user_profile_patch)
+        self.assertNotIn("norms", user_profile_patch)
+        self.assertNotIn("plannedActivities", user_profile_patch)
+        self.assertNotIn("relevantLocations", user_profile_patch)
+        self.assertNotIn("relationships", user_profile_patch)
+        self.assertNotIn("personalBehaviors", user_profile_patch)
+        self.assertNotIn("materials", user_profile_patch)
+        self.assertNotIn("meanings", user_profile_patch)
 
 
 class TestWeNetUserProfilesPage(TestCase):

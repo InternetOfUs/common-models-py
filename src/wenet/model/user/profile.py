@@ -33,7 +33,6 @@ class CoreWeNetUserProfile:
                  locale: Optional[str],
                  avatar: Optional[str],
                  nationality: Optional[str],
-                 #languages: Optional[List[UserLanguage]],
                  occupation: Optional[str],
                  creation_ts: Optional[Number],
                  last_update_ts: Optional[Number],
@@ -47,7 +46,6 @@ class CoreWeNetUserProfile:
         self.locale = locale
         self.avatar = avatar
         self.nationality = nationality
-        # self.languages = languages
         self.occupation = occupation
         self.creation_ts = creation_ts
         self.last_update_ts = last_update_ts
@@ -90,15 +88,6 @@ class CoreWeNetUserProfile:
             if not isinstance(nationality, str):
                 raise TypeError("Nationality should be a string")
 
-        # if languages:
-        #     if not isinstance(languages, list):
-        #         raise TypeError("Languages should be list of UserLanguage")
-        #     else:
-        #         for language in languages:
-        #             if not isinstance(language, UserLanguage):
-        #                 raise TypeError("Languages should be list of UserLanguage")
-        else:
-            self.languages = []
         if occupation:
             if not isinstance(occupation, str):
                 raise TypeError("Occupation should be a string")
@@ -284,7 +273,7 @@ class WeNetUserProfile(CoreWeNetUserProfile):
 
         if norms:
             if not isinstance(norms, list):
-                raise TypeError("Norms should be a list of norms")
+                raise TypeError("Norms should be a list")
         else:
             self.norms = []
 
@@ -399,8 +388,9 @@ class WeNetUserProfile(CoreWeNetUserProfile):
     def __eq__(self, o):
         if not isinstance(o, WeNetUserProfile):
             return False
-        return super().__eq__(o) and self.norms == o.norms and self.planned_activities == o.planned_activities and self.relevant_locations == o.relationships \
-            and self.relationships == o.relationships and self.personal_behaviours == o.personal_behaviours and self.materials == o.materials \
+        return super().__eq__(o) and self.norms == o.norms and self.planned_activities == o.planned_activities \
+            and self.relevant_locations == o.relevant_locations and self.relationships == o.relationships \
+            and self.personal_behaviours == o.personal_behaviours and self.materials == o.materials \
             and self.competences == o.competences and self.meanings == o.meanings
 
     @staticmethod
@@ -454,7 +444,7 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         )
 
 
-class PatchWeNetUserProfile(WeNetUserProfile):
+class PatchWeNetUserProfile(CoreWeNetUserProfile):
 
     def __init__(self,
                  profile_id: str,
@@ -492,21 +482,177 @@ class PatchWeNetUserProfile(WeNetUserProfile):
             creation_ts=creation_ts,
             last_update_ts=last_update_ts,
             profile_id=profile_id,
-            norms=norms,
-            planned_activities=planned_activities,
-            relevant_locations=relevant_locations,
-            relationships=relationships,
-            personal_behaviours=personal_behaviours,
-            materials=materials,
-            competences=competences,
-            meanings=meanings
+        )
+        self.norms = norms
+        self.planned_activities = planned_activities
+        self.relevant_locations = relevant_locations
+        self.relationships = relationships
+        self.personal_behaviours = personal_behaviours
+        self.materials = materials
+        self.competences = competences
+        self.meanings = meanings
+
+        if norms:
+            if not isinstance(norms, list):
+                raise TypeError("Norms should be a list")
+
+        if materials:
+            if not isinstance(materials, list):
+                raise TypeError("Materials should be a list")
+
+        if competences:
+            if not isinstance(competences, list):
+                raise TypeError("Competences should be a list")
+
+        if meanings:
+            if not isinstance(meanings, list):
+                raise TypeError("Meanings should be a list")
+
+        if planned_activities:
+            if not isinstance(planned_activities, list):
+                raise TypeError("PlannedActivities should be a list")
+
+        if relevant_locations:
+            if not isinstance(relevant_locations, list):
+                raise TypeError("RelevantLocations should be a list")
+
+        if relationships:
+            if not isinstance(relationships, list):
+                raise TypeError("Relationship should be a list")
+
+        if personal_behaviours:
+            if not isinstance(personal_behaviours, list):
+                raise TypeError("personalBehaviors should be a list")
+
+    def to_repr(self) -> dict:
+        base_repr = super().to_repr()
+        base_repr.update({
+            "norms": self.norms,
+            "plannedActivities": self.planned_activities,
+            "relevantLocations": self.relevant_locations,
+            "relationships": self.relationships,
+            "personalBehaviors": self.personal_behaviours,
+            "materials": self.materials,
+            "competences": self.competences,
+            "meanings": self.meanings
+        })
+
+        return base_repr
+
+    @staticmethod
+    def from_repr(raw_data: dict, profile_id: Optional[str] = None) -> PatchWeNetUserProfile:
+
+        if profile_id is None:
+            profile_id = raw_data.get("id")
+
+        return PatchWeNetUserProfile(
+            name=UserName.from_repr(raw_data["name"]) if raw_data.get("name") is not None else None,
+            date_of_birth=Date.from_repr(raw_data["dateOfBirth"]) if raw_data.get("dateOfBirth") is not None else None,
+            gender=Gender(raw_data["gender"]) if raw_data.get("gender", None) else None,
+            email=raw_data.get("email", None),
+            phone_number=raw_data.get("phoneNumber", None),
+            locale=raw_data.get("locale", None),
+            avatar=raw_data.get("avatar", None),
+            nationality=raw_data.get("nationality", None),
+            occupation=raw_data.get("occupation", None),
+            creation_ts=raw_data.get("_creationTs", None),
+            last_update_ts=raw_data.get("_lastUpdateTs", None),
+            profile_id=profile_id,
+            norms=raw_data["norms"] if raw_data.get("norms", None) else None,
+            planned_activities=raw_data.get("plannedActivities", None),
+            relevant_locations=raw_data.get("relevantLocations", None),
+            relationships=raw_data.get("relationships", None),
+            personal_behaviours=raw_data.get("personalBehaviors", None),
+            materials=raw_data.get("materials", None),
+            competences=raw_data.get("competences", None),
+            meanings=raw_data.get("meanings", None)
+        )
+
+    def update(self, other: CoreWeNetUserProfile) -> PatchWeNetUserProfile:
+
+        super().update(other)
+
+        if isinstance(other, PatchWeNetUserProfile):
+            self.norms = other.norms
+            self.planned_activities = other.planned_activities
+            self.relevant_locations = other.relevant_locations
+            self.relationships = other.relationships
+            self.personal_behaviours = other.personal_behaviours
+            self.materials = other.materials
+            self.competences = other.competences
+            self.meanings = other.meanings
+
+        return self
+
+    def __repr__(self):
+        return str(self.to_repr())
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __eq__(self, o):
+        if not isinstance(o, PatchWeNetUserProfile):
+            return False
+        return super().__eq__(o) and self.norms == o.norms and self.planned_activities == o.planned_activities \
+            and self.relevant_locations == o.relevant_locations and self.relationships == o.relationships \
+            and self.personal_behaviours == o.personal_behaviours and self.materials == o.materials \
+            and self.competences == o.competences and self.meanings == o.meanings
+
+    @staticmethod
+    def empty(wenet_user_id: str) -> PatchWeNetUserProfile:
+        return PatchWeNetUserProfile(
+            name=UserName.empty(),
+            date_of_birth=Date.empty(),
+            gender=None,
+            email=None,
+            phone_number=None,
+            locale=None,
+            avatar=None,
+            nationality=None,
+            occupation=None,
+            creation_ts=None,
+            last_update_ts=None,
+            profile_id=wenet_user_id,
+            norms=None,
+            planned_activities=None,
+            relevant_locations=None,
+            relationships=None,
+            personal_behaviours=None,
+            materials=None,
+            competences=None,
+            meanings=None
+        )
+
+    @staticmethod
+    def create_from_core_profile(profile: CoreWeNetUserProfile) -> PatchWeNetUserProfile:
+        return PatchWeNetUserProfile(
+            name=profile.name,
+            date_of_birth=profile.date_of_birth,
+            gender=profile.gender,
+            email=profile.email,
+            phone_number=profile.phone_number,
+            locale=profile.locale,
+            avatar=profile.avatar,
+            nationality=profile.nationality,
+            occupation=profile.occupation,
+            creation_ts=profile.creation_ts,
+            last_update_ts=profile.last_update_ts,
+            profile_id=profile.profile_id,
+            norms=None,
+            planned_activities=None,
+            relevant_locations=None,
+            relationships=None,
+            personal_behaviours=None,
+            materials=None,
+            competences=None,
+            meanings=None
         )
 
     def to_patch(self) -> dict:
         """
         The keys with values set to None will not be present in the representation for the patch method
         """
-        base_repr = super().to_repr()
+        base_repr = self.to_repr()
         return {key: base_repr[key] for key in base_repr if base_repr[key] is not None}
 
 
