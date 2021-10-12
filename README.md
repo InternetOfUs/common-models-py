@@ -45,20 +45,18 @@ wenet.service_api.get_all_tasks()
 To create a Wenet collector using an OAuth2 as authorization you can use:
 
 ```python
-from redis import Redis
 from wenet.interface.client import Oauth2Client
 from wenet.interface.wenet import WeNet
-from wenet.storage.cache import RedisCache
+from wenet.storage.cache import InMemoryCache
 
 
 client = Oauth2Client.initialize_with_code(
-    "https://internetofus.u-hopper.com/prod/api/oauth2/token",
-    RedisCache(Redis()),
-    "resource_id",
     "client_id",
     "client_secret",
     "code",
-    "redirect_url"
+    "redirect_url",
+    "resource_id",
+    InMemoryCache()
 )
 
 wenet = WeNet.build(client)

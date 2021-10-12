@@ -2,8 +2,9 @@ from __future__ import absolute_import, annotations
 
 from enum import Enum
 from numbers import Number
-from typing import Optional, List
+from typing import Optional, List, Union
 
+from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.task.transaction import TaskTransaction
 
 
@@ -63,7 +64,7 @@ class Task:
                  app_id: str,
                  community_id: Optional[str],
                  goal: TaskGoal,
-                 norms: Optional[list] = None,
+                 norms: Optional[Union[List[dict], List[ProtocolNorm]]] = None,
                  attributes: Optional[dict] = None,
                  close_ts: Optional[Number] = None,
                  transactions: Optional[List[TaskTransaction]] = None
@@ -128,6 +129,7 @@ class Task:
             self.transactions = []
 
     def to_repr(self) -> dict:
+        raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in self.norms]
         return {
             "id": self.task_id,
             "_creationTs": self.creation_ts,
@@ -136,7 +138,7 @@ class Task:
             "requesterId": self.requester_id,
             "appId": self.app_id,
             "goal": self.goal.to_repr(),
-            "norms": self.norms,
+            "norms": raw_norms,
             "attributes": self.attributes,
             "closeTs": self.close_ts,
             "communityId": self.community_id,

@@ -1,7 +1,10 @@
 from __future__ import absolute_import, annotations
 
+from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock
+
+import pytz
 
 from test.unit.wenet.interface.mock.client import MockOauth2Client
 from test.unit.wenet.interface.mock.response import MockResponse
@@ -10,8 +13,16 @@ from wenet.interface.service_api import ServiceApiInterface
 from wenet.model.app import AppDTO
 from wenet.model.logging_message.content import ActionRequest
 from wenet.model.logging_message.message import RequestMessage
+from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.task.task import Task, TaskGoal, TaskPage
 from wenet.model.task.transaction import TaskTransaction
+from wenet.model.user.competence import Competence
+from wenet.model.user.material import Material
+from wenet.model.user.meaning import Meaning
+from wenet.model.user.personal_behaviors import PersonalBehavior, ScoredLabel, Label
+from wenet.model.user.planned_activity import PlannedActivity, ActivityStatus
+from wenet.model.user.relationship import Relationship, RelationType
+from wenet.model.user.relevant_location import RelevantLocation
 from wenet.model.user.token import TokenDetails
 from wenet.model.user.profile import WeNetUserProfile, CoreWeNetUserProfile
 
@@ -295,6 +306,19 @@ class TestServiceApiInterface(TestCase):
         self.service_api._client.put = Mock(return_value=response)
         self.assertEqual(competences, self.service_api.update_user_competences("user_id", competences))
 
+    def test_update_user_competences_objects(self):
+        competences = [
+            Competence(
+                name="name",
+                ontology="ontology",
+                level=0.8
+            )
+        ]
+        response = MockResponse(competences)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(competences, self.service_api.update_user_competences("user_id", competences))
+
     def test_update_user_competences_exception(self):
         competences = [
             {
@@ -386,6 +410,20 @@ class TestServiceApiInterface(TestCase):
                 "quantity": 1,
                 "classification": "nice"
             }
+        ]
+        response = MockResponse(materials)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(materials, self.service_api.update_user_materials("user_id", materials))
+
+    def test_update_user_materials_objects(self):
+        materials = [
+            Material(
+                name="name",
+                description="description",
+                quantity=1,
+                classification="classification"
+            )
         ]
         response = MockResponse(materials)
         response.status_code = 200
@@ -489,6 +527,19 @@ class TestServiceApiInterface(TestCase):
         self.service_api._client.put = Mock(return_value=response)
         self.assertEqual(meanings, self.service_api.update_user_meanings("user_id", meanings))
 
+    def test_update_user_meanings_objects(self):
+        meanings = [
+            Meaning(
+                name="name",
+                category="category",
+                level=0.8
+            )
+        ]
+        response = MockResponse(meanings)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(meanings, self.service_api.update_user_meanings("user_id", meanings))
+
     def test_update_user_meanings_exception(self):
         meanings = [
             {
@@ -580,6 +631,20 @@ class TestServiceApiInterface(TestCase):
                 "thenceforth": "add_message_transaction() and close_task() and send_messages(Participants,'close',Reason)",
                 "ontology": "get_participants(P) :- get_task_state_attribute(UserIds,'participants',[]), get_profile_id(Me), wenet_remove(P,Me,UserIds)."
             }
+        ]
+        response = MockResponse(norms)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(norms, self.service_api.update_user_norms("user_id", norms))
+
+    def test_update_user_norms_objects(self):
+        norms = [
+            ProtocolNorm(
+                description="description",
+                whenever="whenever",
+                thenceforth="thenceforth",
+                ontology="ontology"
+            )
         ]
         response = MockResponse(norms)
         response.status_code = 200
@@ -782,6 +847,30 @@ class TestServiceApiInterface(TestCase):
                 },
                 "confidence": 0
             }
+        ]
+        response = MockResponse(personal_behaviors)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(personal_behaviors, self.service_api.update_user_personal_behaviors("user_id", personal_behaviors))
+
+    def test_update_user_personal_behaviors_objects(self):
+        personal_behaviors = [
+            PersonalBehavior(
+                user_id="user_id",
+                weekday="monday",
+                label_distribution={
+                    "slot": [ScoredLabel(
+                        label=Label(
+                            name="name",
+                            semantic_class=1,
+                            latitude=67,
+                            longitude=134
+                        ),
+                        score=0.7
+                    )]
+                },
+                confidence=0.8
+            )
         ]
         response = MockResponse(personal_behaviors)
         response.status_code = 200
@@ -1002,6 +1091,22 @@ class TestServiceApiInterface(TestCase):
         self.service_api._client.put = Mock(return_value=response)
         self.assertEqual(planned_activities, self.service_api.update_user_planned_activities("user_id", planned_activities))
 
+    def test_update_user_planned_activities_objects(self):
+        planned_activities = [
+            PlannedActivity(
+                activity_id="activity_id",
+                start_time=datetime.now(tz=pytz.UTC),
+                end_time=datetime.now(tz=pytz.UTC),
+                description="description",
+                attendees=["user_id"],
+                status=ActivityStatus.CONFIRMED
+            )
+        ]
+        response = MockResponse(planned_activities)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(planned_activities, self.service_api.update_user_planned_activities("user_id", planned_activities))
+
     def test_update_user_planned_activities_exception(self):
         planned_activities = [
             {
@@ -1111,6 +1216,20 @@ class TestServiceApiInterface(TestCase):
         self.service_api._client.put = Mock(return_value=response)
         self.assertEqual(relationships, self.service_api.update_user_relationships("user_id", relationships))
 
+    def test_update_user_relationships_objects(self):
+        relationships = [
+            Relationship(
+                app_id="app_id",
+                user_id="user_id",
+                relation_type=RelationType.COLLEAGUE,
+                weight=0.8
+            )
+        ]
+        response = MockResponse(relationships)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(relationships, self.service_api.update_user_relationships("user_id", relationships))
+
     def test_update_user_relationships_exception(self):
         relationships = [
             {
@@ -1202,6 +1321,20 @@ class TestServiceApiInterface(TestCase):
                 "latitude": 40.388756,
                 "longitude": -3.588622
             }
+        ]
+        response = MockResponse(relevant_locations)
+        response.status_code = 200
+        self.service_api._client.put = Mock(return_value=response)
+        self.assertEqual(relevant_locations, self.service_api.update_user_relevant_locations("user_id", relevant_locations))
+
+    def test_update_user_relevant_locations_objects(self):
+        relevant_locations = [
+            RelevantLocation(
+                location_id="location_id",
+                label="label",
+                latitude=67,
+                longitude=134
+            )
         ]
         response = MockResponse(relevant_locations)
         response.status_code = 200

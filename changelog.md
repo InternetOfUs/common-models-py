@@ -2,6 +2,10 @@
 
 ## Verion 3.*
 
+### 3.1.0
+
+* Added missing models for the extended properties of the user profile
+
 ### 3.0.0
 
 * Included optional time filters for getting the users of an app in the hub interface
