@@ -453,12 +453,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
 
         return self
 
-    def __repr__(self):
-        return str(self.to_repr())
-
-    def __str__(self):
-        return self.__repr__()
-
     def __eq__(self, o):
         if not isinstance(o, WeNetUserProfile):
             return False
@@ -707,7 +701,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
         """
         return [Meaning.from_repr(meaning) if isinstance(meaning, dict) else meaning for meaning in self.meanings] if self.meanings is not None else None
 
-
     def update(self, other: CoreWeNetUserProfile) -> PatchWeNetUserProfile:
 
         super().update(other)
@@ -723,12 +716,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             self.meanings = other.meanings
 
         return self
-
-    def __repr__(self):
-        return str(self.to_repr())
-
-    def __str__(self):
-        return self.__repr__()
 
     def __eq__(self, o):
         if not isinstance(o, PatchWeNetUserProfile):

@@ -166,6 +166,13 @@ class Task:
             [TaskTransaction.from_repr(t) for t in raw_data.get("transactions", None)] if raw_data.get("transactions", None) else None
         )
 
+    @property
+    def norms_as_objects(self) -> Optional[List[ProtocolNorm]]:
+        """
+        Returns the norms attribute as a list of ProtocolNorm objects
+        """
+        return [ProtocolNorm.from_repr(norm) if isinstance(norm, dict) else norm for norm in self.norms] if self.norms is not None else None
+
     def prepare_task(self) -> dict:
         task_repr = self.to_repr()
         task_repr.pop("_creationTs", None)
