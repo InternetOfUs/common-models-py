@@ -24,6 +24,7 @@
   * The order parameter is missing
 * Stop using the older Norm model in Task and WeNetUserProfile models
 * Added the methods in the ServiceApiInterface for updating the extended user profile
+* Fixed create_empty_user_profile method in the ProfileManagerInterface
 
 
 ## Version 2.*
