@@ -92,20 +92,20 @@ class TestProfileManagerInterface(TestCase):
     def test_create_empty_user_profile(self):
         response = MockResponse(None)
         response.status_code = 200
-        self.profile_manager._client.put = Mock(return_value=response)
+        self.profile_manager._client.post = Mock(return_value=response)
         self.assertEqual(WeNetUserProfile.empty("user_id"), self.profile_manager.create_empty_user_profile("user_id"))
 
     def test_create_empty_user_profile_exception(self):
         response = MockResponse(None)
         response.status_code = 400
-        self.profile_manager._client.put = Mock(return_value=response)
+        self.profile_manager._client.post = Mock(return_value=response)
         with self.assertRaises(CreationError):
             self.profile_manager.create_empty_user_profile("user_id")
 
     def test_create_empty_user_profile_unauthorized(self):
         response = MockResponse(None)
         response.status_code = 401
-        self.profile_manager._client.put = Mock(return_value=response)
+        self.profile_manager._client.post = Mock(return_value=response)
         with self.assertRaises(AuthenticationException):
             self.profile_manager.create_empty_user_profile("user_id")
 

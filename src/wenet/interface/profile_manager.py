@@ -82,7 +82,7 @@ class ProfileManagerInterface(ComponentInterface):
             "id": user_id
         }
 
-        response = self._client.put(f"{self._base_url}/profiles", body=profile_repr, headers=headers)
+        response = self._client.post(f"{self._base_url}/profiles", body=profile_repr, headers=headers)
         if response.status_code in [200, 201, 202]:
             return WeNetUserProfile.empty(user_id)
         elif response.status_code in [401, 403]:

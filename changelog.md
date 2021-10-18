@@ -2,6 +2,10 @@
 
 ## Verion 3.*
 
+### 3.1.0
+
+* Added missing models for the extended properties of the user profile
+
 ### 3.0.0
 
 * Included optional time filters for getting the users of an app in the hub interface
@@ -20,6 +24,7 @@
   * The order parameter is missing
 * Stop using the older Norm model in Task and WeNetUserProfile models
 * Added the methods in the ServiceApiInterface for updating the extended user profile
+* Fixed create_empty_user_profile method in the ProfileManagerInterface
 
 
 ## Version 2.*
