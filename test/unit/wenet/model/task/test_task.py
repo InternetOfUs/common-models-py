@@ -2,6 +2,7 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
+from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.task.task import Task, TaskGoal, TaskPage
 from wenet.model.task.transaction import TaskTransaction
 
@@ -296,6 +297,40 @@ class TestTask(TestCase):
         self.assertNotEqual(task, task8)
         self.assertNotEqual(task, task9)
         self.assertNotEqual(task, task10)
+
+    def test_norms_as_objects(self):
+        norm = ProtocolNorm(
+            description="description",
+            whenever="whenever",
+            thenceforth="thenceforth",
+            ontology="ontology"
+        )
+
+        task = Task(
+            task_id="task-id",
+            creation_ts=1577833200,
+            last_update_ts=1577833200,
+            task_type_id="task_type_id",
+            requester_id="requester_id",
+            app_id="app_id",
+            goal=TaskGoal(
+                name="goal",
+                description="description"
+            ),
+            norms=[norm],
+            attributes={
+                "key": "value"
+            },
+            close_ts=98765432,
+            transactions=[],
+            community_id="community_id"
+        )
+
+        to_repr = task.to_repr()
+        from_repr = Task.from_repr(to_repr)
+
+        self.assertEqual([norm.to_repr()], from_repr.norms)
+        self.assertEqual([norm], from_repr.norms_as_objects)
 
     def test_repr_with_transactions(self):
         transaction = TaskTransaction("transaction_id", "task_id", "label", 123456, 1234567, "actioneer", {})

@@ -2,15 +2,23 @@ from __future__ import absolute_import, annotations
 
 import logging
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from wenet.interface.client import RestClient, Oauth2Client
 from wenet.interface.component import ComponentInterface
 from wenet.interface.exceptions import NotFound, CreationError, AuthenticationException
 from wenet.model.app import AppDTO
 from wenet.model.logging_message.message import BaseMessage
+from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.task.task import Task, TaskPage
 from wenet.model.task.transaction import TaskTransaction
+from wenet.model.user.competence import Competence
+from wenet.model.user.material import Material
+from wenet.model.user.meaning import Meaning
+from wenet.model.user.personal_behaviors import PersonalBehavior
+from wenet.model.user.planned_activity import PlannedActivity
+from wenet.model.user.relationship import Relationship
+from wenet.model.user.relevant_location import RelevantLocation
 from wenet.model.user.token import TokenDetails
 from wenet.model.user.profile import WeNetUserProfile, CoreWeNetUserProfile
 
@@ -178,7 +186,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_competences(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_competences(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the competences defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The competences defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -195,13 +213,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_competences(self, wenet_user_id: str, competences: list, headers: Optional[dict] = None) -> list:
+    def update_user_competences(self, wenet_user_id: str, competences: Union[List[dict], List[Competence]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the competences of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            competences: The new competences
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated competences of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/competences", competences, headers=headers)
+        raw_competences = [competence.to_repr() if isinstance(competence, Competence) else competence for competence in competences]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/competences", raw_competences, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -212,7 +242,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_materials(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_materials(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the materials defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The materials defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -229,13 +269,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_materials(self, wenet_user_id: str, materials: list, headers: Optional[dict] = None) -> list:
+    def update_user_materials(self, wenet_user_id: str, materials: Union[List[dict], List[Material]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the materials of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            materials: The new materials
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated materials of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/materials", materials, headers=headers)
+        raw_materials = [material.to_repr() if isinstance(material, Material) else material for material in materials]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/materials", raw_materials, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -246,7 +298,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_meanings(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_meanings(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the meanings defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The meanings defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -263,13 +325,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_meanings(self, wenet_user_id: str, meanings: list, headers: Optional[dict] = None) -> list:
+    def update_user_meanings(self, wenet_user_id: str, meanings: Union[List[dict], List[Meaning]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the meanings of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            meanings: The new meanings
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated meanings of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/meanings", meanings, headers=headers)
+        raw_meanings = [meaning.to_repr() if isinstance(meaning, Meaning) else meaning for meaning in meanings]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/meanings", raw_meanings, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -280,7 +354,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_norms(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_norms(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the norms defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The norms defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -297,13 +381,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_norms(self, wenet_user_id: str, norms: list, headers: Optional[dict] = None) -> list:
+    def update_user_norms(self, wenet_user_id: str, norms: Union[List[dict], List[ProtocolNorm]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the norms of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            norms: The new norms
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated norms of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/norms", norms, headers=headers)
+        raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in norms]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/norms", raw_norms, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -314,7 +410,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_personal_behaviors(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_personal_behaviors(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the personal behaviors defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The personal behaviors defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -331,13 +437,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_personal_behaviors(self, wenet_user_id: str, personal_behaviors: list, headers: Optional[dict] = None) -> list:
+    def update_user_personal_behaviors(self, wenet_user_id: str, personal_behaviors: Union[List[dict], List[PersonalBehavior]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the personal behaviors of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            personal_behaviors: The new personal behaviors
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated personal behaviors of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/personalBehaviors", personal_behaviors, headers=headers)
+        raw_personal_behaviors = [personal_behavior.to_repr() if isinstance(personal_behavior, PersonalBehavior) else personal_behavior for personal_behavior in personal_behaviors]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/personalBehaviors", raw_personal_behaviors, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -348,7 +466,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_planned_activities(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_planned_activities(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the planned activities defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The planned activities defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -365,13 +493,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_planned_activities(self, wenet_user_id: str, planned_activities: list, headers: Optional[dict] = None) -> list:
+    def update_user_planned_activities(self, wenet_user_id: str, planned_activities: Union[List[dict], List[PlannedActivity]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the planned activities of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            planned_activities: The new planned activities
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated planned activities of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/plannedActivities", planned_activities, headers=headers)
+        raw_planned_activities = [planned_activity.to_repr() if isinstance(planned_activity, PlannedActivity) else planned_activity for planned_activity in planned_activities]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/plannedActivities", raw_planned_activities, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -382,7 +522,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_relationships(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_relationships(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the relationships defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The relationships defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -399,13 +549,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_relationships(self, wenet_user_id: str, relationships: list, headers: Optional[dict] = None) -> list:
+    def update_user_relationships(self, wenet_user_id: str, relationships: Union[List[dict], List[Relationship]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the relationships of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            relationships: The new relationships
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated relationships of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", relationships, headers=headers)
+        raw_relationships = [relationship.to_repr() if isinstance(relationship, Relationship) else relationship for relationship in relationships]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", raw_relationships, headers=headers)
 
         if response.status_code == 200:
             return response.json()
@@ -416,7 +578,17 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def get_user_relevant_locations(self, wenet_user_id: str, headers: Optional[dict] = None) -> list:
+    def get_user_relevant_locations(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+        """
+        Get all the relevant locations defined into a profile
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            headers: Additional headers to add to the call
+
+        Returns:
+            The relevant locations defined into the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
@@ -433,13 +605,25 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
 
-    def update_user_relevant_locations(self, wenet_user_id: str, relevant_locations: list, headers: Optional[dict] = None) -> list:
+    def update_user_relevant_locations(self, wenet_user_id: str, relevant_locations: Union[List[dict], List[RelevantLocation]], headers: Optional[dict] = None) -> List[dict]:
+        """
+        Update all the relevant locations of a profile overwriting the existing ones
+
+        Args:
+            wenet_user_id: The Id of the wenet user
+            relevant_locations: The new relevant locations
+            headers: Additional headers to add to the call
+
+        Returns:
+            The updated relevant locations of the profile
+        """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relevantLocations", relevant_locations, headers=headers)
+        raw_relevant_locations = [relevant_location.to_repr() if isinstance(relevant_location, RelevantLocation) else relevant_location for relevant_location in relevant_locations]
+        response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relevantLocations", raw_relevant_locations, headers=headers)
 
         if response.status_code == 200:
             return response.json()

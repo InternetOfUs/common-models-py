@@ -2,11 +2,20 @@ from __future__ import absolute_import, annotations
 
 import re
 from numbers import Number
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union
 
+from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.scope import AbstractScopeMappings, Scope
 from wenet.model.user.common import Gender, Date
 from babel.core import Locale
+
+from wenet.model.user.competence import Competence
+from wenet.model.user.material import Material
+from wenet.model.user.meaning import Meaning
+from wenet.model.user.personal_behaviors import PersonalBehavior
+from wenet.model.user.planned_activity import PlannedActivity
+from wenet.model.user.relationship import Relationship
+from wenet.model.user.relevant_location import RelevantLocation
 
 
 class CoreWeNetUserProfile:
@@ -238,14 +247,14 @@ class WeNetUserProfile(CoreWeNetUserProfile):
                  creation_ts: Optional[Number],
                  last_update_ts: Optional[Number],
                  profile_id: Optional[str],
-                 norms: Optional[list],
-                 planned_activities: Optional[list],
-                 relevant_locations: Optional[list],
-                 relationships: Optional[list],
-                 personal_behaviours: Optional[list],
-                 materials: Optional[list],
-                 competences: Optional[list],
-                 meanings: Optional[list]
+                 norms: Optional[Union[List[dict], List[ProtocolNorm]]],
+                 planned_activities: Optional[Union[List[dict], List[PlannedActivity]]],
+                 relevant_locations: Optional[Union[List[dict], List[RelevantLocation]]],
+                 relationships: Optional[Union[List[dict], List[Relationship]]],
+                 personal_behaviours: Optional[Union[List[dict], List[PersonalBehavior]]],
+                 materials: Optional[Union[List[dict], List[Material]]],
+                 competences: Optional[Union[List[dict], List[Competence]]],
+                 meanings: Optional[Union[List[dict], List[Meaning]]]
                  ):
 
         super().__init__(
@@ -320,16 +329,25 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             self.personal_behaviours = []
 
     def to_repr(self) -> dict:
+        raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in self.norms] if self.norms is not None else None
+        raw_planned_activities = [planned_activity.to_repr() if isinstance(planned_activity, PlannedActivity) else planned_activity for planned_activity in self.planned_activities] if self.planned_activities is not None else None
+        raw_relevant_locations = [relevant_location.to_repr() if isinstance(relevant_location, RelevantLocation) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
+        raw_relationships = [relationship.to_repr() if isinstance(relationship, Relationship) else relationship for relationship in self.relationships] if self.relationships is not None else None
+        raw_personal_behaviors = [personal_behavior.to_repr() if isinstance(personal_behavior, PersonalBehavior) else personal_behavior for personal_behavior in self.personal_behaviours] if self.personal_behaviours is not None else None
+        raw_materials = [material.to_repr() if isinstance(material, Material) else material for material in self.materials] if self.materials is not None else None
+        raw_competences = [competence.to_repr() if isinstance(competence, Competence) else competence for competence in self.competences] if self.competences is not None else None
+        raw_meanings = [meaning.to_repr() if isinstance(meaning, Meaning) else meaning for meaning in self.meanings] if self.meanings is not None else None
+
         base_repr = super().to_repr()
         base_repr.update({
-            "norms": self.norms,
-            "plannedActivities": self.planned_activities,
-            "relevantLocations": self.relevant_locations,
-            "relationships": self.relationships,
-            "personalBehaviors": self.personal_behaviours,
-            "materials": self.materials,
-            "competences": self.competences,
-            "meanings": self.meanings
+            "norms": raw_norms,
+            "plannedActivities": raw_planned_activities,
+            "relevantLocations": raw_relevant_locations,
+            "relationships": raw_relationships,
+            "personalBehaviors": raw_personal_behaviors,
+            "materials": raw_materials,
+            "competences": raw_competences,
+            "meanings": raw_meanings
         })
 
         return base_repr
@@ -363,6 +381,62 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             meanings=raw_data.get("meanings", None)
         )
 
+    @property
+    def norms_as_objects(self) -> Optional[List[ProtocolNorm]]:
+        """
+        Returns the norms attribute as a list of ProtocolNorm objects
+        """
+        return [ProtocolNorm.from_repr(norm) if isinstance(norm, dict) else norm for norm in self.norms] if self.norms is not None else None
+
+    @property
+    def planned_activities_as_objects(self) -> Optional[List[PlannedActivity]]:
+        """
+        Returns the norms attribute as a list of PlannedActivity objects
+        """
+        return [PlannedActivity.from_repr(planned_activity) if isinstance(planned_activity, dict) else planned_activity for planned_activity in self.planned_activities] if self.planned_activities is not None else None
+
+    @property
+    def relevant_locations_as_objects(self) -> Optional[List[RelevantLocation]]:
+        """
+        Returns the norms attribute as a list of RelevantLocation objects
+        """
+        return [RelevantLocation.from_repr(relevant_location) if isinstance(relevant_location, dict) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
+
+    @property
+    def relationships_objects(self) -> Optional[List[Relationship]]:
+        """
+        Returns the norms attribute as a list of Relationship objects
+        """
+        return [Relationship.from_repr(relationship) if isinstance(relationship, dict) else relationship for relationship in self.relationships] if self.relationships is not None else None
+
+    @property
+    def personal_behaviours_as_objects(self) -> Optional[List[PersonalBehavior]]:
+        """
+        Returns the norms attribute as a list of PersonalBehavior objects
+        """
+        return [PersonalBehavior.from_repr(personal_behavior) if isinstance(personal_behavior, dict) else personal_behavior for personal_behavior in self.personal_behaviours] if self.personal_behaviours is not None else None
+
+    @property
+    def materials_as_objects(self) -> Optional[List[Material]]:
+        """
+        Returns the norms attribute as a list of Material objects
+        """
+        return [Material.from_repr(material) if isinstance(material, dict) else material for material in self.materials] if self.materials is not None else None
+
+    @property
+    def competences_as_objects(self) -> Optional[List[Competence]]:
+        """
+        Returns the norms attribute as a list of Competence objects
+        """
+        return [Competence.from_repr(competence) if isinstance(competence, dict) else competence for competence in self.competences] if self.competences is not None else None
+
+    @property
+    def meanings_as_objects(self) -> Optional[List[Meaning]]:
+        """
+        Returns the norms attribute as a list of Meaning objects
+        """
+        return [Meaning.from_repr(meaning) if isinstance(meaning, dict) else meaning for meaning in self.meanings] if self.meanings is not None else None
+
     def update(self, other: CoreWeNetUserProfile) -> WeNetUserProfile:
 
         super().update(other)
@@ -378,12 +452,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             self.meanings = other.meanings
 
         return self
-
-    def __repr__(self):
-        return str(self.to_repr())
-
-    def __str__(self):
-        return self.__repr__()
 
     def __eq__(self, o):
         if not isinstance(o, WeNetUserProfile):
@@ -459,14 +527,14 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
                  occupation: Optional[str] = None,
                  creation_ts: Optional[Number] = None,
                  last_update_ts: Optional[Number] = None,
-                 norms: Optional[list] = None,
-                 planned_activities: Optional[list] = None,
-                 relevant_locations: Optional[list] = None,
-                 relationships: Optional[list] = None,
-                 personal_behaviours: Optional[list] = None,
-                 materials: Optional[list] = None,
-                 competences: Optional[list] = None,
-                 meanings: Optional[list] = None
+                 norms: Optional[Union[List[dict], List[ProtocolNorm]]] = None,
+                 planned_activities: Optional[Union[List[dict], List[PlannedActivity]]] = None,
+                 relevant_locations: Optional[Union[List[dict], List[RelevantLocation]]] = None,
+                 relationships: Optional[Union[List[dict], List[Relationship]]] = None,
+                 personal_behaviours: Optional[Union[List[dict], List[PersonalBehavior]]] = None,
+                 materials: Optional[Union[List[dict], List[Material]]] = None,
+                 competences: Optional[Union[List[dict], List[Competence]]] = None,
+                 meanings: Optional[Union[List[dict], List[Meaning]]] = None
                  ):
 
         super().__init__(
@@ -525,16 +593,25 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
                 raise TypeError("personalBehaviors should be a list")
 
     def to_repr(self) -> dict:
+        raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in self.norms] if self.norms is not None else None
+        raw_planned_activities = [planned_activity.to_repr() if isinstance(planned_activity, PlannedActivity) else planned_activity for planned_activity in self.planned_activities] if self.planned_activities is not None else None
+        raw_relevant_locations = [relevant_location.to_repr() if isinstance(relevant_location, RelevantLocation) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
+        raw_relationships = [relationship.to_repr() if isinstance(relationship, Relationship) else relationship for relationship in self.relationships] if self.relationships is not None else None
+        raw_personal_behaviors = [personal_behavior.to_repr() if isinstance(personal_behavior, PersonalBehavior) else personal_behavior for personal_behavior in self.personal_behaviours] if self.personal_behaviours is not None else None
+        raw_materials = [material.to_repr() if isinstance(material, Material) else material for material in self.materials] if self.materials is not None else None
+        raw_competences = [competence.to_repr() if isinstance(competence, Competence) else competence for competence in self.competences] if self.competences is not None else None
+        raw_meanings = [meaning.to_repr() if isinstance(meaning, Meaning) else meaning for meaning in self.meanings] if self.meanings is not None else None
+
         base_repr = super().to_repr()
         base_repr.update({
-            "norms": self.norms,
-            "plannedActivities": self.planned_activities,
-            "relevantLocations": self.relevant_locations,
-            "relationships": self.relationships,
-            "personalBehaviors": self.personal_behaviours,
-            "materials": self.materials,
-            "competences": self.competences,
-            "meanings": self.meanings
+            "norms": raw_norms,
+            "plannedActivities": raw_planned_activities,
+            "relevantLocations": raw_relevant_locations,
+            "relationships": raw_relationships,
+            "personalBehaviors": raw_personal_behaviors,
+            "materials": raw_materials,
+            "competences": raw_competences,
+            "meanings": raw_meanings
         })
 
         return base_repr
@@ -568,6 +645,62 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             meanings=raw_data.get("meanings", None)
         )
 
+    @property
+    def norms_as_objects(self) -> Optional[List[ProtocolNorm]]:
+        """
+        Returns the norms attribute as a list of ProtocolNorm objects
+        """
+        return [ProtocolNorm.from_repr(norm) if isinstance(norm, dict) else norm for norm in self.norms] if self.norms is not None else None
+
+    @property
+    def planned_activities_as_objects(self) -> Optional[List[PlannedActivity]]:
+        """
+        Returns the norms attribute as a list of PlannedActivity objects
+        """
+        return [PlannedActivity.from_repr(planned_activity) if isinstance(planned_activity, dict) else planned_activity for planned_activity in self.planned_activities] if self.planned_activities is not None else None
+
+    @property
+    def relevant_locations_as_objects(self) -> Optional[List[RelevantLocation]]:
+        """
+        Returns the norms attribute as a list of RelevantLocation objects
+        """
+        return [RelevantLocation.from_repr(relevant_location) if isinstance(relevant_location, dict) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
+
+    @property
+    def relationships_objects(self) -> Optional[List[Relationship]]:
+        """
+        Returns the norms attribute as a list of Relationship objects
+        """
+        return [Relationship.from_repr(relationship) if isinstance(relationship, dict) else relationship for relationship in self.relationships] if self.relationships is not None else None
+
+    @property
+    def personal_behaviours_as_objects(self) -> Optional[List[PersonalBehavior]]:
+        """
+        Returns the norms attribute as a list of PersonalBehavior objects
+        """
+        return [PersonalBehavior.from_repr(personal_behavior) if isinstance(personal_behavior, dict) else personal_behavior for personal_behavior in self.personal_behaviours] if self.personal_behaviours is not None else None
+
+    @property
+    def materials_as_objects(self) -> Optional[List[Material]]:
+        """
+        Returns the norms attribute as a list of Material objects
+        """
+        return [Material.from_repr(material) if isinstance(material, dict) else material for material in self.materials] if self.materials is not None else None
+
+    @property
+    def competences_as_objects(self) -> Optional[List[Competence]]:
+        """
+        Returns the norms attribute as a list of Competence objects
+        """
+        return [Competence.from_repr(competence) if isinstance(competence, dict) else competence for competence in self.competences] if self.competences is not None else None
+
+    @property
+    def meanings_as_objects(self) -> Optional[List[Meaning]]:
+        """
+        Returns the norms attribute as a list of Meaning objects
+        """
+        return [Meaning.from_repr(meaning) if isinstance(meaning, dict) else meaning for meaning in self.meanings] if self.meanings is not None else None
+
     def update(self, other: CoreWeNetUserProfile) -> PatchWeNetUserProfile:
 
         super().update(other)
@@ -583,12 +716,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             self.meanings = other.meanings
 
         return self
-
-    def __repr__(self):
-        return str(self.to_repr())
-
-    def __str__(self):
-        return self.__repr__()
 
     def __eq__(self, o):
         if not isinstance(o, PatchWeNetUserProfile):

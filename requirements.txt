@@ -3,3 +3,4 @@ iso639==0.1.4
 pytz==2019.3
 requests
 redis
+dateparser==1.1.0
