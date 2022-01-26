@@ -71,6 +71,8 @@ class Scope(Enum):
     MATERIALS_WRITE = "materials:write"
     COMPETENCES_WRITE = "competences:write"
     MEANINGS_WRITE = "meanings:write"
+    CONVERSATIONS_WRITE = "conversation:write"
+    DATA_WRITE = "data:write"
 
 
 class AbstractScopeMappings(abc.ABC):
