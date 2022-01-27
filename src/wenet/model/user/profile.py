@@ -22,15 +22,36 @@ class CoreWeNetUserProfile:
 
     class ScopeMappings(AbstractScopeMappings):
         @staticmethod
-        def _get_mappings() -> Dict[Scope, str]:
+        def _get_read_scope_mappings() -> Dict[Scope, str]:
             return {
-                Scope.ID: "id",
-                Scope.BIRTHDATE: "dateOfBirth",
-                Scope.GENDER: "gender",
-                Scope.NATIONALITY: "nationality",
-                Scope.LOCALE: "locale",
-                Scope.PHONE_NUMBER: "phoneNumber",
-                Scope.EMAIL: "email",
+
+                Scope.ID_READ: "id",
+                Scope.BIRTHDATE_READ: "dateOfBirth",
+                Scope.GENDER_READ: "gender",
+                Scope.NATIONALITY_READ: "nationality",
+                Scope.LOCALE_READ: "locale",
+                Scope.PHONE_NUMBER_READ: "phoneNumber",
+                Scope.EMAIL_READ: "email",
+                Scope.AVATAR_READ: "avatar",
+                Scope.OCCUPATION_READ: "occupation",
+                Scope.NORMS_READ: "norms",
+                Scope.ACTIVITIES_READ: "plannedActivities",
+                Scope.LOCATIONS_READ: "relevantLocations",
+                Scope.RELATIONSHIPS_READ: "relationships",
+                Scope.BEHAVIOURS_READ: "personalBehaviors",
+                Scope.MATERIALS_READ: "meanings",
+                Scope.COMPETENCES_READ: "competences",
+                Scope.MEANINGS_READ: "meanings",
+
+                # TODO Legacy scopes, remove before release
+                Scope.ID_LEGACY: "id",
+                Scope.BIRTHDATE_LEGACY: "dateOfBirth",
+                Scope.GENDER_LEGACY: "gender",
+                Scope.NATIONALITY_LEGACY: "nationality",
+                Scope.LOCALE_LEGACY: "locale",
+                Scope.PHONE_NUMBER_LEGACY: "phoneNumber",
+                Scope.EMAIL_LEGACY: "email",
+
             }
 
     def __init__(self,
@@ -144,9 +165,9 @@ class CoreWeNetUserProfile:
 
     def to_public_repr(self) -> dict:
         scopes = [
-            Scope.ID,
-            Scope.FIRST_NAME,
-            Scope.LAST_NAME
+            Scope.ID_READ,
+            Scope.FIRST_NAME_READ,
+            Scope.LAST_NAME_READ
         ]
 
         return self.to_filtered_repr(scopes)
@@ -787,13 +808,21 @@ class UserName:
 
     class ScopeMappings(AbstractScopeMappings):
         @staticmethod
-        def _get_mappings() -> Dict[Scope, str]:
+        def _get_read_scope_mappings() -> Dict[Scope, str]:
             return {
-                Scope.FIRST_NAME: "first",
-                Scope.MIDDLE_NAME: "middle",
-                Scope.LAST_NAME: "last",
-                Scope.PREFIX_NAME: "prefix",
-                Scope.SUFFIX_NAME: "suffix",
+
+                Scope.FIRST_NAME_READ: "first",
+                Scope.MIDDLE_NAME_READ: "middle",
+                Scope.LAST_NAME_READ: "last",
+                Scope.PREFIX_NAME_READ: "prefix",
+                Scope.SUFFIX_NAME_READ: "suffix",
+
+                # TODO legacy scopes, remove before release
+                Scope.FIRST_NAME_LEGACY: "first",
+                Scope.MIDDLE_NAME_LEGACY: "middle",
+                Scope.LAST_NAME_LEGACY: "last",
+                Scope.PREFIX_NAME_LEGACY: "prefix",
+                Scope.SUFFIX_NAME_LEGACY: "suffix",
             }
 
     def __init__(self, first: Optional[str], middle: Optional[str], last: Optional[str], prefix: Optional[str], suffix: Optional[str]):
