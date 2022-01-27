@@ -1,5 +1,12 @@
 # Wenet common models - Changelog
 
+## Version 4.*
+
+### 4.0.0
+
+* Updated scope list. Added different scopes for reading and writing operations
+* Updated to project template version 4.6.5
+
 ## Verion 3.*
 
 ### 3.1.0

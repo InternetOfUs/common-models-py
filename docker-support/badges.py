@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from functools import total_ordering
+
 import anybadge
 import yaml
 from yaml import Loader
@@ -12,20 +16,96 @@ import re
 #   - git submodule versions
 #   - pip package versions
 
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
+class Release(object):
+
+    def __init__(self, major: int, minor: int, patch: int) -> None:
+        self.major = major
+        self.minor = minor
+        self.patch = patch
+
+    def __str__(self) -> str:
+        return f"{self.major}.{self.minor}.{self.patch}"
+
+    @staticmethod
+    def build(version: str) -> Release:
+        result = re.search("([0-9]+).([0-9]+).([0-9]+)([a-zA-Z.\-]+)?", version)
+        if result:
+            return Release(
+                int(result.group(1)),
+                int(result.group(2)),
+                int(result.group(3))
+            )
+        else:
+            raise ValueError(f"Can not build release from {version}")
+
+    def __eq__(self, o: object) -> bool:
+        return super().__eq__(o) and isinstance(o, Release) and self.major == o.major and self.minor == o.minor and self.patch == o.patch
+
+    def __lt__(self, o: object) -> bool:
+        if not isinstance(o, Release):
+            raise ValueError
+
+        if self == o:
+            return False
+
+        if (self.major < o.major) or (self.major == o.major and self.minor < o.minor) or (self.major == o.major and self.minor == o.minor and self.patch < o.patch):
+            return True
+        else:
+            return False
+
+    def __gt__(self, o: object) -> bool:
+        if not isinstance(o, Release):
+            raise ValueError
+
+        if self == o:
+            return False
+
+        if (self.major > o.major) or (self.major == o.major and self.minor > o.minor) or (self.major == o.major and self.minor == o.minor and self.patch > o.patch):
+            return True
+        else:
+            return False
+
+
 def create_badge(label: str, value: str):
-    color = "red"
+    color = "#df002b"  # red
     if re.match("^([0-9]+\.[0-9]+\.[0-9]+)$", value):
-        color = "green"
+        color = "#0ab145" # green
     elif re.match("^([0-9]+\.[0-9]+\.[0-9]+)-([a-z]+)([\-0-9]+)?$", value):
-        color = "yellow"
+        color = "#fbc533"  # yellow
 
 
     badge = anybadge.Badge(label, value, default_color=color)
     badge.write_badge(f"{label}.svg", overwrite=True)
+
+
+def release_badge():
+    pipe = subprocess.PIPE
+
+    git_process = subprocess.Popen(['git', 'tag'], stdout=pipe, stderr=pipe)
+    stdoutput, stderroutput = git_process.communicate()
+
+    if 'fatal' in str(stdoutput):
+        print(" - Creating [release] badge")
+        pass
+    else:
+        tags = [tag for tag in stdoutput.decode("utf-8").split("\n") if tag != ""]
+        releases = []
+        for tag in tags:
+            try:
+                releases.append(Release.build(tag))
+            except ValueError:
+                pass
+
+        releases.sort(reverse=True)
+
+        if len(releases) > 0:
+            print(" - Creating [release] badge")
+            create_badge("release", str(releases[0]))
+        else:
+            print(" - No tags available for creating the [release] badge")
 
 
 # Ansible role version badges.
@@ -57,6 +137,8 @@ requirement_paths = [
 for requirement_path in requirement_paths:
     badges_for_ansible_requirements(requirement_path)
 
+print("+ Creating release badges")
+release_badge()
 
 # Pip package version badges.
 # These are created by parsing the requirements.txt file.
@@ -73,7 +155,10 @@ uhopper_pip_libraries = [
     "uhopper-language",
     "uhopper-chatbot",
     "uhopper-rule-engine",
-    "wenet-common"
+    "wenet-common",
+    "datumo-core",
+    "datumo-core-min",
+    "datumo-crm"
 ]
 
 if os.path.isfile(f"{dir_path}/../requirements.txt"):
