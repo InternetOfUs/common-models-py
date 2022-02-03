@@ -5,7 +5,9 @@
 ### 4.0.0
 
 * Updated scope list. Added different scopes for reading and writing operations
-* Updated to project template version 4.6.5
+* Updated project template to version 4.7.0
+* Added the ApiException class
+* Updated the exception raised by the various interface
 
 ## Verion 3.*
 

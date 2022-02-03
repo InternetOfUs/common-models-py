@@ -8,7 +8,7 @@ import pytz
 
 from test.unit.wenet.interface.mock.client import MockOauth2Client
 from test.unit.wenet.interface.mock.response import MockResponse
-from wenet.interface.exceptions import NotFound, CreationError, AuthenticationException
+from wenet.interface.exceptions import NotFound, BadRequest, AuthenticationException
 from wenet.interface.service_api import ServiceApiInterface
 from wenet.model.app import AppDTO
 from wenet.model.logging_message.content import ActionRequest
@@ -119,7 +119,7 @@ class TestServiceApiInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.service_api._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.service_api.create_task(task)
 
     def test_create_task_unauthorized(self):
@@ -169,7 +169,7 @@ class TestServiceApiInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.service_api._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.service_api.create_task_transaction(transaction)
 
     def test_create_task_transaction_unauthorized(self):
@@ -217,7 +217,7 @@ class TestServiceApiInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.service_api._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.service_api.create_user_profile("user_id")
 
     def test_create_user_profile_unauthorized(self):
@@ -1492,7 +1492,7 @@ class TestServiceApiInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.service_api._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.service_api.log_message(message)
 
     def test_log_message_unauthorized(self):
