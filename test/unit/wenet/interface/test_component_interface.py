@@ -48,4 +48,3 @@ class TestComponentInterface(TestCase):
         ex = ComponentInterface.get_api_exception_for_response(response)
         self.assertIsInstance(ex, ApiException)
         self.assertEqual(response.status_code, ex.http_status_code)
-
