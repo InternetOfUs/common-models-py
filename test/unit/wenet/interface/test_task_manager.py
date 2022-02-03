@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 from test.unit.wenet.interface.mock.client import MockApikeyClient
 from test.unit.wenet.interface.mock.response import MockResponse
-from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
+from wenet.interface.exceptions import AuthenticationException, NotFound, BadRequest
 from wenet.interface.task_manager import TaskManagerInterface
 from wenet.model.task.task import TaskPage, Task, TaskGoal
 from wenet.model.task.transaction import TaskTransactionPage, TaskTransaction
@@ -139,7 +139,7 @@ class TestTaskManagerInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.task_manager._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.task_manager.create_task(task)
 
     def test_create_task_unauthorized(self):
@@ -195,7 +195,7 @@ class TestTaskManagerInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.task_manager._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.task_manager.create_task_transaction(transaction)
 
     def test_create_task_transaction_unauthorized(self):

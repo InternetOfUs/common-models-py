@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 from test.unit.wenet.interface.mock.client import MockApikeyClient
 from test.unit.wenet.interface.mock.response import MockResponse
-from wenet.interface.exceptions import AuthenticationException, NotFound, CreationError
+from wenet.interface.exceptions import AuthenticationException, NotFound, BadRequest
 from wenet.interface.profile_manager import ProfileManagerInterface
 from wenet.model.user.profile import WeNetUserProfile, UserIdentifiersPage, WeNetUserProfilesPage, PatchWeNetUserProfile
 
@@ -99,7 +99,7 @@ class TestProfileManagerInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.profile_manager._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.profile_manager.create_empty_user_profile("user_id")
 
     def test_create_empty_user_profile_unauthorized(self):
