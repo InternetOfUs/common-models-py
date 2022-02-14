@@ -290,3 +290,26 @@ coverage:mr:
   only:
     - merge_requests
 
+
+lint:mr:
+  stage: test
+  image: public.registry.u-hopper.com/python:3.8
+  allow_failure: False
+  script:
+    - python -v
+    - mkdir -p ~/.config/pip
+    - echo "$PIP_CONF_DOCKER" > ~/.config/pip/pip.conf
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install flake8
+    - flake8 --ignore E501,W504,E241,F405 src
+  cache:
+    paths:
+      - .cache/pip
+      - venv/
+  needs: []
+  only:
+    - merge_requests
+

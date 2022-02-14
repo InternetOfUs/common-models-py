@@ -5,7 +5,6 @@ from typing import Optional, List
 
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
-from wenet.interface.exceptions import AuthenticationException
 
 logger = logging.getLogger("wenet.interface.incentive_server")
 
@@ -26,7 +25,5 @@ class IncentiveServerInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code in [401, 403]:
-            raise AuthenticationException("incentive server", response.status_code, response.text)
         else:
-            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+            raise self.get_api_exception_for_response(response)

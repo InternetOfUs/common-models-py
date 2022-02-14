@@ -5,7 +5,7 @@ from unittest.mock import Mock
 
 from test.unit.wenet.interface.mock.client import MockApikeyClient
 from test.unit.wenet.interface.mock.response import MockResponse
-from wenet.interface.exceptions import AuthenticationException, CreationError
+from wenet.interface.exceptions import AuthenticationException, ApiException, BadRequest
 from wenet.interface.logger import LoggerInterface
 
 
@@ -29,7 +29,7 @@ class TestLoggerInterface(TestCase):
         response = MockResponse(None)
         response.status_code = 400
         self.logger_interface._client.post = Mock(return_value=response)
-        with self.assertRaises(CreationError):
+        with self.assertRaises(BadRequest):
             self.logger_interface.post_messages([])
 
     def test_post_messages_unauthorized(self):

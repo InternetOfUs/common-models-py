@@ -4,8 +4,10 @@ import logging
 from abc import ABC
 from typing import Optional
 
-from wenet.interface.client import RestClient
+from requests import Response
 
+from wenet.interface.client import RestClient
+from wenet.interface.exceptions import AuthenticationException, NotFound, BadRequest, BadGateway, ApiException
 
 logger = logging.getLogger("wenet.interface.component")
 
@@ -22,3 +24,16 @@ class ComponentInterface(ABC):
 
         if extra_headers:
             self._base_headers.update(extra_headers)
+
+    @staticmethod
+    def get_api_exception_for_response(response: Response) -> ApiException:
+        if response.status_code in [401, 403]:
+            return AuthenticationException(response.status_code, response.text)
+        elif response.status_code == 404:
+            return NotFound(response.text)
+        elif response.status_code == 400:
+            return BadRequest(response.text)
+        elif response.status_code == 502:
+            return BadGateway(response.text)
+        else:
+            return ApiException(response.status_code, response.text)

@@ -6,7 +6,6 @@ from typing import List, Optional
 
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
-from wenet.interface.exceptions import AuthenticationException, NotFound
 from wenet.model.app import App
 
 
@@ -35,12 +34,8 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code in [401, 403]:
-            raise AuthenticationException("hub", response.status_code, response.text)
-        elif response.status_code == 404:
-            raise NotFound("App", app_id, response.status_code, response.text)
         else:
-            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+            raise self.get_api_exception_for_response(response)
 
     def get_app_details(self, app_id: str, headers: Optional[dict] = None) -> App:
         if headers is not None:
@@ -52,12 +47,8 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return App.from_repr(response.json())
-        elif response.status_code in [401, 403]:
-            raise AuthenticationException("hub", response.status_code, response.text)
-        elif response.status_code == 404:
-            raise NotFound("App", app_id, response.status_code, response.text)
         else:
-            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+            raise self.get_api_exception_for_response(response)
 
     def get_app_developers(self, app_id: str, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
@@ -69,12 +60,8 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code in [401, 403]:
-            raise AuthenticationException("hub", response.status_code, response.text)
-        elif response.status_code == 404:
-            raise NotFound("App", app_id, response.status_code, response.text)
         else:
-            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+            raise self.get_api_exception_for_response(response)
 
     def get_user_ids(self, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
@@ -86,10 +73,8 @@ class HubInterface(ComponentInterface):
 
         if response.status_code == 200:
             return response.json()
-        elif response.status_code in [401, 403]:
-            raise AuthenticationException("hub", response.status_code, response.text)
         else:
-            raise Exception(f"Request has return a code [{response.status_code}] with content [{response.text}]")
+            raise self.get_api_exception_for_response(response)
 
     # def delete_user(self, user_id: str, headers: Optional[dict] = None) -> None:
     #     if headers is not None:
