@@ -362,7 +362,7 @@ class TestUserProfile(TestCase):
             meanings=[]
         )
 
-        to_repr = user_profile.to_filtered_repr(scope_list=[Scope.ID, Scope.PHONE_NUMBER])
+        to_repr = user_profile.to_filtered_repr(scope_list=[Scope.ID_LEGACY, Scope.PHONE_NUMBER_LEGACY])
         from_repr = user_profile.from_repr(to_repr)
 
         self.assertIsInstance(from_repr, WeNetUserProfile)

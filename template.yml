@@ -12,6 +12,7 @@
       - ci_cd
     project_python_test_folder: test
     project_python_submodules: []
+    ci_release: true
     ci_environments:
       production:
         stages:
@@ -29,5 +30,10 @@
           - name: test
           - name: test
             type: coverage
+          - name: test
+            allow_failure: false
+            ignore: E501,W504,E241,F405
+            type: lint
+
   roles:
     - uh.project_template

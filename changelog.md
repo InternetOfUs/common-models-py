@@ -1,5 +1,20 @@
 # Wenet common models - Changelog
 
+## Version 4.*
+
+### 4.0.0
+
+:boom: Breaking changes
+* Updated scope list. Added different scopes for reading and writing operations
+
+:nail_care: Polish
+* Added the ApiException class
+* Updated the exception raised by the various interface
+
+:house: Internal
+* Updated project template to version 4.9.1
+
+
 ## Verion 3.*
 
 ### 3.1.0

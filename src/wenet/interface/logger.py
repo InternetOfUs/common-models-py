@@ -5,7 +5,6 @@ from typing import List, Optional
 
 from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
-from wenet.interface.exceptions import AuthenticationException, CreationError
 from wenet.model.logging_message.message import BaseMessage
 
 
@@ -28,7 +27,5 @@ class LoggerInterface(ComponentInterface):
 
         if response.status_code in [200, 201]:
             return response.json()["traceIds"]
-        elif response.status_code in [401, 403]:
-            raise AuthenticationException("logger", response.status_code, response.text)
         else:
-            raise CreationError(response.status_code, response.text)
+            raise self.get_api_exception_for_response(response)
