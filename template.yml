@@ -12,6 +12,7 @@
       - ci_cd
     project_python_test_folder: test
     project_python_submodules: []
+    ci_release: true
     ci_environments:
       production:
         stages:

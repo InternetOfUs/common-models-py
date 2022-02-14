@@ -21,18 +21,10 @@ variables:
 
 #
 # Workflow defining rules for running the pipeline.
-# In the following cases the pipeline is not run when:
-#  - the associated commit includes the work-in-progress tag `-wip`
-#  - the associated commit message includes the pattern `Merge tag`: the commit resulting when
-#    a release branch is closed and merged into `develop`
 #
 workflow:
-  rules:
-    - if: $CI_COMMIT_MESSAGE =~ /-wip/
-      when: never
-    - if: $CI_COMMIT_MESSAGE =~ /Merge tag/
-      when: never
-    - when: always
+  rules: [{'if': '$CI_COMMIT_MESSAGE =~ /-wip/', 'when': 'never'}, {'when': 'always'}]
+
 
 #
 # Static script to be reused by the enabled stages.
@@ -93,6 +85,39 @@ stages:
   - build
   - test
   - package
+  - release
+
+release:prepare:
+  stage: release
+  image: public.registry.u-hopper.com/alpine:3.13
+  rules:
+    - if: $CI_COMMIT_TAG
+    - when: never
+  allow_failure: true
+  script:
+    - RELEASE_DESCRIPTION=$(awk -v header_regex="/### ${CI_COMMIT_TAG}/" 'flag{ if (/###/){printf "%s", buf; flag=0; buf=""} else buf = buf $0 ORS}; {header_regex}{flag=1}' CHANGELOG.md)
+    - echo "RELEASE_DESCRIPTION=${RELEASE_DESCRIPTION}" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: release:prepare
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+    - when: never
+  allow_failure: true
+  script:
+    - echo "Creating release $CI_COMMIT_TAG"
+  release:
+    name: '$CI_COMMIT_TAG'
+    description: '$RELEASE_DESCRIPTION'
+    tag_name: '$CI_COMMIT_TAG'
+    ref: '$CI_COMMIT_SHA'
 
 
 #
