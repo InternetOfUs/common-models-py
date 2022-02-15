@@ -1,5 +1,12 @@
 # Wenet common models - Changelog
 
+## Version 1.0.3
+
+- Added script for sending prompt message to users
+- Updated Logger models
+- Adjusted incentive badge and messages parser in order to align to unrequested breaking changes applied in the badge message content
+- Minor fixes to WeNet models
+
 ## Version 1.0.2
 - Bug fix on OAuth token refresh, in case the OAuth server returns a 400-coded response.
 
