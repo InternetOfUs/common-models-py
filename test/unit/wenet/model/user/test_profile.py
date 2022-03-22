@@ -15,7 +15,6 @@ from wenet.model.user.personal_behaviors import PersonalBehavior, ScoredLabel, L
 from wenet.model.user.planned_activity import PlannedActivity, ActivityStatus
 from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage, \
     PatchWeNetUserProfile
-from wenet.model.user.relationship import Relationship, RelationType
 from wenet.model.user.relevant_location import RelevantLocation
 
 
@@ -137,7 +136,6 @@ class TestUserProfile(TestCase):
             ],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -178,7 +176,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -219,7 +216,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -260,7 +256,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -301,7 +296,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -355,7 +349,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -415,7 +408,6 @@ class TestUserProfile(TestCase):
             norms=[norm],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -464,7 +456,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[activity],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -511,7 +502,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[relevant_location],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -523,53 +513,6 @@ class TestUserProfile(TestCase):
 
         self.assertEqual([relevant_location.to_repr()], from_repr.relevant_locations)
         self.assertEqual([relevant_location], from_repr.relevant_locations_as_objects)
-
-    def test_relationships_objects(self):
-        relationship = Relationship(
-            app_id="app_id",
-            user_id="user_id",
-            relation_type=RelationType.COLLEAGUE,
-            weight=0.8
-        )
-
-        user_profile = WeNetUserProfile(
-            name=UserName(
-                first="first",
-                middle="middle",
-                last="last",
-                prefix="prefix",
-                suffix="suffix"
-            ),
-            date_of_birth=Date(
-                year=2020,
-                month=1,
-                day=20
-            ),
-            gender=Gender.MALE,
-            email="email@example.com",
-            phone_number="phone number",
-            locale="it_IT",
-            avatar="avatar",
-            nationality="it",
-            occupation="occupation",
-            creation_ts=1579536160,
-            last_update_ts=1579536160,
-            profile_id="profile_id",
-            norms=[],
-            planned_activities=[],
-            relevant_locations=[],
-            relationships=[relationship],
-            personal_behaviours=[],
-            materials=[],
-            competences=[],
-            meanings=[]
-        )
-
-        to_repr = user_profile.to_repr()
-        from_repr = user_profile.from_repr(to_repr)
-
-        self.assertEqual([relationship.to_repr()], from_repr.relationships)
-        self.assertEqual([relationship], from_repr.relationships_objects)
 
     def test_personal_behaviours_as_objects(self):
         personal_behaviors = PersonalBehavior(
@@ -615,7 +558,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[personal_behaviors],
             materials=[],
             competences=[],
@@ -662,7 +604,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[material],
             competences=[],
@@ -708,7 +649,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[competence],
@@ -754,7 +694,6 @@ class TestUserProfile(TestCase):
             norms=[],
             planned_activities=[],
             relevant_locations=[],
-            relationships=[],
             personal_behaviours=[],
             materials=[],
             competences=[],
@@ -840,7 +779,6 @@ class TestWeNetUserProfilesPage(TestCase):
             None,
             None,
             "profile_id",
-            None,
             None,
             None,
             None,
