@@ -238,3 +238,86 @@ class ProfileManagerInterface(ComponentInterface):
                 has_got_all_relationships = True
 
         return relationships
+
+    def update_relationship(self, relationship: Relationship, headers: Optional[dict] = None) -> Relationship:
+        """
+        Add or modify a relationship between WeNet users
+        :param relationship: The relationship to update/create
+        :param headers: Additional headers to add in the http request
+        :return: The updated relationship
+        """
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}/relationships", body=relationship.to_repr(), headers=headers)
+        if response.status_code in [200, 202]:
+            return Relationship.from_repr(response.json())
+        else:
+            raise self.get_api_exception_for_response(response)
+
+    def update_relationship_batch(self, relationships: List[Relationship], headers: Optional[dict] = None) -> List[
+        Relationship]:
+        """
+        Modify some relationships between WeNet users in batch
+        :param relationships: The list of relationship to update/create
+        :param headers: Additional headers to add in the http request
+        :return: The list of updated relationship
+        """
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        response = self._client.put(f"{self._base_url}/relationships/batch", body=[x.to_repr() for x in relationships],
+                                    headers=headers)
+
+        if response.status_code in [200, 202]:
+            return [Relationship.from_repr(x) for x in response.json()]
+        else:
+            raise self.get_api_exception_for_response(response)
+
+    def delete_relationship(self,
+                            app_id: Optional[str] = None,
+                            source_id: Optional[str] = None,
+                            target_id: Optional[str] = None,
+                            relation_type: Optional[str] = None,
+                            weight_from: Optional[float] = None,
+                            weight_to: Optional[float] = None,
+                            headers: Optional[dict] = None
+                            ) -> None:
+        """
+        Allow to get all the relationships that match the request parameters
+        :param app_id: An application identifier to be equals on the social network relationships to delete. You can use a Perl compatible regular expressions (PCRE) that has to match the application identifier of the relationships if you write between '/'. For example to get the relationships for the applications '1' and '2' you must pass as 'appId' '/^[1|2]$/'.
+        :param source_id: A user identifier to be equals on the relationships source to delete. You can use a Perl compatible regular expressions (PCRE) that has to match the user identifier of the relationships source if you write between '/'. For example to delete the relationships with the source users '1' and '2' you must pass as 'source' '/^[1|2]$/'.
+        :param target_id: A user identifier to be equals on the relationships target to delete. You can use a Perl compatible regular expressions (PCRE) that has to match the user identifier of the relationships target if you write between '/'. For example to delete the relationships with the target users '1' and '2' you must pass as 'target' '/^[1|2]$/'.
+        :param relation_type: The type for the relationships to delete. You can use a Perl compatible regular expressions (PCRE) that has to match the type of the relationships if you write between '/'. For example to delete the relationships with the types 'friend' and 'colleague' you must pass as 'type' '/^[friend|colleague]$/'.
+        :param weight_from: The minimal weight, inclusive, of the relationships to return.
+        :param weight_to: The maximal weight, inclusive, of the relationships to return.
+        :param headers: Additional headers to add in the http request
+        """
+        if headers is not None:
+            headers.update(self._base_headers)
+        else:
+            headers = self._base_headers
+
+        query_params_temp = {
+            "appId": app_id,
+            "sourceId": source_id,
+            "targetId": target_id,
+            "type": relation_type,
+            "weightFrom": weight_from,
+            "weightTo": weight_to
+        }
+
+        query_params = {}
+
+        for param, value in query_params_temp.items():
+            if value is not None:
+                query_params[param] = value
+
+        response = self._client.delete(f"{self._base_url}/relationships", query_params=query_params, headers=headers)
+
+        if response.status_code != 204:
+            raise self.get_api_exception_for_response(response)
