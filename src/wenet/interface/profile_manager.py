@@ -278,15 +278,15 @@ class ProfileManagerInterface(ComponentInterface):
         else:
             raise self.get_api_exception_for_response(response)
 
-    def delete_relationship(self,
-                            app_id: Optional[str] = None,
-                            source_id: Optional[str] = None,
-                            target_id: Optional[str] = None,
-                            relation_type: Optional[str] = None,
-                            weight_from: Optional[float] = None,
-                            weight_to: Optional[float] = None,
-                            headers: Optional[dict] = None
-                            ) -> None:
+    def delete_relationships(self,
+                             app_id: Optional[str] = None,
+                             source_id: Optional[str] = None,
+                             target_id: Optional[str] = None,
+                             relation_type: Optional[str] = None,
+                             weight_from: Optional[float] = None,
+                             weight_to: Optional[float] = None,
+                             headers: Optional[dict] = None
+                             ) -> None:
         """
         Allow to get all the relationships that match the request parameters
         :param app_id: An application identifier to be equals on the social network relationships to delete. You can use a Perl compatible regular expressions (PCRE) that has to match the application identifier of the relationships if you write between '/'. For example to get the relationships for the applications '1' and '2' you must pass as 'appId' '/^[1|2]$/'.
