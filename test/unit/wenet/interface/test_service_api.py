@@ -1220,7 +1220,8 @@ class TestServiceApiInterface(TestCase):
         relationships = [
             Relationship(
                 app_id="app_id",
-                user_id="user_id",
+                source_id="source_id",
+                target_id="target_id",
                 relation_type=RelationType.COLLEAGUE,
                 weight=0.8
             )
