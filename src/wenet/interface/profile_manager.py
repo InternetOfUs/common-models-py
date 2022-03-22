@@ -144,7 +144,7 @@ class ProfileManagerInterface(ComponentInterface):
         return user_ids
 
     def get_relationship_page(self,
-                              app_id: Optional[str],
+                              app_id: Optional[str] = None,
                               source_id: Optional[str] = None,
                               target_id: Optional[str] = None,
                               relation_type: Optional[str] = None,
@@ -205,7 +205,7 @@ class ProfileManagerInterface(ComponentInterface):
             raise self.get_api_exception_for_response(response)
 
     def get_relationships(self,
-                          app_id: Optional[str],
+                          app_id: Optional[str] = None,
                           source_id: Optional[str] = None,
                           target_id: Optional[str] = None,
                           relation_type: Optional[str] = None,
