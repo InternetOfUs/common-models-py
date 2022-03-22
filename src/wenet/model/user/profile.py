@@ -482,7 +482,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             norms=None,
             planned_activities=None,
             relevant_locations=None,
-            relationships=None,
             personal_behaviours=None,
             materials=None,
             competences=None,
