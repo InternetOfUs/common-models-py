@@ -257,8 +257,7 @@ class ProfileManagerInterface(ComponentInterface):
         else:
             raise self.get_api_exception_for_response(response)
 
-    def update_relationship_batch(self, relationships: List[Relationship], headers: Optional[dict] = None) -> List[
-        Relationship]:
+    def update_relationship_batch(self, relationships: List[Relationship], headers: Optional[dict] = None) -> List[Relationship]:
         """
         Modify some relationships between WeNet users in batch
         :param relationships: The list of relationship to update/create

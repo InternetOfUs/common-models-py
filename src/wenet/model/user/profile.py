@@ -4,17 +4,16 @@ import re
 from numbers import Number
 from typing import List, Optional, Dict, Union
 
+from babel.core import Locale
+
 from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.scope import AbstractScopeMappings, Scope
 from wenet.model.user.common import Gender, Date
-from babel.core import Locale
-
 from wenet.model.user.competence import Competence
 from wenet.model.user.material import Material
 from wenet.model.user.meaning import Meaning
 from wenet.model.user.personal_behaviors import PersonalBehavior
 from wenet.model.user.planned_activity import PlannedActivity
-from wenet.model.user.relationship import Relationship
 from wenet.model.user.relevant_location import RelevantLocation
 
 
@@ -582,7 +581,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             if not isinstance(relevant_locations, list):
                 raise TypeError("RelevantLocations should be a list")
 
-
         if personal_behaviours:
             if not isinstance(personal_behaviours, list):
                 raise TypeError("personalBehaviors should be a list")
@@ -657,7 +655,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
         Returns the norms attribute as a list of RelevantLocation objects
         """
         return [RelevantLocation.from_repr(relevant_location) if isinstance(relevant_location, dict) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
-
 
     @property
     def personal_behaviours_as_objects(self) -> Optional[List[PersonalBehavior]]:
