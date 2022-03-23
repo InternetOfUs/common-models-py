@@ -4,17 +4,16 @@ import re
 from numbers import Number
 from typing import List, Optional, Dict, Union
 
+from babel.core import Locale
+
 from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.scope import AbstractScopeMappings, Scope
 from wenet.model.user.common import Gender, Date
-from babel.core import Locale
-
 from wenet.model.user.competence import Competence
 from wenet.model.user.material import Material
 from wenet.model.user.meaning import Meaning
 from wenet.model.user.personal_behaviors import PersonalBehavior
 from wenet.model.user.planned_activity import PlannedActivity
-from wenet.model.user.relationship import Relationship
 from wenet.model.user.relevant_location import RelevantLocation
 
 
@@ -271,7 +270,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
                  norms: Optional[Union[List[dict], List[ProtocolNorm]]],
                  planned_activities: Optional[Union[List[dict], List[PlannedActivity]]],
                  relevant_locations: Optional[Union[List[dict], List[RelevantLocation]]],
-                 relationships: Optional[Union[List[dict], List[Relationship]]],
                  personal_behaviours: Optional[Union[List[dict], List[PersonalBehavior]]],
                  materials: Optional[Union[List[dict], List[Material]]],
                  competences: Optional[Union[List[dict], List[Competence]]],
@@ -295,7 +293,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         self.norms = norms
         self.planned_activities = planned_activities
         self.relevant_locations = relevant_locations
-        self.relationships = relationships
         self.personal_behaviours = personal_behaviours
         self.materials = materials
         self.competences = competences
@@ -337,12 +334,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         else:
             self.relevant_locations = []
 
-        if relationships:
-            if not isinstance(relationships, list):
-                raise TypeError("Relationship should be a list")
-        else:
-            self.relationships = []
-
         if personal_behaviours:
             if not isinstance(personal_behaviours, list):
                 raise TypeError("personalBehaviors should be a list")
@@ -353,7 +344,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in self.norms] if self.norms is not None else None
         raw_planned_activities = [planned_activity.to_repr() if isinstance(planned_activity, PlannedActivity) else planned_activity for planned_activity in self.planned_activities] if self.planned_activities is not None else None
         raw_relevant_locations = [relevant_location.to_repr() if isinstance(relevant_location, RelevantLocation) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
-        raw_relationships = [relationship.to_repr() if isinstance(relationship, Relationship) else relationship for relationship in self.relationships] if self.relationships is not None else None
         raw_personal_behaviors = [personal_behavior.to_repr() if isinstance(personal_behavior, PersonalBehavior) else personal_behavior for personal_behavior in self.personal_behaviours] if self.personal_behaviours is not None else None
         raw_materials = [material.to_repr() if isinstance(material, Material) else material for material in self.materials] if self.materials is not None else None
         raw_competences = [competence.to_repr() if isinstance(competence, Competence) else competence for competence in self.competences] if self.competences is not None else None
@@ -364,7 +354,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             "norms": raw_norms,
             "plannedActivities": raw_planned_activities,
             "relevantLocations": raw_relevant_locations,
-            "relationships": raw_relationships,
             "personalBehaviors": raw_personal_behaviors,
             "materials": raw_materials,
             "competences": raw_competences,
@@ -395,7 +384,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             norms=raw_data["norms"] if raw_data.get("norms", None) else None,
             planned_activities=raw_data.get("plannedActivities", None),
             relevant_locations=raw_data.get("relevantLocations", None),
-            relationships=raw_data.get("relationships", None),
             personal_behaviours=raw_data.get("personalBehaviors", None),
             materials=raw_data.get("materials", None),
             competences=raw_data.get("competences", None),
@@ -422,13 +410,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         Returns the norms attribute as a list of RelevantLocation objects
         """
         return [RelevantLocation.from_repr(relevant_location) if isinstance(relevant_location, dict) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
-
-    @property
-    def relationships_objects(self) -> Optional[List[Relationship]]:
-        """
-        Returns the norms attribute as a list of Relationship objects
-        """
-        return [Relationship.from_repr(relationship) if isinstance(relationship, dict) else relationship for relationship in self.relationships] if self.relationships is not None else None
 
     @property
     def personal_behaviours_as_objects(self) -> Optional[List[PersonalBehavior]]:
@@ -466,7 +447,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             self.norms = other.norms
             self.planned_activities = other.planned_activities
             self.relevant_locations = other.relevant_locations
-            self.relationships = other.relationships
             self.personal_behaviours = other.personal_behaviours
             self.materials = other.materials
             self.competences = other.competences
@@ -478,7 +458,7 @@ class WeNetUserProfile(CoreWeNetUserProfile):
         if not isinstance(o, WeNetUserProfile):
             return False
         return super().__eq__(o) and self.norms == o.norms and self.planned_activities == o.planned_activities \
-            and self.relevant_locations == o.relevant_locations and self.relationships == o.relationships \
+            and self.relevant_locations == o.relevant_locations \
             and self.personal_behaviours == o.personal_behaviours and self.materials == o.materials \
             and self.competences == o.competences and self.meanings == o.meanings
 
@@ -500,7 +480,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             norms=None,
             planned_activities=None,
             relevant_locations=None,
-            relationships=None,
             personal_behaviours=None,
             materials=None,
             competences=None,
@@ -525,7 +504,6 @@ class WeNetUserProfile(CoreWeNetUserProfile):
             norms=None,
             planned_activities=None,
             relevant_locations=None,
-            relationships=None,
             personal_behaviours=None,
             materials=None,
             competences=None,
@@ -551,7 +529,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
                  norms: Optional[Union[List[dict], List[ProtocolNorm]]] = None,
                  planned_activities: Optional[Union[List[dict], List[PlannedActivity]]] = None,
                  relevant_locations: Optional[Union[List[dict], List[RelevantLocation]]] = None,
-                 relationships: Optional[Union[List[dict], List[Relationship]]] = None,
                  personal_behaviours: Optional[Union[List[dict], List[PersonalBehavior]]] = None,
                  materials: Optional[Union[List[dict], List[Material]]] = None,
                  competences: Optional[Union[List[dict], List[Competence]]] = None,
@@ -575,7 +552,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
         self.norms = norms
         self.planned_activities = planned_activities
         self.relevant_locations = relevant_locations
-        self.relationships = relationships
         self.personal_behaviours = personal_behaviours
         self.materials = materials
         self.competences = competences
@@ -605,10 +581,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             if not isinstance(relevant_locations, list):
                 raise TypeError("RelevantLocations should be a list")
 
-        if relationships:
-            if not isinstance(relationships, list):
-                raise TypeError("Relationship should be a list")
-
         if personal_behaviours:
             if not isinstance(personal_behaviours, list):
                 raise TypeError("personalBehaviors should be a list")
@@ -617,7 +589,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
         raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in self.norms] if self.norms is not None else None
         raw_planned_activities = [planned_activity.to_repr() if isinstance(planned_activity, PlannedActivity) else planned_activity for planned_activity in self.planned_activities] if self.planned_activities is not None else None
         raw_relevant_locations = [relevant_location.to_repr() if isinstance(relevant_location, RelevantLocation) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
-        raw_relationships = [relationship.to_repr() if isinstance(relationship, Relationship) else relationship for relationship in self.relationships] if self.relationships is not None else None
         raw_personal_behaviors = [personal_behavior.to_repr() if isinstance(personal_behavior, PersonalBehavior) else personal_behavior for personal_behavior in self.personal_behaviours] if self.personal_behaviours is not None else None
         raw_materials = [material.to_repr() if isinstance(material, Material) else material for material in self.materials] if self.materials is not None else None
         raw_competences = [competence.to_repr() if isinstance(competence, Competence) else competence for competence in self.competences] if self.competences is not None else None
@@ -628,7 +599,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             "norms": raw_norms,
             "plannedActivities": raw_planned_activities,
             "relevantLocations": raw_relevant_locations,
-            "relationships": raw_relationships,
             "personalBehaviors": raw_personal_behaviors,
             "materials": raw_materials,
             "competences": raw_competences,
@@ -659,7 +629,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             norms=raw_data["norms"] if raw_data.get("norms", None) else None,
             planned_activities=raw_data.get("plannedActivities", None),
             relevant_locations=raw_data.get("relevantLocations", None),
-            relationships=raw_data.get("relationships", None),
             personal_behaviours=raw_data.get("personalBehaviors", None),
             materials=raw_data.get("materials", None),
             competences=raw_data.get("competences", None),
@@ -686,13 +655,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
         Returns the norms attribute as a list of RelevantLocation objects
         """
         return [RelevantLocation.from_repr(relevant_location) if isinstance(relevant_location, dict) else relevant_location for relevant_location in self.relevant_locations] if self.relevant_locations is not None else None
-
-    @property
-    def relationships_objects(self) -> Optional[List[Relationship]]:
-        """
-        Returns the norms attribute as a list of Relationship objects
-        """
-        return [Relationship.from_repr(relationship) if isinstance(relationship, dict) else relationship for relationship in self.relationships] if self.relationships is not None else None
 
     @property
     def personal_behaviours_as_objects(self) -> Optional[List[PersonalBehavior]]:
@@ -730,7 +692,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             self.norms = other.norms
             self.planned_activities = other.planned_activities
             self.relevant_locations = other.relevant_locations
-            self.relationships = other.relationships
             self.personal_behaviours = other.personal_behaviours
             self.materials = other.materials
             self.competences = other.competences
@@ -742,7 +703,7 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
         if not isinstance(o, PatchWeNetUserProfile):
             return False
         return super().__eq__(o) and self.norms == o.norms and self.planned_activities == o.planned_activities \
-            and self.relevant_locations == o.relevant_locations and self.relationships == o.relationships \
+            and self.relevant_locations == o.relevant_locations \
             and self.personal_behaviours == o.personal_behaviours and self.materials == o.materials \
             and self.competences == o.competences and self.meanings == o.meanings
 
@@ -764,7 +725,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             norms=None,
             planned_activities=None,
             relevant_locations=None,
-            relationships=None,
             personal_behaviours=None,
             materials=None,
             competences=None,
@@ -789,7 +749,6 @@ class PatchWeNetUserProfile(CoreWeNetUserProfile):
             norms=None,
             planned_activities=None,
             relevant_locations=None,
-            relationships=None,
             personal_behaviours=None,
             materials=None,
             competences=None,

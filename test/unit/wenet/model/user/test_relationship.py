@@ -10,7 +10,8 @@ class TestCompetence(TestCase):
     def test_repr(self):
         relationship = Relationship(
             app_id="app_id",
-            user_id="user_id",
+            source_id="source_id",
+            target_id="target_id",
             relation_type=RelationType.COLLEAGUE,
             weight=0.8
         )
@@ -23,9 +24,10 @@ class TestCompetence(TestCase):
 
     def test_wrong_level(self):
         with self.assertRaises(ValueError):
-            relationship = Relationship(
+             Relationship(
                 app_id="app_id",
-                user_id="user_id",
+                source_id="source_id",
+                target_id="user_id",
                 relation_type=RelationType.COLLEAGUE,
                 weight=2.8
             )

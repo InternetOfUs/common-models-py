@@ -1,5 +1,20 @@
 # Wenet common models - Changelog
 
+## Version 5.*
+
+### 5.0.0
+
+:boom: Breaking changes
+* Updated WeNetUserProfile model, relationships are no longer part of the profile.
+* Updated Relationship model. Added sourceId and renamed userId to targetId
+
+:rocket: New features
+* Added methods for retrieve, update and delete the relationship in the ProfileManagerInterface
+
+:house: Internal
+
+* Updated to project template version 4.10.4
+
 ## Version 4.*
 
 ### 4.0.0
