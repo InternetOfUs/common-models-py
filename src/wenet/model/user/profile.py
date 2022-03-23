@@ -1,10 +1,7 @@
 from __future__ import absolute_import, annotations
 
-import re
 from numbers import Number
 from typing import List, Optional, Dict, Union
-
-from babel.core import Locale
 
 from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.scope import AbstractScopeMappings, Scope
