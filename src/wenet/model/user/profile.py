@@ -1,10 +1,7 @@
 from __future__ import absolute_import, annotations
 
-import re
 from numbers import Number
 from typing import List, Optional, Dict, Union
-
-from babel.core import Locale
 
 from wenet.model.protocol_norm import ProtocolNorm
 from wenet.model.scope import AbstractScopeMappings, Scope
@@ -100,16 +97,12 @@ class CoreWeNetUserProfile:
         if email:
             if not isinstance(email, str):
                 raise TypeError("Email should be a string")
-            if not self.is_valid_mail(email):
-                raise ValueError("[%s] is not a valid email" % email)
         if phone_number:
             if not isinstance(phone_number, str):
                 raise TypeError("Phone number should be a string")
         if locale:
             if not isinstance(locale, str):
                 raise TypeError("Locale should be a string")
-            if not self.is_valid_locale(locale):
-                raise ValueError("[%s] is not a valid Locale" % locale)
         if avatar:
             if not isinstance(avatar, str):
                 raise TypeError("Avatar should be a string")
@@ -206,19 +199,6 @@ class CoreWeNetUserProfile:
         self.last_update_ts = other.last_update_ts
 
         return self
-
-    @staticmethod
-    def is_valid_mail(mail: str):
-        reg_exp = r"^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w+)+$"
-        return re.search(reg_exp, mail)
-
-    @staticmethod
-    def is_valid_locale(locale: str) -> bool:
-        try:
-            Locale.parse(locale)
-            return True
-        except ValueError:
-            return False
 
     def __repr__(self):
         return str(self.to_repr())

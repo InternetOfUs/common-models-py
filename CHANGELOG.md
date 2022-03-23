@@ -11,6 +11,9 @@
 :rocket: New features
 * Added methods for retrieve, update and delete the relationship in the ProfileManagerInterface
 
+:nail_care: Polish
+* Removed checks on locale and email, these fields will be checked by other components in the platform.
+
 :house: Internal
 
 * Updated to project template version 4.10.4
