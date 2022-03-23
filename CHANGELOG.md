@@ -11,6 +11,10 @@
 :rocket: New features
 * Added methods for retrieve, update and delete the relationship in the ProfileManagerInterface
 
+:house: Internal
+
+* Updated to project template version 4.10.4
+
 ## Version 4.*
 
 ### 4.0.0
