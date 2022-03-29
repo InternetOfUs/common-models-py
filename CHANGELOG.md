@@ -16,7 +16,7 @@
 
 :house: Internal
 
-* Updated to project template version 4.10.4
+* Updated to project template version 4.12.0
 
 ## Version 4.*
 
