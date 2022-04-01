@@ -33,7 +33,6 @@ class CoreWeNetUserProfile:
                 Scope.NORMS_READ: "norms",
                 Scope.ACTIVITIES_READ: "plannedActivities",
                 Scope.LOCATIONS_READ: "relevantLocations",
-                Scope.RELATIONSHIPS_READ: "relationships",
                 Scope.BEHAVIOURS_READ: "personalBehaviors",
                 Scope.MATERIALS_READ: "meanings",
                 Scope.COMPETENCES_READ: "competences",
