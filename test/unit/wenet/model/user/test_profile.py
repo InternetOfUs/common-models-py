@@ -14,7 +14,7 @@ from wenet.model.user.meaning import Meaning
 from wenet.model.user.personal_behaviors import PersonalBehavior, ScoredLabel, Label
 from wenet.model.user.planned_activity import PlannedActivity, ActivityStatus
 from wenet.model.user.profile import UserName, WeNetUserProfile, WeNetUserProfilesPage, UserIdentifiersPage, \
-    PatchWeNetUserProfile
+    PatchWeNetUserProfile, CoreWeNetUserProfile
 from wenet.model.user.relevant_location import RelevantLocation
 
 
@@ -373,6 +373,25 @@ class TestUserProfile(TestCase):
         self.assertIsNone(from_repr.locale)
         self.assertIsNone(from_repr.nationality)
         self.assertIsNone(from_repr.date_of_birth)
+
+    def test_core_profile_filtered_repr_with_full_profile_scope(self):
+        profile = CoreWeNetUserProfile.empty("user_id")
+        filtered_repr = profile.to_filtered_repr([Scope.BEHAVIOURS_READ])
+        expected_result = {
+            "name": {}
+        }
+
+        self.assertEqual(expected_result, filtered_repr)
+
+    def test_profile_filtered_repr(self):
+        profile = WeNetUserProfile.empty("user_id")
+        filtered_repr = profile.to_filtered_repr([Scope.BEHAVIOURS_READ])
+        expected_result = {
+            "name": {},
+            "personalBehaviors": []
+        }
+
+        self.assertEqual(expected_result, filtered_repr)
 
     def test_norms_as_objects(self):
         norm = ProtocolNorm(

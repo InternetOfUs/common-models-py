@@ -30,13 +30,6 @@ class CoreWeNetUserProfile:
                 Scope.EMAIL_READ: "email",
                 Scope.AVATAR_READ: "avatar",
                 Scope.OCCUPATION_READ: "occupation",
-                Scope.NORMS_READ: "norms",
-                Scope.ACTIVITIES_READ: "plannedActivities",
-                Scope.LOCATIONS_READ: "relevantLocations",
-                Scope.BEHAVIOURS_READ: "personalBehaviors",
-                Scope.MATERIALS_READ: "meanings",
-                Scope.COMPETENCES_READ: "competences",
-                Scope.MEANINGS_READ: "meanings",
 
                 # TODO Legacy scopes, remove before release
                 Scope.ID_LEGACY: "id",
@@ -232,6 +225,22 @@ class CoreWeNetUserProfile:
 
 
 class WeNetUserProfile(CoreWeNetUserProfile):
+
+    class ScopeMappings(CoreWeNetUserProfile.ScopeMappings):
+
+        @staticmethod
+        def _get_read_scope_mappings() -> Dict[Scope, str]:
+            mappings = CoreWeNetUserProfile.ScopeMappings._get_read_scope_mappings()
+            mappings.update({
+                Scope.NORMS_READ: "norms",
+                Scope.ACTIVITIES_READ: "plannedActivities",
+                Scope.LOCATIONS_READ: "relevantLocations",
+                Scope.BEHAVIOURS_READ: "personalBehaviors",
+                Scope.MATERIALS_READ: "meanings",
+                Scope.COMPETENCES_READ: "competences",
+                Scope.MEANINGS_READ: "meanings"
+            })
+            return mappings
 
     def __init__(self,
                  name: Optional[UserName],
