@@ -16,7 +16,7 @@ from wenet.model.user.material import Material
 from wenet.model.user.meaning import Meaning
 from wenet.model.user.personal_behaviors import PersonalBehavior
 from wenet.model.user.planned_activity import PlannedActivity
-from wenet.model.user.relationship import Relationship
+from wenet.model.user.relationship import Relationship, RelationshipPage
 from wenet.model.user.relevant_location import RelevantLocation
 from wenet.model.user.token import TokenDetails
 from wenet.model.user.profile import WeNetUserProfile, CoreWeNetUserProfile
@@ -443,51 +443,120 @@ class ServiceApiInterface(ComponentInterface):
         else:
             raise self.get_api_exception_for_response(response)
 
-    def get_user_relationships(self, wenet_user_id: str, headers: Optional[dict] = None) -> List[dict]:
+    def get_relationship_page(self,
+                              wenet_user_id: str,
+                              target_id: Optional[str] = None,
+                              relation_type: Optional[str] = None,
+                              weight_from: Optional[float] = None,
+                              weight_to: Optional[float] = None,
+                              order: Optional[str] = None,
+                              offset: int = 0,
+                              limit: int = 10,
+                              headers: Optional[dict] = None) -> RelationshipPage:
         """
-        Get all the relationships defined into a profile
 
-        Args:
-            wenet_user_id: The Id of the wenet user
-            headers: Additional headers to add to the call
-
-        Returns:
-            The relationships defined into the profile
+        :param wenet_user_id: The Id of the wenet user
+        :param target_id: A user identifier to be equals on the relationships target to return. You can use a Perl compatible regular expressions (PCRE) that has to match the user identifier of the relationships target if you write between '/'. For example to get the relationships with the target users '1' and '2' you must pass as 'target' '/^[1|2]$/'.
+        :param relation_type: The type for the relationships to return. You can use a Perl compatible regular expressions (PCRE) that has to match the type of the relationships if you write between '/'. For example to get the relationships with the types 'friend' and 'colleague' you must pass as 'type' '/^[friend|colleague]$/'.
+        :param weight_from: The minimal weight, inclusive, of the relationships to return.
+        :param weight_to: The maximal weight, inclusive, of the relationships to return.
+        :param order: The order in witch the relationships has to be returned. For each field it has be separated by a ',' and each field can start with '+' (or without it) to order on ascending order, or with the prefix '-' to do on descendant order.
+        :param offset: The index of the first social network relationship to return.
+        :param limit: The number maximum of social network relationships to return
+        :param headers: Additional headers to add to the call
+        :return: An object representing a relationships page.
         """
+        query_params_temp = {
+            "targetId": target_id,
+            "type": relation_type,
+            "weightFrom": weight_from,
+            "weightTo": weight_to,
+            "order": order,
+            "offset": offset,
+            "limit": limit
+        }
+
+        query_params = {}
+
+        for param, value in query_params_temp.items():
+            if value is not None:
+                query_params[param] = value
+
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", headers=headers)
+        response = self._client.get(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships",
+                                    query_params=query_params, headers=headers)
 
         if response.status_code == 200:
-            return response.json()
+            return RelationshipPage.from_repr(response.json())
         else:
             raise self.get_api_exception_for_response(response)
 
-    def update_user_relationships(self, wenet_user_id: str, relationships: Union[List[dict], List[Relationship]], headers: Optional[dict] = None) -> List[dict]:
+    def get_user_relationships(self,
+                               wenet_user_id: str,
+                               target_id: Optional[str] = None,
+                               relation_type: Optional[str] = None,
+                               weight_from: Optional[float] = None,
+                               weight_to: Optional[float] = None,
+                               order: Optional[str] = None,
+                               headers: Optional[dict] = None) -> List[Relationship]:
         """
-        Update all the relationships of a profile overwriting the existing ones
+        Get all the relationships defined into a profile
 
-        Args:
-            wenet_user_id: The Id of the wenet user
-            relationships: The new relationships
-            headers: Additional headers to add to the call
+        :param wenet_user_id: The Id of the wenet user
+        :param target_id: A user identifier to be equals on the relationships target to return. You can use a Perl compatible regular expressions (PCRE) that has to match the user identifier of the relationships target if you write between '/'. For example to get the relationships with the target users '1' and '2' you must pass as 'target' '/^[1|2]$/'.
+        :param relation_type: The type for the relationships to return. You can use a Perl compatible regular expressions (PCRE) that has to match the type of the relationships if you write between '/'. For example to get the relationships with the types 'friend' and 'colleague' you must pass as 'type' '/^[friend|colleague]$/'.
+        :param weight_from: The minimal weight, inclusive, of the relationships to return.
+        :param weight_to: The maximal weight, inclusive, of the relationships to return.
+        :param order: The order in witch the relationships has to be returned. For each field it has be separated by a ',' and each field can start with '+' (or without it) to order on ascending order, or with the prefix '-' to do on descendant order.
+        :param headers: Additional headers to add to the call
+        :return: The list of relationships of the given user
+        """
+        relationships: List[Relationship] = []
+        has_got_all_relationships = False
+        offset = 0
+        limit = 100
+        while not has_got_all_relationships:
+            relationship_page = self.get_relationship_page(
+                wenet_user_id=wenet_user_id,
+                target_id=target_id,
+                relation_type=relation_type,
+                weight_from=weight_from,
+                weight_to=weight_to,
+                order=order,
+                headers=headers,
+                offset=offset,
+                limit=limit
+            )
 
-        Returns:
-            The updated relationships of the profile
+            relationships.extend(relationship_page.relationships)
+            offset += len(relationship_page.relationships)
+            if len(relationship_page.relationships) < limit:
+                has_got_all_relationships = True
+
+        return relationships
+
+    def update_user_relationships(self, wenet_user_id: str, relationships: Union[List[Relationship]], headers: Optional[dict] = None) -> List[Relationship]:
+        """
+        Update The user relationships in batch
+        :param wenet_user_id: The id of the user
+        :param relationships: The list of relationships to update
+        :param headers: Additional headers to add to the call
+        :return:
         """
         if headers is not None:
             headers.update(self._base_headers)
         else:
             headers = self._base_headers
 
-        raw_relationships = [relationship.to_repr() if isinstance(relationship, Relationship) else relationship for relationship in relationships]
+        raw_relationships = [relationship.to_repr() for relationship in relationships]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", raw_relationships, headers=headers)
 
         if response.status_code == 200:
-            return response.json()
+            return [Relationship.from_repr(x) for x in response.json()]
         else:
             raise self.get_api_exception_for_response(response)
 
