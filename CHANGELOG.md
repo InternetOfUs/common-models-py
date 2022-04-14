@@ -10,6 +10,7 @@
 
 :rocket: New features
 * Added methods for retrieve, update and delete the relationship in the ProfileManagerInterface
+* Updated service api interface in order to handle the new relationship endpoints
 
 :nail_care: Polish
 * Removed checks on locale and email, these fields will be checked by other components in the platform.
