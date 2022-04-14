@@ -539,7 +539,7 @@ class ServiceApiInterface(ComponentInterface):
 
         return relationships
 
-    def update_user_relationships(self, wenet_user_id: str, relationships: Union[List[Relationship]], headers: Optional[dict] = None) -> List[Relationship]:
+    def update_user_relationships(self, wenet_user_id: str, relationships: List[Relationship], headers: Optional[dict] = None) -> List[Relationship]:
         """
         Update The user relationships in batch
         :param wenet_user_id: The id of the user
