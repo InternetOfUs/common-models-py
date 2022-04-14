@@ -105,19 +105,18 @@ class Version:
         return self.other is None
 
 
-def version_blocker(release_tag: str) -> Version:
+def version_blocker(release_tag: str, allow_non_final_version: bool) -> Version:
     try:
         version = Version.build(release_tag)
         # In the context of this script, there is no interest in creating releases for work in
         # progress versions.
-        if not version.is_final:
+        if not allow_non_final_version and not version.is_final:
             logging.info(f"Target version [{version.label}] is not meant to be issued.")
             exit(1)
         return version
     except ValueError as e:
         logging.error(f"The structure of the tag [{release_tag}] does not support a release.", exc_info=e)
         exit(1)
-
 
 
 if __name__ == "__main__":
@@ -135,6 +134,7 @@ if __name__ == "__main__":
     create_release_parser = sub_parsers.add_parser("create", help='Create a new GitLab release.')
     create_release_parser.add_argument("-i", "--project_id", type=str, default=os.getenv("CI_PROJECT_ID"), help="The project id. Allows configuration via CI_PROJECT_ID env variable.")
     create_release_parser.add_argument("-d", "--release_description", type=str, default=os.getenv("RELEASE_DESCRIPTION", None), help="The release description. Allows configuration via RELEASE_DESCRIPTION env variable. Default None.")
+    create_release_parser.add_argument("--allow_non_final_version", action="store_true", help="Allow the creation of a release based on a non final version.")
 
     issue_release_parser = sub_parsers.add_parser("issue", help='Issue a release to all the linked projects.')
     issue_release_parser.add_argument("-n", "--project_name", type=str, default=os.getenv("CI_PROJECT_TITLE"), help="The project name. Allows configuration via CI_PROJECT_TITLE env variable.")
@@ -146,6 +146,7 @@ if __name__ == "__main__":
     slack_notify_release_parser.add_argument("-u", "--project_url", type=str, default=os.getenv("CI_PROJECT_URL"), help="The project name. Allows configuration via CI_PROJECT_URL env variable.")
     slack_notify_release_parser.add_argument("-d", "--release_description", type=str, default=os.getenv("RELEASE_DESCRIPTION", None), help="The release description. Allows configuration via RELEASE_DESCRIPTION env variable. Default None.")
     slack_notify_release_parser.add_argument("-s", "--slack_webhook", type=str, default=os.getenv("SLACK_WEBHOOK", None), help="The Slack webhook where the notification should be sent. Allows configuration via SLACK_WEBHOOK env variable. Default None.")
+    slack_notify_release_parser.add_argument("--allow_non_final_version", action="store_true", help="Allow the creation of a release based on a non final version.")
 
     args = arg_parser.parse_args()
 
@@ -167,7 +168,7 @@ if __name__ == "__main__":
         if not release_description:
             release_description = Release.read_from_changelog()
 
-        version = version_blocker(release_tag)
+        version = version_blocker(release_tag, args.allow_non_final_version)
 
         gl = gitlab.Gitlab(args.gitlab_url, private_token=args.api_token)
 
@@ -189,7 +190,7 @@ if __name__ == "__main__":
     elif args.command == "issue":
         logging.info(f"Issuing new release [{release_tag}].")
 
-        version_blocker(release_tag)
+        version_blocker(release_tag, False)
 
         gitlab_topic = args.gitlab_topic
         project_name = args.project_name
@@ -226,7 +227,7 @@ if __name__ == "__main__":
 
     elif args.command == "slack":
         logging.info(f"Notifying on Slack new release [{release_tag}].")
-        version = version_blocker(release_tag)
+        version = version_blocker(release_tag, args.allow_non_final_version)
 
         slack_webhook = args.slack_webhook
         if not slack_webhook:

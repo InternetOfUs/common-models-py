@@ -20,9 +20,9 @@ class HubInterface(ComponentInterface):
 
     def get_user_ids_for_app(self, app_id: str, from_datetime: Optional[datetime] = None, to_datetime: Optional[datetime] = None, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         query_params = {}
         if from_datetime is not None:
@@ -39,9 +39,9 @@ class HubInterface(ComponentInterface):
 
     def get_app_details(self, app_id: str, headers: Optional[dict] = None) -> App:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.get(f"{self._base_url}/data/app/{app_id}", headers=headers)
 
@@ -52,9 +52,9 @@ class HubInterface(ComponentInterface):
 
     def get_app_developers(self, app_id: str, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.get(f"{self._base_url}/data/app/{app_id}/developer", headers=headers)
 
@@ -65,9 +65,9 @@ class HubInterface(ComponentInterface):
 
     def get_user_ids(self, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.get(f"{self._base_url}/data/user", headers=headers)
 

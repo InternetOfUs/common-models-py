@@ -20,9 +20,9 @@ class ProfileManagerInterface(ComponentInterface):
 
     def get_user_profile(self, user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.get(f"{self._base_url}/profiles/{user_id}", headers=headers)
 
@@ -33,9 +33,9 @@ class ProfileManagerInterface(ComponentInterface):
 
     def update_user_profile(self, profile: WeNetUserProfile, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         profile_repr = profile.to_repr()
         profile_repr.pop("_creationTs", None)
@@ -55,9 +55,9 @@ class ProfileManagerInterface(ComponentInterface):
         Only the fields with value different from None in the profile_patch will be patched
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.patch(f"{self._base_url}/profiles/{profile_patch.profile_id}",
                                       body=profile_patch.to_patch(), headers=headers)
@@ -69,9 +69,9 @@ class ProfileManagerInterface(ComponentInterface):
 
     def create_empty_user_profile(self, user_id: str, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         profile_repr = {
             "id": user_id
@@ -85,9 +85,9 @@ class ProfileManagerInterface(ComponentInterface):
 
     def delete_user_profile(self, user_id: str, headers: Optional[dict] = None) -> None:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.delete(f"{self._base_url}/profiles/{user_id}", headers=headers)
 
@@ -96,9 +96,9 @@ class ProfileManagerInterface(ComponentInterface):
 
     def get_profiles(self, headers: Optional[dict] = None) -> List[WeNetUserProfile]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         profiles = []
         has_got_all_profiles = False
@@ -120,9 +120,9 @@ class ProfileManagerInterface(ComponentInterface):
 
     def get_profile_user_ids(self, headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         user_ids = []
         has_got_all_user_ids = False
@@ -175,9 +175,9 @@ class ProfileManagerInterface(ComponentInterface):
         :raise: ApiException if the request does not return a 200 code. KeyError if the methods is not able to create a RelationshipPage object
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         query_params_temp = {
             "appId": app_id,
@@ -247,9 +247,9 @@ class ProfileManagerInterface(ComponentInterface):
         :return: The updated relationship
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.put(f"{self._base_url}/relationships", body=relationship.to_repr(), headers=headers)
         if response.status_code in [200, 202]:
@@ -265,9 +265,9 @@ class ProfileManagerInterface(ComponentInterface):
         :return: The list of updated relationship
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.put(f"{self._base_url}/relationships/batch", body=[x.to_repr() for x in relationships],
                                     headers=headers)
@@ -297,9 +297,9 @@ class ProfileManagerInterface(ComponentInterface):
         :param headers: Additional headers to add in the http request
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         query_params_temp = {
             "appId": app_id,
