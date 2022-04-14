@@ -1,14 +1,17 @@
 from __future__ import absolute_import, annotations
 
+import random
+import secrets
 from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock
 
 import pytz
 
+from test.unit.wenet.generator.user_profile import RelationshipGenerator
 from test.unit.wenet.interface.mock.client import MockOauth2Client
 from test.unit.wenet.interface.mock.response import MockResponse
-from wenet.interface.exceptions import NotFound, BadRequest, AuthenticationException
+from wenet.interface.exceptions import NotFound, BadRequest, AuthenticationException, ApiException
 from wenet.interface.service_api import ServiceApiInterface
 from wenet.model.app import AppDTO
 from wenet.model.logging_message.content import ActionRequest
@@ -21,7 +24,7 @@ from wenet.model.user.material import Material
 from wenet.model.user.meaning import Meaning
 from wenet.model.user.personal_behaviors import PersonalBehavior, ScoredLabel, Label
 from wenet.model.user.planned_activity import PlannedActivity, ActivityStatus
-from wenet.model.user.relationship import Relationship, RelationType
+from wenet.model.user.relationship import Relationship, RelationType, RelationshipPage
 from wenet.model.user.relevant_location import RelevantLocation
 from wenet.model.user.token import TokenDetails
 from wenet.model.user.profile import WeNetUserProfile, CoreWeNetUserProfile
@@ -1164,23 +1167,92 @@ class TestServiceApiInterface(TestCase):
         with self.assertRaises(AuthenticationException):
             self.service_api.update_user_planned_activities("user_id", planned_activities)
 
+    def test_get_relationship_page(self):
+
+        relationship_page = RelationshipPage(
+            offset=0,
+            total=1,
+            relationships=[
+                Relationship(
+                    app_id="app1",
+                    source_id="user_id",
+                    target_id="user_id1",
+                    relation_type=RelationType.FRIEND,
+                    weight=0.12
+                )
+            ]
+        )
+
+        response = MockResponse(relationship_page.to_repr())
+        response.status_code = 200
+        self.service_api._client.get = Mock(return_value=response)
+        self.assertEqual(relationship_page, self.service_api.get_relationship_page("user_id"))
+        self.service_api._client.get.assert_called()
+
+    def test_get_relationship_page_exception(self):
+
+        relationship_page = RelationshipPage(
+            offset=0,
+            total=1,
+            relationships=[
+                Relationship(
+                    app_id="app1",
+                    source_id="user_id",
+                    target_id="user_id1",
+                    relation_type=RelationType.FRIEND,
+                    weight=0.12
+                )
+            ]
+        )
+
+        response = MockResponse(None)
+        response.status_code = 400
+        self.service_api._client.get = Mock(return_value=response)
+        with self.assertRaises(ApiException):
+            self.service_api.get_relationship_page("user_id")
+        self.service_api._client.get.assert_called()
+
     def test_get_user_relationships(self):
-        response = MockResponse([
-            {
-                "userId": "user_id1",
-                "type": "friend",
-                "weight": 0.2
-            }
-        ])
+
+        relationship_page = RelationshipPage(
+            offset=0,
+            total=1,
+            relationships=[
+                Relationship(
+                    app_id="app1",
+                    source_id="user_id",
+                    target_id="user_id1",
+                    relation_type=RelationType.FRIEND,
+                    weight=0.12
+                )
+            ]
+        )
+
+        response = MockResponse(relationship_page.to_repr())
         response.status_code = 200
         self.service_api._client.get = Mock(return_value=response)
         self.assertEqual([
-            {
-                "userId": "user_id1",
-                "type": "friend",
-                "weight": 0.2
-            }
+            Relationship(
+                app_id="app1",
+                source_id="user_id",
+                target_id="user_id1",
+                relation_type=RelationType.FRIEND,
+                weight=0.12
+            )
         ], self.service_api.get_user_relationships("user_id"))
+        self.service_api._client.get.assert_called()
+
+    def test_get_user_relationships_multiple_pages(self):
+
+        self.service_api.get_relationship_page = Mock(
+            side_effect=[
+                RelationshipGenerator.generate_relationship_page("user_id", 100),
+                RelationshipGenerator.generate_relationship_page("user_id", 8)
+            ]
+        )
+
+        self.assertEqual(108, len(self.service_api.get_user_relationships("user_id")))
+        self.assertEqual(2, self.service_api.get_relationship_page.call_count)
 
     def test_get_user_relationships_exception(self):
         response = MockResponse(None)
@@ -1205,38 +1277,29 @@ class TestServiceApiInterface(TestCase):
 
     def test_update_user_relationships(self):
         relationships = [
-            {
-                "userId": "user_id1",
-                "type": "friend",
-                "weight": 0.2
-            }
-        ]
-        response = MockResponse(relationships)
-        response.status_code = 200
-        self.service_api._client.put = Mock(return_value=response)
-        self.assertEqual(relationships, self.service_api.update_user_relationships("user_id", relationships))
-
-    def test_update_user_relationships_objects(self):
-        relationships = [
             Relationship(
-                app_id="app_id",
-                user_id="user_id",
-                relation_type=RelationType.COLLEAGUE,
-                weight=0.8
+                app_id="app1",
+                source_id="user_id",
+                target_id="user_id1",
+                relation_type=RelationType.FRIEND,
+                weight=0.12
             )
         ]
-        response = MockResponse(relationships)
+        response = MockResponse([x.to_repr() for x in relationships])
         response.status_code = 200
         self.service_api._client.put = Mock(return_value=response)
         self.assertEqual(relationships, self.service_api.update_user_relationships("user_id", relationships))
+        self.service_api._client.put.assert_called()
 
     def test_update_user_relationships_exception(self):
         relationships = [
-            {
-                "userId": "user_id1",
-                "type": "friend",
-                "weight": 0.2
-            }
+            Relationship(
+                app_id="app1",
+                source_id="user_id",
+                target_id="user_id1",
+                relation_type=RelationType.FRIEND,
+                weight=0.12
+            )
         ]
         response = MockResponse(None)
         response.status_code = 500
@@ -1246,11 +1309,13 @@ class TestServiceApiInterface(TestCase):
 
     def test_update_user_relationships_not_found(self):
         relationships = [
-            {
-                "userId": "user_id1",
-                "type": "friend",
-                "weight": 0.2
-            }
+            Relationship(
+                app_id="app1",
+                source_id="user_id",
+                target_id="user_id1",
+                relation_type=RelationType.FRIEND,
+                weight=0.12
+            )
         ]
         response = MockResponse(None)
         response.status_code = 404
@@ -1260,11 +1325,13 @@ class TestServiceApiInterface(TestCase):
 
     def test_update_user_relationships_unauthorized(self):
         relationships = [
-            {
-                "userId": "user_id1",
-                "type": "friend",
-                "weight": 0.2
-            }
+            Relationship(
+                app_id="app1",
+                source_id="user_id",
+                target_id="user_id1",
+                relation_type=RelationType.FRIEND,
+                weight=0.12
+            )
         ]
         response = MockResponse(None)
         response.status_code = 401

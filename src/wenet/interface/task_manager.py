@@ -208,9 +208,9 @@ class TaskManagerInterface(ComponentInterface):
             Exception: if response from the component returns an unexpected code
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.get(f"{self._base_url}/tasks/{task_id}", headers=headers)
 
@@ -266,9 +266,9 @@ class TaskManagerInterface(ComponentInterface):
             Exception: if response from the component returns an unexpected code
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         query_params_temp = {
             "appId": app_id,
@@ -366,9 +366,9 @@ class TaskManagerInterface(ComponentInterface):
             Exception: if response from the component returns an unexpected code
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         query_params_temp = {
             "appId": app_id,
@@ -423,9 +423,9 @@ class TaskManagerInterface(ComponentInterface):
             Exception: if response from the component returns an unexpected code
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         task_repr = task.prepare_task()
         task_repr.pop("id", None)
@@ -449,9 +449,9 @@ class TaskManagerInterface(ComponentInterface):
             Exception: if response from the component returns an unexpected code
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.put(f"{self._base_url}/tasks/{task.task_id}", body=task.prepare_task(), headers=headers)
 
@@ -473,9 +473,9 @@ class TaskManagerInterface(ComponentInterface):
             Exception: if response from the component returns an unexpected code
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.post(f"{self._base_url}/tasks/transactions", body=task_transaction.to_repr(), headers=headers)
 

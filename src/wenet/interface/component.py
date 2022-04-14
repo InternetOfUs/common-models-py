@@ -17,13 +17,19 @@ class ComponentInterface(ABC):
     def __init__(self, client: RestClient, base_url: str, extra_headers: Optional[dict] = None) -> None:
         self._client = client
         self._base_url = base_url
+
         self._base_headers = {
-            "Accept": "application/json",
+            "Accept": "application/json"
+        }
+
+        self._json_body_headers = {
             "Content-Type": "application/json"
         }
 
+        self._json_body_headers.update(self._base_headers)
+
         if extra_headers:
-            self._base_headers.update(extra_headers)
+            self._json_body_headers.update(extra_headers)
 
     @staticmethod
     def get_api_exception_for_response(response: Response) -> ApiException:
