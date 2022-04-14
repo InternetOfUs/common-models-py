@@ -19,9 +19,9 @@ class LoggerInterface(ComponentInterface):
 
     def post_messages(self, messages: List[BaseMessage], headers: Optional[dict] = None) -> List[str]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.post(f"{self._base_url}/messages", body=[message.to_repr() for message in messages], headers=headers)
 
