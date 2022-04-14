@@ -17,9 +17,9 @@ class IncentiveServerInterface(ComponentInterface):
 
     def get_cohorts(self, headers: Optional[dict] = None) -> List[dict]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.get(f"{self._base_url}/api/UsersCohorts/", headers=headers)
 

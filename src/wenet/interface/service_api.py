@@ -81,9 +81,9 @@ class ServiceApiInterface(ComponentInterface):
 
     def create_task(self, task: Task, headers: Optional[dict] = None) -> Task:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         task_repr = task.to_repr()
         task_repr.pop("id", None)
@@ -133,9 +133,9 @@ class ServiceApiInterface(ComponentInterface):
 
     def create_user_profile(self, wenet_user_id: str, headers: Optional[dict] = None) -> None:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.post(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}", {}, headers=headers)
 
@@ -144,9 +144,9 @@ class ServiceApiInterface(ComponentInterface):
 
     def update_user_profile(self, wenet_user_id: str, profile: CoreWeNetUserProfile, headers: Optional[dict] = None) -> WeNetUserProfile:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}", profile.to_repr(), headers=headers)
 
@@ -191,9 +191,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated competences of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_competences = [competence.to_repr() if isinstance(competence, Competence) else competence for competence in competences]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/competences", raw_competences, headers=headers)
@@ -239,9 +239,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated materials of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_materials = [material.to_repr() if isinstance(material, Material) else material for material in materials]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/materials", raw_materials, headers=headers)
@@ -287,9 +287,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated meanings of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_meanings = [meaning.to_repr() if isinstance(meaning, Meaning) else meaning for meaning in meanings]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/meanings", raw_meanings, headers=headers)
@@ -335,9 +335,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated norms of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_norms = [norm.to_repr() if isinstance(norm, ProtocolNorm) else norm for norm in norms]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/norms", raw_norms, headers=headers)
@@ -383,9 +383,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated personal behaviors of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_personal_behaviors = [personal_behavior.to_repr() if isinstance(personal_behavior, PersonalBehavior) else personal_behavior for personal_behavior in personal_behaviors]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/personalBehaviors", raw_personal_behaviors, headers=headers)
@@ -431,9 +431,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated planned activities of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_planned_activities = [planned_activity.to_repr() if isinstance(planned_activity, PlannedActivity) else planned_activity for planned_activity in planned_activities]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/plannedActivities", raw_planned_activities, headers=headers)
@@ -451,7 +451,7 @@ class ServiceApiInterface(ComponentInterface):
                               weight_to: Optional[float] = None,
                               order: Optional[str] = None,
                               offset: int = 0,
-                              limit: int = 10,
+                              limit: int = 100,
                               headers: Optional[dict] = None) -> RelationshipPage:
         """
 
@@ -548,9 +548,9 @@ class ServiceApiInterface(ComponentInterface):
         :return:
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_relationships = [relationship.to_repr() for relationship in relationships]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relationships", raw_relationships, headers=headers)
@@ -596,9 +596,9 @@ class ServiceApiInterface(ComponentInterface):
             The updated relevant locations of the profile
         """
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         raw_relevant_locations = [relevant_location.to_repr() if isinstance(relevant_location, RelevantLocation) else relevant_location for relevant_location in relevant_locations]
         response = self._client.put(f"{self._base_url}{self.USER_ENDPOINT}/profile/{wenet_user_id}/relevantLocations", raw_relevant_locations, headers=headers)
@@ -790,9 +790,9 @@ class ServiceApiInterface(ComponentInterface):
 
     def get_all_tasks_of_application(self, app_id: str, headers: Optional[dict] = None) -> List[Task]:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         tasks = []
         response = self._client.get(f"{self._base_url}{self.TASK_ENDPOINT}s",
@@ -815,9 +815,9 @@ class ServiceApiInterface(ComponentInterface):
 
     def log_message(self, message: BaseMessage, headers: Optional[dict] = None) -> None:
         if headers is not None:
-            headers.update(self._base_headers)
+            headers.update(self._json_body_headers)
         else:
-            headers = self._base_headers
+            headers = self._json_body_headers
 
         response = self._client.post(f"{self._base_url}{self.LOG_ENDPOINT}", body=message.to_repr(), headers=headers)
 
