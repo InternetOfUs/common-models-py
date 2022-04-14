@@ -28,7 +28,6 @@ class ComponentInterface(ABC):
 
         self._json_body_headers.update(self._base_headers)
 
-
         if extra_headers:
             self._json_body_headers.update(extra_headers)
 
