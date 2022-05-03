@@ -58,6 +58,20 @@ class TestTransaction(TestCase):
         transaction = TaskTransaction(None, "task_id", "label", 123456, 1234567, "actioneer", {})
         self.assertEqual(transaction, TaskTransaction.from_repr(transaction.to_repr()))
 
+    def test_repr_without_creation_ts(self):
+        transaction = TaskTransaction(None, "task_id", "label", None, 1234567, "actioneer", {})
+        to_repr = transaction.to_repr()
+
+        self.assertNotIn("_creationTs", to_repr)
+        self.assertEqual(transaction, TaskTransaction.from_repr(to_repr))
+
+    def test_repr_without_last_update_ts(self):
+        transaction = TaskTransaction(None, "task_id", "label", 1234567, None, "actioneer", {})
+        to_repr = transaction.to_repr()
+
+        self.assertNotIn("_lastUpdateTs", to_repr)
+        self.assertEqual(transaction, TaskTransaction.from_repr(to_repr))
+
 
 class TestTaskTransactionPage(TestCase):
     def test_repr(self):
