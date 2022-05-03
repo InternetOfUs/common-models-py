@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.model.callback_message.message import TaskProposalNotification, TextualMessage
+from wenet.model.callback_message.message import Message
 from wenet.model.task.transaction import TaskTransaction, TaskTransactionPage
 
 
@@ -38,11 +38,11 @@ class TestTransaction(TestCase):
         self.assertNotEqual(task_transaction, task_transaction5)
 
     def test_repr(self):
-        message_1 = TaskProposalNotification("app_id", "receiver_id", {
+        message_1 = Message("app_id", "receiver_id", "TextualMessage", {
             "communityId": "communityId",
             "taskId": "taskID",
         })
-        message_2 = TextualMessage("app_id", "receiver_id", "title", "text", {
+        message_2 = Message("app_id", "receiver_id", "Message", {
             "communityId": "communityId",
             "taskId": "taskID",
         })
