@@ -2,7 +2,7 @@ from __future__ import absolute_import, annotations
 
 from unittest import TestCase
 
-from wenet.model.callback_message.message import TaskProposalNotification, TextualMessage
+from wenet.model.callback_message.message import Message
 from wenet.model.task.transaction import TaskTransaction, TaskTransactionPage
 
 
@@ -38,11 +38,11 @@ class TestTransaction(TestCase):
         self.assertNotEqual(task_transaction, task_transaction5)
 
     def test_repr(self):
-        message_1 = TaskProposalNotification("app_id", "receiver_id", {
+        message_1 = Message("app_id", "receiver_id", "TextualMessage", {
             "communityId": "communityId",
             "taskId": "taskID",
         })
-        message_2 = TextualMessage("app_id", "receiver_id", "title", "text", {
+        message_2 = Message("app_id", "receiver_id", "Message", {
             "communityId": "communityId",
             "taskId": "taskID",
         })
@@ -57,6 +57,20 @@ class TestTransaction(TestCase):
     def test_repr_without_id(self):
         transaction = TaskTransaction(None, "task_id", "label", 123456, 1234567, "actioneer", {})
         self.assertEqual(transaction, TaskTransaction.from_repr(transaction.to_repr()))
+
+    def test_repr_without_creation_ts(self):
+        transaction = TaskTransaction(None, "task_id", "label", None, 1234567, "actioneer", {})
+        to_repr = transaction.to_repr()
+
+        self.assertNotIn("_creationTs", to_repr)
+        self.assertEqual(transaction, TaskTransaction.from_repr(to_repr))
+
+    def test_repr_without_last_update_ts(self):
+        transaction = TaskTransaction(None, "task_id", "label", 1234567, None, "actioneer", {})
+        to_repr = transaction.to_repr()
+
+        self.assertNotIn("_lastUpdateTs", to_repr)
+        self.assertEqual(transaction, TaskTransaction.from_repr(to_repr))
 
 
 class TestTaskTransactionPage(TestCase):

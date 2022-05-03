@@ -2,6 +2,12 @@
 
 ## Version 5.*
 
+### 5.0.1
+
+:bug: Bug fixes
+* _creationTs and the _lastUpdateTs are no longer mandatory in the TaskTransaction model
+* Removed Ask4Help and EatTogether models
+
 ### 5.0.0
 
 :boom: Breaking changes

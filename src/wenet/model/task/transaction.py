@@ -7,7 +7,7 @@ from wenet.model.callback_message.message import Message
 
 class TaskTransaction:
 
-    def __init__(self, transaction_id: Optional[str], task_id: str, label: str, creation_ts: int, last_update_ts: int,
+    def __init__(self, transaction_id: Optional[str], task_id: str, label: str, creation_ts: Optional[int], last_update_ts: Optional[int],
                  actioneer_id: str, attributes: Optional[dict], messages: Optional[List[Message]] = None):
         self.task_id = task_id
         self.label = label
@@ -37,27 +37,28 @@ class TaskTransaction:
             "taskId": self.task_id,
             "label": self.label,
             "attributes": self.attributes,
-            "_creationTs": self.creation_ts,
-            "_lastUpdateTs": self.last_update_ts,
             "actioneerId": self.actioneer_id,
             "messages": [message.to_repr() for message in self.messages],
         }
         if self.id:
             repr_dict.update({"id": self.id})
+        if self.creation_ts is not None:
+            repr_dict["_creationTs"] = self.creation_ts
+        if self.last_update_ts is not None:
+            repr_dict["_lastUpdateTs"] = self.last_update_ts
         return repr_dict
 
     @staticmethod
     def from_repr(raw_data: dict) -> TaskTransaction:
         return TaskTransaction(
-            raw_data.get("id", None),
-            raw_data["taskId"],
-            raw_data["label"],
-            raw_data["_creationTs"],
-            raw_data["_lastUpdateTs"],
-            raw_data["actioneerId"],
-            raw_data.get("attributes", None) if raw_data.get("attributes", None) else None,
-            [Message.from_repr(message) for message in raw_data.get("messages", [])]
-            if raw_data.get("messages", None) else None
+            transaction_id=raw_data.get("id", None),
+            task_id=raw_data["taskId"],
+            label=raw_data["label"],
+            creation_ts=raw_data.get("_creationTs", None),
+            last_update_ts=raw_data.get("_lastUpdateTs", None),
+            actioneer_id=raw_data["actioneerId"],
+            attributes=raw_data.get("attributes", None) if raw_data.get("attributes", None) else None,
+            messages=[Message.from_repr(message) for message in raw_data.get("messages", [])] if raw_data.get("messages", None) else None
         )
 
     def __eq__(self, o) -> bool:
