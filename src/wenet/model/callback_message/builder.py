@@ -1,53 +1,6 @@
 from __future__ import absolute_import, annotations
 
 from wenet.model.callback_message.event import Event, WeNetAuthenticationEvent
-from wenet.model.callback_message.message import TextualMessage, Message, TaskConcludedNotification, \
-    TaskVolunteerNotification, TaskProposalNotification, TaskSelectionNotification, IncentiveMessage, IncentiveBadge, \
-    QuestionToAnswerMessage, AnsweredQuestionMessage, AnsweredPickedMessage
-
-
-class MessageBuilder:
-
-    @staticmethod
-    def build(raw_message: dict) -> Message:
-        """
-        It may raise ValueError or KeyError, to be caught where this method is used
-
-        :param raw_message: the raw message representation
-        :return Message: the message model
-        :raises ValueError KeyError:
-        """
-        message_label = raw_message["label"]
-        if message_label == TextualMessage.LABEL:
-            message = TextualMessage.from_repr(raw_message)
-        elif message_label == TaskConcludedNotification.LABEL:
-            message = TaskConcludedNotification.from_repr(raw_message)
-        elif message_label == TaskVolunteerNotification.LABEL:
-            message = TaskVolunteerNotification.from_repr(raw_message)
-        elif message_label == TaskProposalNotification.LABEL:
-            message = TaskProposalNotification.from_repr(raw_message)
-        elif message_label == TaskSelectionNotification.LABEL:
-            message = TaskSelectionNotification.from_repr(raw_message)
-        elif message_label == IncentiveMessage.LABEL:
-            message = IncentiveMessage.from_repr(raw_message)
-        elif message_label == IncentiveBadge.LABEL:
-            message = IncentiveBadge.from_repr(raw_message)
-        elif message_label == "INCENTIVE":
-            if "IncentiveType" in raw_message["attributes"] and raw_message["attributes"]["IncentiveType"] == "Message":
-                message = IncentiveMessage.from_repr(raw_message)
-            elif "IncentiveType" in raw_message["attributes"] and raw_message["attributes"]["IncentiveType"] == "Badge":
-                message = IncentiveBadge.from_repr(raw_message)
-            else:
-                message = Message.from_repr(raw_message)
-        elif message_label == QuestionToAnswerMessage.LABEL:
-            message = QuestionToAnswerMessage.from_repr(raw_message)
-        elif message_label == AnsweredQuestionMessage.LABEL:
-            message = AnsweredQuestionMessage.from_repr(raw_message)
-        elif message_label == AnsweredPickedMessage.LABEL:
-            return AnsweredPickedMessage.from_repr(raw_message)
-        else:
-            message = Message.from_repr(raw_message)
-        return message
 
 
 class EventBuilder:

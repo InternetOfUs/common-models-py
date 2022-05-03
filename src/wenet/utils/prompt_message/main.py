@@ -10,19 +10,20 @@ import requests
 
 from wenet.interface.client import NoAuthenticationClient
 from wenet.interface.hub import HubInterface
-from wenet.model.callback_message.message import TextualMessage
+from wenet.model.callback_message.message import Message
 
 
 logger = logging.getLogger("wenet.utils.prompt_message")
 
 
 def message_for_user(app_id: str, receiver_id: str, text: str, app_callback: str, title: str = "") -> None:
-    message = TextualMessage(
-        app_id,
-        receiver_id,
-        title,
-        text,
-        {
+    message = Message(
+        app_id=app_id,
+        receiver_id=receiver_id,
+        label="TextualMessage",
+        attributes={
+            "title": title,
+            "text": text,
             "communityId": None,
             "taskId": None
         }
