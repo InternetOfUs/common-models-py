@@ -1,5 +1,9 @@
 # Wenet common models - Changelog
 
+## Version 1.0.4
+
+- Fixed the task and profile models not using anymore the old norm model
+
 ## Version 1.0.3
 
 - Added script for sending prompt message to users
