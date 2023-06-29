@@ -29,3 +29,26 @@ class LoggerInterface(ComponentInterface):
             return response.json()["traceIds"]
         else:
             raise self.get_api_exception_for_response(response)
+
+    def delete_user_messages(self, user_id: Optional[str] = None,
+                             message_id: Optional[str] = None,
+                             project: Optional[str] = None,
+                             trace_id: Optional[str] = None,
+                             headers: Optional[dict] = None):
+
+        if headers is not None:
+            headers.update(self._json_body_headers)
+        else:
+            headers = self._json_body_headers
+
+        parmas = {
+            "userId": user_id,
+            "messageId": message_id,
+            "project": project,
+            "traceId": trace_id
+        }
+
+        response = self._client.delete(f"{self._base_url}/messages", query_params=parmas, headers=headers)
+
+        if response.status_code not in [200, 201]:
+            raise self.get_api_exception_for_response(response)

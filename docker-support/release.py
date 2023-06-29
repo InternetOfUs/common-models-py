@@ -62,7 +62,7 @@ class Release:
 
 class Version:
 
-    def __init__(self, major: int, minor: int, patch: int, other: Optional[str] = None) -> None:
+    def __init__(self, major: str, minor: str, patch: str, other: Optional[str] = None) -> None:
         self.major = major
         self.minor = minor
         self.patch = patch
@@ -76,9 +76,9 @@ class Version:
         result = re.search("([0-9]+).([0-9]+).([0-9]+)([a-zA-Z.\-]+)?", raw_version)
         if result:
             return Version(
-                int(result.group(1)),
-                int(result.group(2)),
-                int(result.group(3)),
+                result.group(1),
+                result.group(2),
+                result.group(3),
                 other=result.group(4),
             )
         else:
@@ -173,13 +173,24 @@ if __name__ == "__main__":
         gl = gitlab.Gitlab(args.gitlab_url, private_token=args.api_token)
 
         project = gl.projects.get(project_id, lazy=True)
+
+        milestone_label = version.label(with_minor=False)
+        logging.debug(f"Verifying existence of milestone [{milestone_label}].")
+        try:
+            milestone = project.milestones.get(milestone_label)
+            release_milestone = milestone_label
+            logging.info(f"Associating new release to milestone [{release_milestone}].")
+        except Exception as e:
+            release_milestone = None
+            logging.info(f"Creating new release without a milestone [{release_milestone}].")
+
         release_details = {
             "name": release_tag,
             "tag_name": release_tag,
             "description": release_description,
             "milestones": [
-                version.label(with_minor=False)
-            ]
+                release_milestone
+            ] if release_milestone else []
         }
 
         logging.debug(f"New release ready to be created: {release_details}")
@@ -211,19 +222,22 @@ if __name__ == "__main__":
             }
             logging.debug(f"New issue ready to be created: {issue_description}.")
             if not dry_run:
-                new_issue = target_project.issues.create(issue_description)
-                logging.debug(f"New issue [{new_issue.id}] for release [{release_tag}] and project [{project_name}] created.")
+                try:
+                    new_issue = target_project.issues.create(issue_description)
+                    logging.debug(f"New issue [{new_issue.id}] for release [{release_tag}] and project [{project_name}] created.")
 
-                # Closing older issues that are still open.
-                open_issues = target_project.issues.list(state="opened")
-                for issue in open_issues:
-                    if f"Update to {project_name} version" in issue.title and issue.iid != new_issue.iid:
-                        logging.debug(f"Issue {issue.iid} represents an older release of project [{project_name}]: it should be closed.")
-                        # Comment on the issue about new available version.
-                        issue.notes.create({"body": f"A newer version [{release_tag}]({project_url}/-/releases/{release_tag}) has been released (details are available in #{new_issue.iid}). I am closing this issue."})
-                        # Close the issue.
-                        issue.state_event = "close"
-                        issue.save()
+                    # Closing older issues that are still open.
+                    open_issues = target_project.issues.list(state="opened")
+                    for issue in open_issues:
+                        if f"Update to {project_name} version" in issue.title and issue.iid != new_issue.iid:
+                            logging.debug(f"Issue {issue.iid} represents an older release of project [{project_name}]: it should be closed.")
+                            # Comment on the issue about new available version.
+                            issue.notes.create({"body": f"A newer version [{release_tag}]({project_url}/-/releases/{release_tag}) has been released (details are available in #{new_issue.iid}). I am closing this issue."})
+                            # Close the issue.
+                            issue.state_event = "close"
+                            issue.save()
+                except Exception as e:
+                    logging.warning(f"Could not issue release for project [{target_project.id}]. Skipping..")
 
     elif args.command == "slack":
         logging.info(f"Notifying on Slack new release [{release_tag}].")

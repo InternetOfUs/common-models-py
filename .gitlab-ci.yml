@@ -130,6 +130,7 @@ unit:production:
 
 coverage:production:
   stage: test
+  coverage: '/^TOTAL.+?(\d+\%)$/'
   image: public.registry.u-hopper.com/python:3.8
   allow_failure: true
   script:
@@ -154,7 +155,9 @@ coverage:production:
     when: always
     reports:
       junit: src/report.xml
-      cobertura: src/coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: src/coverage.xml
   needs: []
   only:
     - tags
@@ -180,6 +183,7 @@ package:pip-library:
 
 coverage:staging:
   stage: test
+  coverage: '/^TOTAL.+?(\d+\%)$/'
   image: public.registry.u-hopper.com/python:3.8
   allow_failure: true
   script:
@@ -204,7 +208,9 @@ coverage:staging:
     when: always
     reports:
       junit: src/report.xml
-      cobertura: src/coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: src/coverage.xml
   needs: []
   only:
     - develop
@@ -265,6 +271,7 @@ unit:mr:
 
 coverage:mr:
   stage: test
+  coverage: '/^TOTAL.+?(\d+\%)$/'
   image: public.registry.u-hopper.com/python:3.8
   allow_failure: true
   script:
@@ -289,7 +296,9 @@ coverage:mr:
     when: always
     reports:
       junit: src/report.xml
-      cobertura: src/coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: src/coverage.xml
   needs: []
   only:
     - merge_requests
