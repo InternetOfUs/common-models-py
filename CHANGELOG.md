@@ -2,6 +2,12 @@
 
 ## Version 5.*
 
+### 5.1.0
+
+:rocket: New features
+* Added support for data deletion in logger and incentive server
+* Added interface for ILog
+
 ### 5.0.1
 
 :bug: Bug fixes

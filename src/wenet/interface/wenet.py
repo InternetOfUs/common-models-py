@@ -4,6 +4,7 @@ from typing import Optional
 
 from wenet.interface.client import RestClient
 from wenet.interface.hub import HubInterface
+from wenet.interface.ilog import IlogInterface
 from wenet.interface.incentive_server import IncentiveServerInterface
 from wenet.interface.logger import LoggerInterface
 from wenet.interface.profile_manager import ProfileManagerInterface
@@ -19,7 +20,8 @@ class WeNet:
                  incentive_server: IncentiveServerInterface,
                  task_manager: TaskManagerInterface,
                  logger: LoggerInterface,
-                 hub: HubInterface
+                 hub: HubInterface,
+                 ilog: IlogInterface
                  ):
         self.service_api = service_api
         self.profile_manager = profile_manager
@@ -27,6 +29,7 @@ class WeNet:
         self.task_manager = task_manager
         self.logger = logger
         self.hub = hub
+        self.ilog = ilog
 
     @staticmethod
     def build(client: RestClient, platform_url: str = "https://internetofus.u-hopper.com/prod", extra_headers: Optional[dict] = None) -> WeNet:
@@ -47,5 +50,6 @@ class WeNet:
             incentive_server=IncentiveServerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
             task_manager=TaskManagerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
             logger=LoggerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
-            hub=HubInterface(client, platform_url=platform_url, extra_headers=extra_headers)
+            hub=HubInterface(client, platform_url=platform_url, extra_headers=extra_headers),
+            ilog=IlogInterface(client, platform_url=platform_url, extra_headers=extra_headers)
         )
