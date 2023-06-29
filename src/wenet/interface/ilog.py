@@ -2,10 +2,10 @@ from __future__ import absolute_import, annotations
 
 import logging
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
-from wenet.interface.component import ComponentInterface
 from wenet.interface.client import RestClient
+from wenet.interface.component import ComponentInterface
 
 logger = logging.getLogger("wenet.interface.ilog")
 
@@ -15,7 +15,6 @@ class IlogInterface(ComponentInterface):
     def __init__(self, client: RestClient, platform_url: str, component_path: str = "/streambase", extra_headers: Optional[dict] = None) -> None:
         base_url = platform_url + component_path
         super().__init__(client, base_url, extra_headers)
-
 
     def delete_user_data(self, user_id: str, from_date: datetime, to_date: datetime, headers: Optional[dict] = None) -> None:
         if headers is not None:
