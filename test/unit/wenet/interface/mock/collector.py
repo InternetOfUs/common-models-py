@@ -3,6 +3,7 @@ from __future__ import absolute_import, annotations
 from typing import Optional
 
 from wenet.interface.client import RestClient
+from wenet.interface.ilog import IlogInterface
 from wenet.interface.wenet import WeNet
 from wenet.interface.hub import HubInterface
 from wenet.interface.incentive_server import IncentiveServerInterface
@@ -22,5 +23,6 @@ class MockWeNet(WeNet):
             incentive_server=IncentiveServerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
             task_manager=TaskManagerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
             logger=LoggerInterface(client, platform_url=platform_url, extra_headers=extra_headers),
-            hub=HubInterface(client, platform_url=platform_url, extra_headers=extra_headers)
+            hub=HubInterface(client, platform_url=platform_url, extra_headers=extra_headers),
+            ilog=IlogInterface(client, platform_url=platform_url, extra_headers=extra_headers),
         )
